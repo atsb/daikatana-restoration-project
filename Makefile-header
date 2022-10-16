@@ -42,7 +42,7 @@ endif
 BASE_DIR			= $(DK_DIR)/base
 BIN_DIR				= $(DK_DIR)/bin
 DLLS_DIR			= $(DK_DIR)/dlls
-IONCOMMON_DIR		= $(DK_DIR)/ioncommon
+IONCOMMON_DIR		= $(DK_DIR)/IonCommon
 LIBENT_DIR			= $(DK_DIR)/libent
 LIBS_DIR			= $(DK_DIR)/libs
 SHARED_DIR			= $(DK_DIR)/shared
@@ -98,7 +98,7 @@ WORLD_SONAME		= world.so
 ifeq ($(MACHTYPE),sparc)
 PLATFORM_CXXFLAGS = -D__BIG_ENDIAN__
 else
-PLATFORM_CXXFLAGS = -D__i386__
+PLATFORM_CXXFLAGS =
 endif
 
 ifeq ($(OS),solaris)

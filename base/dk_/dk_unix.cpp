@@ -31,9 +31,9 @@ static	double	dk_HighRate;
 
 static	double	dk_Frequency;
 
-static	unsigned long	dk_FrameTime;
-static	unsigned long	dk_StartTime;
-static	unsigned long	dk_StopTime;
+static	unsigned int	dk_FrameTime;
+static	unsigned int	dk_StartTime;
+static	unsigned int	dk_StopTime;
 
 ///////////////////////////////////////////////////////////////////////////////
 //	functions
@@ -41,7 +41,7 @@ static	unsigned long	dk_StopTime;
 
 void	dk_GetUserName (void)
 {
-	unsigned long size = DK_MAX_USERNAME;
+	unsigned int size = DK_MAX_USERNAME;
 	if (!getlogin_r (dk_userName, &size))
 	{
 		sprintf (dk_userName, "config");

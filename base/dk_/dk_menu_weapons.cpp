@@ -298,7 +298,7 @@ bool CMenuSubWeapons::Active()
 	return bActive;
 }
 
-void CMenuSubWeapons::InitWeaponBtn(int episode, int num, unsigned long flag, const char *str)
+void CMenuSubWeapons::InitWeaponBtn(int episode, int num, unsigned int flag, const char *str)
 {
 	int idx = (episode - 1) * 6 + num;
 

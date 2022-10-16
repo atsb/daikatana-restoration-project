@@ -337,7 +337,7 @@ int NET_IPSocket (char *net_interface, int port)
 	}
 
 	// make it non-blocking
-	if (ioctl (newsocket, FIONBIO, (unsigned long *)&_true) == -1)
+	if (ioctl (newsocket, FIONBIO, (unsigned int *)&_true) == -1)
 	{
 		Com_Printf ("WARNING: UDP_OpenSocket: ioctl FIONBIO: %s\n", NET_ErrorString());
 		return 0;

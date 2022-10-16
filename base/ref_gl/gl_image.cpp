@@ -174,7 +174,7 @@ void R_OpenImageLog (void)
 {
 	char	filename[1024];
 	char			username [256];
-	unsigned long	size = 256;
+	unsigned int	size = 256;
 
 	if (!r_useimagelog->value)
 		return;

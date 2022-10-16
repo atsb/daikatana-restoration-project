@@ -722,9 +722,9 @@ protected:
 	void					QSort(config_file_t ary[], int l, int r, short field1, short field2, short field3);
 	int						QSPartition(config_file_t ary[], int l, int r, short field1, short field2, short field3);
 
-	long					sortField1;
-	long					sortField2;
-	long					sortField3;
+	int					sortField1;
+	int					sortField2;
+	int					sortField3;
 };
 
 class CInterfaceStatusText : public CInterfaceBox

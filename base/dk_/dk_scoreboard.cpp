@@ -30,7 +30,7 @@ typedef	struct
 {
 	short	int		client_index;		//	index into cl.clientinfo
 	short	int		frags;				//	number of frags this client has
-	//long			exp;				//  experience points
+	//int			exp;				//  experience points
 	short	int		level;
 	short	int		ping;				//	ping time of this client
 	short	int		time_on;			//	time this client has been on server
@@ -147,7 +147,7 @@ void SB_DrawString(int32 x, int32 y, const char *str, int32 max_pixel_width, int
 
 void SB_DrawTime(int32 x, int32 y, int32 x1)
 {
-	long time = cl.frame.playerstate.stats[STAT_TIME];
+	int time = cl.frame.playerstate.stats[STAT_TIME];
 
 	int nMinutes	= ( time / 60 ) % 60;
 	int nHours		= ( time / 3600 );

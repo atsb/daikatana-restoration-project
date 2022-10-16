@@ -274,8 +274,8 @@ void ToggleRadioState(const char *cvar_name);
 //reads the value of the cvar, and sets the check state for the radio button control.
 void SetRadioState(CInterfaceButtonRadio &control, const char *cvar_name, bool inverse = false);
 void Cvar_ForceSetValue (const char *var_name, float value);
-void ToggleCvarFlag(char *cvar_name, unsigned long flag);
-void SetRadioStateFlag(CInterfaceButtonRadio &control, const char *cvar_name, unsigned long flag, bool inverse = false) ;
+void ToggleCvarFlag(char *cvar_name, unsigned int flag);
+void SetRadioStateFlag(CInterfaceButtonRadio &control, const char *cvar_name, unsigned int flag, bool inverse = false) ;
 
 //macro that does list box hit test, returns the index that was selected, or -1 if we are off the box.
 //num is the number of visible lines from top to bottom.  x and y are the current position of the mouse.
@@ -630,7 +630,7 @@ public:
 protected:
 	void PositionControls();
 	int32 ConfiguringAxisNum();
-	unsigned long BoundAdvAxisFlags();
+	unsigned int BoundAdvAxisFlags();
 
 	void LoadAdvBindings();
 	void SaveAdvBindings();
@@ -1149,8 +1149,8 @@ protected:
 	int						secrets;
 	int						tsecrets;
 
-	long					time;
-	long					total;
+	int					time;
+	int					total;
 
 	int						episode;
 	char					title[MAX_TITLE];
@@ -1167,7 +1167,7 @@ protected:
 typedef struct weaponStruct_s
 {
 	CInterfaceButtonRadio	button;
-	unsigned long			flag;
+	unsigned int			flag;
 } weaponStruct_t;
 
 class CMenuSubWeapons : public CMenuSub
@@ -1194,7 +1194,7 @@ protected:
 	CInterfaceButton		back;
     CInterfaceLine			separator;                    // separator line
 
-	void InitWeaponBtn(int episode, int num, unsigned long flag, const char *str);
+	void InitWeaponBtn(int episode, int num, unsigned int flag, const char *str);
 };
 
 //the different modes of the multiplayer menu.

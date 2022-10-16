@@ -23,7 +23,7 @@ static	FILE	*logfile;
 void	log_open (void)
 {
 	char			userName [256];
-	unsigned long	size = 256;
+	unsigned int	size = 256;
 
 // mdm 98.02.08 - gets the username - this should probably be one function call
 //	defined differently depending on the OS

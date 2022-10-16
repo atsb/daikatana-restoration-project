@@ -516,7 +516,7 @@ void CMenuSubLoadgame::FillGameInfo()
 //	Com_sprintf(curInfo->stats[GAME_STAT_ARMOR],MAX_STAT_LEN,"%d",(int)header->hiroArmor);
 //	Com_sprintf(curInfo->stats[GAME_STAT_LEVEL],MAX_STAT_LEN,"%d",(int)header->hiroLevel);
 
-	long health;
+	int health;
 	if (header->hiroHealth)
 	{
 		Com_sprintf(curInfo->stats[GAME_STAT_HEALTH],MAX_STAT_LEN,"%d",(int)header->hiroHealth);

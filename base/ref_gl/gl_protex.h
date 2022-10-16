@@ -52,7 +52,7 @@ typedef	struct	proTex_s
 	//	for easy management of slight procedural variations
 	int			sub_type;
 
-	unsigned long	flags;
+	unsigned int	flags;
 
 	//	pointer to procedural function for this texture
 	void		(*func)(struct proTex_s *texture);	

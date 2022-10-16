@@ -1951,22 +1951,22 @@ void Cvar_ForceSetValue (const char *var_name, float value)
 	Cvar_ForceSet (var_name, val);
 }
 
-void ToggleCvarFlag(char *cvar_name, unsigned long flag)
+void ToggleCvarFlag(char *cvar_name, unsigned int flag)
 {
     if (cvar_name == NULL || cvar_name[0] == '\0') return;
 	
     //get the value of the cvar.
-    unsigned long cur_value = (unsigned long)Cvar_VariableValue(cvar_name);
+    unsigned int cur_value = (unsigned int)Cvar_VariableValue(cvar_name);
 	
 	Cvar_ForceSetValue(cvar_name,cur_value ^= flag);
 }
 
-void SetRadioStateFlag(CInterfaceButtonRadio &control, const char *cvar_name, unsigned long flag, bool inverse) 
+void SetRadioStateFlag(CInterfaceButtonRadio &control, const char *cvar_name, unsigned int flag, bool inverse) 
 {
     if (cvar_name == NULL || cvar_name[0] == '\0') return;
 	
     //get the value.
-    unsigned long cur_value = Cvar_VariableValue(cvar_name);
+    unsigned int cur_value = Cvar_VariableValue(cvar_name);
 	
     //set the check state.
 	bool check = ((cur_value & flag) != 0);

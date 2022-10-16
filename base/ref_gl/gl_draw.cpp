@@ -227,7 +227,7 @@ void GetStringSize( HDC *hMyDC, HFONT *hFont, HFONT *hOldFont,
 									  PROOF_QUALITY,			// output quality
 									  DEFAULT_PITCH |
 									  FF_DONTCARE,				// pitch and family
-									  "ÇlÇrÅ@ÉSÉVÉbÉN"				// pointer to typeface name string
+									  "\82l\82r\81@\83S\83V\83b\83N"				// pointer to typeface name string
 									);
 */
 	*hOldFont = (HFONT ) SelectObject(*hMyDC, *hFont);

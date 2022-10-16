@@ -396,9 +396,9 @@ void CMenuSubSavegame::DrawForeground()
 	DKM_DrawString( SECRETS_LEFT, SECRETS_TOP, string, NULL, false, false );
 */
 
-	long *stats = (long*)&cl.frame.playerstate.stats;
-	long time = *(stats + STAT_TIME);
-	long tTime = *(stats + STAT_TOTAL_TIME);
+	int *stats = (int*)&cl.frame.playerstate.stats;
+	int time = *(stats + STAT_TIME);
+	int tTime = *(stats + STAT_TOTAL_TIME);
 
 	int nMinutes	= ( time / 60 );
 	int nHours		= ( ( time / 60 ) / 60 );
@@ -552,7 +552,7 @@ void CMenuSubSavegame::FillGameInfo()
 //	file_field.SetText( cl_mapname );
 
 	// fill in the caption bar
-	long *stats = (long*)&cl.frame.playerstate.stats;
+	int *stats = (int*)&cl.frame.playerstate.stats;
 
 	// get the monster kill count
 	monsters = *(stats + STAT_KILLS);
@@ -569,7 +569,7 @@ void CMenuSubSavegame::FillGameInfo()
 	Com_sprintf(curInfo->stats[GAME_STAT_ARMOR],MAX_STAT_LEN,"%d",*(stats + STAT_ARMOR));
 	Com_sprintf(curInfo->stats[GAME_STAT_LEVEL],MAX_STAT_LEN,"%d",*(stats + STAT_LEVEL));
 
-	long health;
+	int health;
 	// fill in superfly's game info
 	curInfo = &game_info[GAME_INFO_SUPERFLY];
 	strcpy(curInfo->name,"Superfly");

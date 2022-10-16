@@ -1756,7 +1756,7 @@ void CMenuSubMultiplayer::DrawGameModeDeathmatch()
     SetRadioState( shotshells_radio			, CVAR_NAME_SHOTSHELLS(MPM_DEATHMATCH) );
     SetRadioState( skill_system_radio		, CVAR_NAME_SKILL_SYSTEM(MPM_DEATHMATCH) );
 /*
-	unsigned long flag;
+	unsigned int flag;
 	int i;
 	for (i = 0, flag = 1; i < 6; i++,flag <<= 1)
 	{
@@ -1818,7 +1818,7 @@ void CMenuSubMultiplayer::DrawGameModeCTF()
     SetRadioState( shotshells_radio			, CVAR_NAME_SHOTSHELLS(MPM_CTF) );
     SetRadioState( skill_system_radio		, CVAR_NAME_SKILL_SYSTEM(MPM_CTF) );
 /*
-	unsigned long flag;
+	unsigned int flag;
 	int i;
 	for (i = 0, flag = 1; i < 6; i++,flag <<= 1)
 	{
@@ -1878,7 +1878,7 @@ void CMenuSubMultiplayer::DrawGameModeDeathtag()
     SetRadioState( shotshells_radio			, CVAR_NAME_SHOTSHELLS(MPM_DEATHTAG) );
     SetRadioState( skill_system_radio		, CVAR_NAME_SKILL_SYSTEM(MPM_DEATHTAG) );
 /*
-	unsigned long flag;
+	unsigned int flag;
 	int i;
 	for (i = 0, flag = 1; i < 6; i++,flag <<= 1)
 	{
@@ -3053,7 +3053,7 @@ bool CMenuSubMultiplayer::MouseUpDeathmatch(int32 norm_x, int32 norm_y)
 	if (FLAG_RADIO_FUNC(shotshells_radio		,MouseUp( norm_x, norm_y))) { ToggleRadioState( CVAR_NAME_SHOTSHELLS(MPM_DEATHMATCH) ); return true; }
 	if (FLAG_RADIO_FUNC(skill_system_radio		,MouseUp( norm_x, norm_y))) { ToggleRadioState( CVAR_NAME_SKILL_SYSTEM(MPM_DEATHMATCH) ); return true; }
 /*
-	unsigned long flag = 1;
+	unsigned int flag = 1;
 	for (int i = 0; i < 6; i++,flag <<= 1)
 	{
 		if (FLAG_RADIO_FUNC(weapon_allow[i]		,MouseUp( norm_x, norm_y))) 
@@ -3132,7 +3132,7 @@ bool CMenuSubMultiplayer::MouseUpCTF(int32 norm_x, int32 norm_y)
 	if (FLAG_RADIO_FUNC(shotshells_radio		,MouseUp( norm_x, norm_y))) { ToggleRadioState( CVAR_NAME_SHOTSHELLS(MPM_CTF) ); return true; }
 	if (FLAG_RADIO_FUNC(skill_system_radio		,MouseUp( norm_x, norm_y))) { ToggleRadioState( CVAR_NAME_SKILL_SYSTEM(MPM_CTF) ); return true; }
 /*
-	unsigned long flag = 1;
+	unsigned int flag = 1;
 	for (int i = 0; i < 6; i++,flag <<= 1)
 	{
 		if (FLAG_RADIO_FUNC(weapon_allow[i]		,MouseUp( norm_x, norm_y))) 
@@ -3226,7 +3226,7 @@ bool CMenuSubMultiplayer::MouseUpDeathtag(int32 norm_x, int32 norm_y)
 	if (FLAG_RADIO_FUNC(shotshells_radio		,MouseUp( norm_x, norm_y))) { ToggleRadioState( CVAR_NAME_SHOTSHELLS(MPM_DEATHTAG) ); return true; }
 	if (FLAG_RADIO_FUNC(skill_system_radio		,MouseUp( norm_x, norm_y))) { ToggleRadioState( CVAR_NAME_SKILL_SYSTEM(MPM_DEATHTAG) ); return true; }
 /*
-	unsigned long flag = 1;
+	unsigned int flag = 1;
 	for (int i = 0; i < 6; i++,flag <<= 1)
 	{
 		if (FLAG_RADIO_FUNC(weapon_allow[i]		,MouseUp( norm_x, norm_y))) 

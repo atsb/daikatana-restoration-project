@@ -37,7 +37,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 typedef struct {
-	unsigned long	flags;
+	unsigned int	flags;
 	char			path [MAX_OSPATH];
 	char			fname [_MAX_FNAME];
 	char			ext [_MAX_EXT];
@@ -154,7 +154,7 @@ static int DLL_Loaded (char *filename, char *extension)
 //	
 ///////////////////////////////////////////////////////////////////////////////
 
-static void DLL_LoadPath (char *path, unsigned long flags)
+static void DLL_LoadPath (char *path, unsigned int flags)
 {
 	int		i = 0, size;
 	char	*desc;
@@ -313,7 +313,7 @@ static void DLL_CommandLine (void)
 //	name was not loaded from the command line
 ///////////////////////////////////////////////////////////////////////////////
 
-static void DLL_LoadDir (char *netpath, unsigned long flags)
+static void DLL_LoadDir (char *netpath, unsigned int flags)
 {
 	DIR *dirPtr;
 	struct dirent *direntPtr;
@@ -332,7 +332,7 @@ static void DLL_LoadDir (char *netpath, unsigned long flags)
 }
 
 #if 0
-static void DLL_LoadDir (char *netpath, unsigned long flags)
+static void DLL_LoadDir (char *netpath, unsigned int flags)
 {
 	HANDLE           dirHandle;
 	WIN32_FIND_DATA  findData;
@@ -375,7 +375,7 @@ static void DLL_LoadDir (char *netpath, unsigned long flags)
 //	pak file, do they???
 ///////////////////////////////////////////////////////////////////////////////
 
-static void DLL_SearchDirs(char *dirName, unsigned long flags)
+static void DLL_SearchDirs(char *dirName, unsigned int flags)
 {
 //	searchpath_t    *search;
 //	char             netpath [MAX_OSPATH];
@@ -412,7 +412,7 @@ static void DLL_SearchDirs(char *dirName, unsigned long flags)
 //	other DLLs it must use LoadLibrary and GetProcAddress to do so.
 ///////////////////////////////////////////////////////////////////////////////
 
-void	DLL_LoadWorld (char *dirName, unsigned long flags)
+void	DLL_LoadWorld (char *dirName, unsigned int flags)
 {
 	char	path [1024];
 

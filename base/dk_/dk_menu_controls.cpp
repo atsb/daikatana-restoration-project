@@ -943,8 +943,8 @@ void CInterfaceInputField::DisplayCompString()
 	//SetCaretPos( ( xPos + StrLen ) * cxMetrics, yPos * cyMetrics );
 	
 	// Get the Caret position
-	//CompForm.ptCurrentPos.x = (long) norm_x + INPUT_FIELD_SPACE_LEFT + bar_offset - 2;
-	//CompForm.ptCurrentPos.y = (long) norm_y + 5 - 2;
+	//CompForm.ptCurrentPos.x = (int) norm_x + INPUT_FIELD_SPACE_LEFT + bar_offset - 2;
+	//CompForm.ptCurrentPos.y = (int) norm_y + 5 - 2;
 	
 	// Show compostion
         //we are editing the text.  Copy the text, removing the portion that is off the left of the field.

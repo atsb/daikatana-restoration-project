@@ -285,36 +285,36 @@ int32 CMenuSubJoystick::ConfiguringAxisNum()
 	}
 }
 // xyzruv
-unsigned long CMenuSubJoystick::BoundAdvAxisFlags()
+unsigned int CMenuSubJoystick::BoundAdvAxisFlags()
 {
 	if (!ADVANCED)
 		return 0;
 
-	unsigned long dwFlags;
+	unsigned int dwFlags;
 	switch(config_axis.CurrentIndex())
 	{
 	case 0:		// x
-		dwFlags = ((unsigned long)joy_advaxisx->value);
+		dwFlags = ((unsigned int)joy_advaxisx->value);
 		break;
 
 	case 1:		// y
-		dwFlags = ((unsigned long)joy_advaxisy->value);
+		dwFlags = ((unsigned int)joy_advaxisy->value);
 		break;
 
 	case 2:		// z
-		dwFlags = ((unsigned long)joy_advaxisz->value);
+		dwFlags = ((unsigned int)joy_advaxisz->value);
 		break;
 
 	case 3:		// r
-		dwFlags = ((unsigned long)joy_advaxisr->value);
+		dwFlags = ((unsigned int)joy_advaxisr->value);
 		break;
 
 	case 4:		// u
-		dwFlags = ((unsigned long)joy_advaxisu->value);
+		dwFlags = ((unsigned int)joy_advaxisu->value);
 		break;
 
 	case 5:		// v
-		dwFlags = ((unsigned long)joy_advaxisv->value);
+		dwFlags = ((unsigned int)joy_advaxisv->value);
 		break;
 
 	default:
@@ -336,7 +336,7 @@ void CMenuSubJoystick::LoadAdvBindings()
 		return;
 	}
 
-	unsigned long flags = BoundAdvAxisFlags();
+	unsigned int flags = BoundAdvAxisFlags();
 
 	// extract and validate the axis
 	int32 axis = flags & 0x0000000F;
@@ -353,7 +353,7 @@ void CMenuSubJoystick::SaveAdvBindings()
 	if (!ADVANCED) return;
 
 	// get the axis from the fpsyu picker
-	unsigned long picked = ((unsigned long)pick_axis.CurrentIndex()) & 0x0000000F;
+	unsigned int picked = ((unsigned int)pick_axis.CurrentIndex()) & 0x0000000F;
 	if (!advAbsolute)
 		picked |= 0x00000010;
 

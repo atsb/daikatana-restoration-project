@@ -1,0 +1,86 @@
+;ModelName, PathName, MoveType, SolidType, Mass, Exploding, HitPoints, MinX, MinY, MinZ, MaxX, MaxY, MaxZ,GibType ,AnimSeq,seq0,seq1,seq2,seq3,seq4
+
+axe, models/e3/d3_axe.dkm, none, bbox,1,0,20,1,-10,-31,3,8,6,0,0,0,0,0,0,0
+barrel, models/e3/d3_barrel.dkm, none, bbox,1,1,10,-12,-12,-32,12,12,3,WOOD,0,0,0,0,0,0
+bed1, models/e3/d3_bed1.dkm, none, bbox,1,0,20,-66,-39,-31,67,39,-2,0,0,0,0,0,0,0
+brazier, models/e3/d3_brazier.dkm, none, bbox,1,0,20,-15,-13,-32,16,13,-2,0,0,0,0,0,0,0
+cart, models/e3/d3_cart.dkm, none, bbox,1,0,20,-18,-33,-31,18,33,7,0,0,0,0,0,0,0
+chair2, models/e3/d3_chair2.dkm, none, bbox,1,1,20,-19,-18,-32,18,18,-10,0,0,0,0,0,0,0
+crowscage, models/e3/d3_crowscage.dkm, none, bbox,1,0,20,-6,-7,-32,7,7,7,0,0,0,0,0,0,0
+dragonstatue, models/e3/d3_dragonstatue.dkm, none, bbox,1,0,20,-89,-51,-31,30,51,164,0,0,0,0,0,0,0
+fireshelf, models/e3/d3_fireshelf.dkm, none, bbox,1,0,20,1,-10,-31,16,9,-16,0,0,0,0,0,0,0
+flag1, models/e3/d3_flag1.dkm, none, bbox,1,0,20,-17,-12,-31,52,12,52,0,0,0,0,0,0,0
+flag2, models/e3/d3_flag2.dkm,  none, bbox,1,0,20,-13,-3,-32,10,3,21,0,0,0,0,0,0,0
+flag3, models/e3/d3_flag3.dkm, none, bbox,1,0,20,-17,-12,-35,52,12,52,0,0,0,0,0,0,0
+kegs, models/e3/d3_kegs.dkm, none, bbox,1,1,40,-19,-20,-32,15,19,7,0,0,0,0,0,0,0
+mug, models/e3/d3_mug.dkm, none, bbox,1,1,20,-2,-2,-32,2,4,-25,0,0,0,0,0,0,0
+skull, models/e3/d3_skull.dkm,  none, bbox,1,0,20,-6,-5,-31,6,5,-22,0,0,0,0,0,0,0
+skullgate, models/e3/d3_skullgate.dkm, none, bbox,1,0,20,-5,-130,-32,133,129,309,0,0,0,0,0,0,0
+sword, models/e3/d3_sword.dkm, none, bbox,1,0,20,1,-6,-31,2,6,24,0,0,0,0,0,0,0
+shield, models/e3/d3_shield.dkm, none, bbox,1,0,20,1,-23,-33,7,23,14,0,0,0,0,0,0,0
+table, models/e3/d3_table.dkm, none, bbox,1,1,85,-30,-46,-32,35,45,4,0,0,0,0,0,0,0
+wynorb, models/e3/d3_wynor.dkm, none, bbox,1,0,20,-24,-24,-32,24,24,154,0,0,0,0,0,0,0
+wynstand, models/e3/d3_wynstand.dkm,  none, bbox,1,0,20,-4,-8,-32,5,8,-1,0,0,0,0,0,0,0
+wynbook, models/e3/d3_wynbook.dkm, none, bbox,1,0,20,-5,-9,-32,5,9,-29,0,0,0,0,0,0,0
+winlight1, models/e3/d3_winlight1.dkm, none, bbox,1,0,20,-5,-19,-31,5,19,-8,0,0,0,0,0,0,0
+rod, models/e3/d3_rod.dkm,  none, bbox,1,0,20,-14,-14,-32,14,14,10,0,0,0,0,0,0,0
+corpse, models/e3/d3_corps.dkm, none, bbox,1,0,20,-34,-26,-35,44,26,-20,0,0,0,0,0,0,0
+barfloat, models/e3/d3_barfloat.dkm,  none, bbox,1,0,20,-12,-12,-32,12,12,4,0,0,0,0,0,0,0
+bone, models/e3/d3_bone.dkm,  none, bbox,1,0,20,-8,-1,-32,8,1,-29,0,0,0,0,0,0,0
+candle, models/e3/d3_candle.dkm,  none, bbox,1,0,20,-4,-4,-32,4,4,11,0,0,0,0,0,0,0
+crow, models/e3/d3_crow.dkm,  none, bbox,1,0,20,-14,-20,-32,6,20,-18,0,0,0,0,0,0,0
+deadtree, models/e3/d3_deadtree.dkm,  none, bbox,1,0,20,-18,-18,-31,18,18,92,0,0,0,0,0,0,0
+flask1, models/e3/d3_flask1.dkm,  none, bbox,1,0,20,-1,-1,-31,1,1,-16,0,0,0,0,0,0,0
+flask2, models/e3/d3_flask2.dkm,  none, bbox,1,0,20,-4,-3,-31,4,3,-18,0,0,0,0,0,0,0
+grain, models/e3/d3_grain.dkm,  none, bbox,1,0,20,1,-10,-32,9,9,-1,0,0,0,0,0,0,0
+rat, models/e3/d3_rat.dkm,  none, bbox,1,0,20,-8,-3,-31,18,3,-26,0,0,0,0,0,0,0
+ribcage, models/e3/d3_ribcage.dkm,  none, bbox,1,0,20,-8,-6,-32,8,6,-27,0,0,0,0,0,0,0
+stool, models/e3/d3_stool.dkm,  none, bbox,1,0,20,-7,-7,-32,7,7,-16,0,0,0,0,0,0,0
+torch, models/e3/d3_torch.dkm,  none, bbox,1,0,20,-16,-16,-24,16,16,32,0,0,0,0,0,0,0
+ice, models/e3/d3_ice.dkm,  none, bbox,1,0,20,-2,-2,-31,2,3,13,0,0,0,0,0,0,0
+alter, models/e3/d3_alter.dkm,  none, bbox,1,0,20,-21,-31,-32,20,30,-3,0,0,0,0,0,0,0
+toga, models/e3/m_toga_dude.dkm,  none, bbox,1,0,20,-16,-16,-24,16,16,32,0,0,0,0,0,0,0
+togag, models/e3/m_toga_girl.dkm,  none, bbox,1,0,20,-16,-16,-24,16,16,32,0,0,0,0,0,0,0
+flamhold, models/e3/d3_flamehold.dkm,  none, bbox,1,0,20,-16,-16,-24,16,16,32,0,0,0,0,0,0,0
+croc, models/e3/m_croco.dkm,  none, bbox,1,0,20,-16,-16,-24,16,16,32,0,0,0,0,0,0,0
+truck, models/e3/e1_truck.dkm,  none, bbox,1,0,20,-16,-16,-24,16,16,32,0,0,0,0,0,0,0
+bubcorp1, models/e3/d3_bubcorpse.dkm,  none, bbox,1,0,20,-25,-13,-33,38,19,-22,0,0,0,0,0,0,0
+bubcorp2, models/e3/d3_bubc2.dkm,  none, bbox,1,0,20,-16,-24,-33,22,19,-19,0,0,0,0,0,0,0
+bubcorp3, models/e3/d3_bubc3.dkm,  none, bbox,1,0,20,-16,-24,-33,22,19,-19,0,0,0,0,0,0,0
+bubskull, models/e3/d3_bubskull.dkm,  none, bbox,1,0,20,-3,-3,-34,5,3,-26,0,0,0,0,0,0,0
+bubspine, models/e3/d3_bubspine.dkm,  none, bbox,1,0,20,-12,-7,-32,9,9,-21,0,0,0,0,0,0,0
+flask3, models/e3/d3_flask3.dkm,  none, bbox,1,0,20,-4,-3,-31,4,3,-18,0,0,0,0,0,0,0
+flask4, models/e3/d3_flask4.dkm,  none, bbox,1,0,20,-4,-3,-31,4,3,-18,0,0,0,0,0,0,0
+cross, models/e3/e3_cross.dkm,  none, bbox,1,0,20,-16,-16,-24,16,16,32,0,0,0,0,0,0,0
+deco1, models/e3/d3_dkdeco1.dkm,  none, bbox,1,0,20,1,-45,-54,84,45,93,0,0,0,0,0,0,0
+gar2, models/e3/d3_dkgar2.dkm,  none, bbox,1,0,20,-131,-50,-30,131,100,435,0,0,0,0,0,0,0
+iceshard, models/e3/d3_iceshard.dkm,  none, bbox,1,0,20,-16,-16,-24,16,16,32,0,0,0,0,0,0,0
+wingsk, models/e3/d3_wingsk.dkm,  none, bbox,1,0,20,-16,-16,-24,16,16,32,0,0,0,0,0,0,0
+organ, models/e3/d3_organ.dkm, none, bbox,1,0,0,-32,-37,-32,18,37,33,0,0,0,0,0,0,0
+
+
+; Each line in this file contains data on the decos in the directories,,,,,,,,,,,,,,,,,,,
+"; under this directory.  Comment lines begin with a "";"" and will be ignored.",,,,,,,,,,,,,,,,,,,
+; The format of each line is:,,,,,,,,,,,,,,,,,,,
+;         ModelName, PathName, MoveType, SolidType, Mass, Exploding, HitPoints, MinX, MinY, MinZ, MaxX, MaxY, MaxZ
+;,,,,,,,,,,,,
+"; ModelName - The name of the model.  This is the value given to the ""model"" tag",,,,,,,,,,,,
+;             that was assigned when the entity was inserted into the map.,,,,,,,,,,,,
+; PathName  - The path of the .dkm file," for example ""models/deco/e2/2shield1.dkm"".",,,,,,,,,,,
+;             Do not include quotes.,,,,,,,,,,,,
+"; MoveType  - Either ""toss"""," ""bounce"""," or ""none"".  Do not include quotes.",,,,,,,,,,
+"; SolidType - Either ""bbox"" or ""not"".  Do not include quotes.",,,,,,,,,,,,
+; Mass-       The mass of the deco.  1.0 is the same as player mass, 2.0 is twice ,,,,,,,,,,,
+;             the player mass, etc.,,,,,,,,,,,
+; Exploding - 1 if the deco can be destroyed, 0 if the deco can not be destroyed.,,,,,,,,,,,
+; HitPoints - If the deco can be destroyed, this is the amount of damage it can take.,,,,,,,,,,,
+;             If the Exploding field is 0, this field is ignored.,,,,,,,,,,,
+; Min*,Max* - These fields specify the size of the object.,,,,,,,,,,,
+; GibType   - Type of gibs this thing throws off when beaten down. ,,,,,,,,,,,,
+";			  Valid settings are:  WOOD", GLASS, METAL, WHITE.... default value is 0 (which means it doesn't explode),,,,,,,,,
+; AnimSeq   - Number of animation sequences this deco has.  For decos with only one frame ,
+;             this should be zero..zilch.. nada!!!,
+"; seq0-seq4 - frames or frame sequences of animation  use ""-"" for a set of frames use ""~"" to loop the frames",
+;,
+; render fx - 0 = default, 1 = translucent
+; render fx - [if translucent, set alpha (0.0 - 1.0)]

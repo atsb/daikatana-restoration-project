@@ -1,0 +1,92 @@
+; For help, read the bottom of this file. This file belongs in the e2 directory.
+
+;[mmb 29 july] 1 change--d2_athena.dkm-->d2_athenap.dkm in this listing:
+;athenap, models/e2/d2_athena.dkm, toss, bbox, 1.0, 0, 20.0, -16, -16, -24, 16, 16, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0
+shield1, models/e2/d2_shield1.dkm, none, bbox, 1.0, 0, 20.0, -3,-22,-30,3,22,33, 0, 0, 0, 0, 0, 0, 0, 0, 0
+shield2, models/e2/d2_shield2.dkm, none, bbox, 1.0, 0, 20.0, -3,-19,-30,3,19,24, 0, 0, 0, 0, 0, 0, 0, 0, 0
+tritray, models/e2/d2_tritray.dkm, toss, bbox, 1.0, 0, 20.0, -25,-25,-24,25,25,-10, 0, 0, 0, 0, 0, 0, 0, 0, 0
+torch1, models/e2/d2_torch1.dkm, none, bbox, 1.0, 0, 20.0, -5,-10,-28,5,10,-19, 0, 0, 0, 0, 0, 0, 0, 0, 0
+torch2, models/e2/d2_torch2.dkm, none, bbox, 1.0, 0, 20.0, -9,-6,-31,9,6,-12, 0, 0, 0, 0, 0, 0, 0, 0, 0
+spillar, models/e2/d2_spillar.dkm, toss, bbox, 1.0, 0, 20.0, -8,-10,-15,8,10,27, 0, 0, 0, 0, 0, 0, 0, 0, 0
+snakefire, models/e2/d2_snakefire.dkm, toss, bbox, 1.0, 0, 20.0, -25,-24,-16,25,25,45, 0, 0, 0, 0, 0, 0, 0, 0, 0
+grkgrl, models/e2/d2_grkgrl.dkm, toss, bbox, 1.0, 0, 20.0, -16,-15,-23,19,23,37, 0, 0, 0, 0, 0, 0, 0, 0, 0
+carycol, models/e2/d2_carycol.dkm, toss, bbox, 1.0, 0, 20.0, -19,-15,-23,20,13,160, 0, 0, 0, 0, 0, 0, 0, 0, 0
+grkguy, models/e2/d2_grkguy.dkm, toss, bbox, 1.0, 0, 20.0, -12,-13,-24,11,12,44, 0, 0, 0, 0, 0, 0, 0, 0, 0
+longtree, models/e2/d2_longtree.dkm, toss, bbox, 1.0, 0, 20.0, -12,-15,-23,12,15,131, 0, 0, 0, 0, 0, 0, 0, 0, 0
+pv01, models/e2/d2_pv01.dkm, toss, bbox, 1.0, 0, 20.0, -12,-16,-24,12,16,15, 0, 0, 0, 0, 0, 0, 0, 0, 0
+pv02, models/e2/d2_pv02.dkm, toss, bbox, 1.0, 0, 20.0, -18,-21,-24,18,21,38, 0, 0, 0, 0, 0, 0, 0, 0, 0
+pv03, models/e2/d2_pv03.dkm, toss, bbox, 1.0, 0, 20.0, -14,-15,-24,12,16,6, 0, 0, 0, 0, 0, 0, 0, 0, 0
+pv04, models/e2/d2_pv04.dkm, toss, bbox, 1.0, 0, 20.0, -16,-13,-24,16,13,43, 0, 0, 0, 0, 0, 0, 0, 0, 0
+pv05, models/e2/d2_pv05.dkm, toss, bbox, 1.0, 0, 20.0, -11,-12,-24,15,9,20, 0, 0, 0, 0, 0, 0, 0, 0, 0
+vase01, models/e2/d2_vase01.dkm, toss, bbox, 1.0, 0, 20.0, -9,-19,-24,7,13,-10, 0, 0, 0, 0, 0, 0, 0, 0, 0
+vase02, models/e2/d2_vase02.dkm, toss, bbox, 1.0, 0, 20.0, -6,-11,-23,8,12,-9, 0, 0, 0, 0, 0, 0, 0, 0, 0
+vase03, models/e2/d2_vase03.dkm, toss, bbox, 1.0, 0, 20.0, -7,-9,-23,5,12,-14, 0, 0, 0, 0, 0, 0, 0, 0, 0
+vase04, models/e2/d2_vase04.dkm, toss, bbox, 1.0, 0, 20.0, -7,-9,-24,7,9,-4, 0, 0, 0, 0, 0, 0, 0, 0, 0
+vase05, models/e2/d2_vase05.dkm, toss, bbox, 1.0, 0, 20.0, -7,-9,-24,7,9,-4, 0, 0, 0, 0, 0, 0, 0, 0, 0
+vase06, models/e2/d2_vase06.dkm, toss, bbox, 1.0, 0, 20.0, -7,-7,-23,7,7,3, 0, 0, 0, 0, 0, 0, 0, 0, 0
+vase07, models/e2/d2_vase07.dkm, toss, bbox, 1.0, 0, 20.0, -5,-7,-23,11,7,2, 0, 0, 0, 0, 0, 0, 0, 0, 0
+vase08, models/e2/d2_vase08.dkm, toss, bbox, 1.0, 0, 20.0, -8,-8,-24,8,8,12, 0, 0, 0, 0, 0, 0, 0, 0, 0
+vase09, models/e2/d2_vase09.dkm, toss, bbox, 1.0, 0, 20.0, -10,-8,-24,10,8,22, 0, 0, 0, 0, 0, 0, 0, 0, 0
+vase10, models/e2/d2_vase10.dkm, toss, bbox, 1.0, 0, 20.0, -10,-10,-24,10,10,24, 0, 0, 0, 0, 0, 0, 0, 0, 0
+vasegib1, models/e2/d2_vasegib1.dkm, toss, bbox, 1.0, 0, 20.0, -1,-3,-24,1,3,-22, 0, 0, 0, 0, 0, 0, 0, 0, 0
+vasegib2, models/e2/d2_vasegib2.dkm, toss, bbox, 1.0, 0, 20.0, -3,-4,-24,3,4,-22, 0, 0, 0, 0, 0, 0, 0, 0, 0
+vasegib3, models/e2/d2_vasegib3.dkm, toss, bbox, 1.0, 0, 20.0, -3,-2,-24,3,2,-22, 0, 0, 0, 0, 0, 0, 0, 0, 0
+hedge1, models/e2/d2_hedge1.dkm, toss, bbox, 1.0, 0, 20.0, -9,-19,-26,9,19,-9, 0, 0, 0, 0, 0, 0, 0, 0, 0
+bush4, models/e2/d2_bush4.dkm, toss, bbox, 1.0, 0, 20.0, -26,-30,-18,25,28,15, 0, 0, 0, 0, 0, 0, 0, 0, 0
+bush4b, models/e2/d2_bush4b.dkm, toss, bbox, 1.0, 0, 20.0, -32,-33,-18,37,37,23, 0, 0, 0, 0, 0, 0, 0, 0, 0
+bigA, models/e2/d2_bigA.dkm, toss, bbox, 1.0, 0, 20.0, -86,-114,-31,88,142,387, 0, 0, 0, 0, 0, 0, 0, 0, 0
+athena, models/e2/d2_athena.dkm, toss, bbox, 1.0, 0, 20.0, -21,-19,-23,20,18,39, 0, 0, 0, 0, 0, 0, 0, 0, 0
+athenap, models/e2/d2_athenap.dkm, toss, bbox, 1.0, 1, 2000.0, -21,-19,-24,20,19,38, 0, 0, 0, 0, 0, 0, 0, 0, 0
+aipes, models/e2/d2_aipes.dkm, toss, bbox, 1.0, 0, 20.0, -18,-11,-24,12,19,44, 0, 0, 0, 0, 0, 0, 0, 0, 0
+aipesp, models/e2/d2_aipesp.dkm, toss, bbox, 1.0, 1, 2000.0, -18,-11,-24,12,19,44, 0, 0, 0, 0, 0, 0, 0, 0, 0
+poseidon, models/e2/d2_poseidon.dkm, toss, bbox, 1.0, 0, 20.0, -19,-23,-27,20,24,66, 0, 0, 0, 0, 0, 0, 0, 0, 0
+poseidonp, models/e2/d2_poseidonp.dkm, toss, bbox, 1.0, 1, 2000.0, -19,-23,-27,20,24,66, 0, 0, 0, 0, 0, 0, 0, 0, 0
+dovegirl, models/e2/d2_dovegirl.dkm, toss, bbox, 1.0, 0, 20.0, -12,-26,-25,13,29,4, 0, 0, 0, 0, 0, 0, 0, 0, 0
+chain1, models/e2/d2_chain1.dkm, none, bbox, 1.0, 0, 20.0, -1,-1,-24,1,1,-10, 0, 0, 0, 0, 0, 0, 0, 0, 0
+chain2, models/e2/d2_chain2.dkm, none, bbox, 1.0, 0, 20.0, -1,-2,-22,1,2,0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+candleb, models/e2/d2_candleb.dkm, toss, bbox, 1.0, 0, 20.0, -2,-2,-23,2,2,-11, 0, 0, 0, 0, 0, 0, 0, 0, 0
+candleg, models/e2/d2_candleg.dkm, toss, bbox, 1.0, 0, 20.0, -2,-2,-23,2,2,-11, 0, 0, 0, 0, 0, 0, 0, 0, 0
+candler, models/e2/d2_candler.dkm, toss, bbox, 1.0, 0, 20.0, -2,-2,-23,2,2,-11, 0, 0, 0, 0, 0, 0, 0, 0, 0
+candley, models/e2/d2_candley.dkm, toss, bbox, 1.0, 0, 20.0, -2,-2,-23,2,2,-11, 0, 0, 0, 0, 0, 0, 0, 0, 0
+chain3, models/e2/d2_chain3.dkm, none, bbox, 1.0, 0, 20.0, 0,-24,-24,19,25,-24, 0, 0, 0, 0, 0, 0, 0, 0, 0
+drape1, models/e2/d2_drape1.dkm, none, bbox, 1.0, 0, 20.0, 0,-24,-24,19,25,-24, 0, 0, 0, 0, 0, 0, 0, 0
+drape1b, models/e2/d2_drape1b.dkm, none, bbox, 1.0, 0, 20.0, -1,-5,-24,1,0,-4, 0, 0, 0, 0, 0, 0, 0, 0
+garland, models/e2/d2_garland.dkm, none, bbox, 1.0, 0, 20.0, -16, -16, -24, 16, 16, 32, 0, 0, 0, 0, 0, 0, 0, 0
+hhand, models/e2/d2_hhand.dkm, none, bbox, 1.0, 0, 20.0, -4,-10,-23,4,7,53, 0, 0, 0, 0, 0, 0, 0, 0
+hhead, models/e2/d2_hhead.dkm, none, bbox, 1.0, 0, 20.0, -3,-8,-23,7,10,43, 0, 0, 0, 0, 0, 0, 0, 0
+hleg, models/e2/d2_hleg.dkm, none, bbox, 1.0, 0, 20.0, -4,-12,-23,4,7,77, 0, 0, 0, 0, 0, 0, 0, 0
+hook, models/e2/d2_hook.dkm, none, bbox, 1.0, 0, 20.0, -1,-9,-23,1,8,36, 0, 0, 0, 0, 0, 0, 0, 0
+htorso, models/e2/d2_htorso.dkm, none, bbox, 1.0, 0, 20.0, -13,-9,-23,10,8,61, 0, 0, 0, 0, 0, 0, 0, 0
+torch1b, models/e2/d2_torch1b.dkm, none, bbox, 1.0, 0, 20.0, -5,-10,-28,5,10,-19, 0, 0, 0, 0, 0, 0, 0, 0
+torch3, models/e2/d2_torch3.dkm, none, bbox, 1.0, 0, 20.0, -15,-9,-36,8,8,-2, 0, 0, 0, 0, 0, 0, 0, 0
+snakegate, models/e2/d2_snakegate.dkm, none, bbox, 1.0, 0, 20.0, -16, -16, -24, 16, 16, 32, 0, 0, 0, 0, 0, 0, 0, 0
+skulls, models/e2/d2_skulls.dkm, toss, bbox, 1.0, 0, 20.0, -16,-17,-16,19,26,16, 0, 0, 0, 0, 0, 0, 0, 0
+d2_cart, models/e2/d2_cart.dkm, toss, bbox, 1.0, 0, 20.0, -18,-33,-17,18,33,21, 0, 0, 0, 0, 0, 0, 0, 0
+columntest, models/e2/d2_columntest.dkm, toss, bbox, 1.0, 0, 20.0, -20, -20, -24, 20, 20, 70, 0, 0, 0, 0, 0, 0, 0, 0
+
+
+; Each line in this file contains data on the decos in the directories
+; under this directory.  Comment lines begin with a ";" and will be ignored.
+; The format of each line is:
+;         ModelName, PathName, MoveType, SolidType, Mass, Exploding, HitPoints, MinX, MinY, MinZ, MaxX, MaxY, MaxZ
+;
+; ModelName- The name of the model.  This is the value given to the "model" tag
+;            that was assigned when the entity was inserted into the map.
+; PathName-  The path of the .dkm file, for example "models/e2/2shield1.dkm".
+;            Do not include quotes.
+; MoveType-  Either "toss", "bounce", or "none".  Do not include quotes.
+; SolidType- Either "bbox" or "not".  Do not include quotes.
+; Mass-      The mass of the deco.  1.0 is the same as player mass, 2.0 is twice 
+;            the player mass, etc.
+; Exploding- 1 if the deco blows up when killed, 0 if the deco just turns to debris.
+; HitPoints- If the deco can be destroyed, this is the amount of damage it can take.
+;            If the Exploding field is 0, this field is ignored.
+; Min*,Max*- These fields specify the size of the object.
+; GibType   - Type of gibs this thing throws off when beaten down. 
+;			  Valid settings are:  WOOD, GLASS, METAL, WHITE.... default value is 0 (which means it doesn't explode)
+; AnimSeq   - Number of animation sequences this deco has.  For decos with only one frame 
+;             this should be zero..zilch.. nada!!!
+; seq0-seq4 - frames or frame sequences of animation  use "-" for a set of frames use "~" to loop the frames
+;
+; render fx - 0 = default, 1 = translucent
+; render fx - [if translucent, set alpha (0.0 - 1.0)]

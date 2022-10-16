@@ -1,0 +1,81 @@
+--------------------Configuration: ref_gl - Win32 Release--------------------
+Begining build with project "F:\Daikatana\ncode\ref_gl\ref_gl.dsp", at root.
+Active configuration is Win32 (x86) Dynamic-Link Library (based on Win32 (x86) Dynamic-Link Library)
+
+Project's tools are:
+			"32-bit C/C++ Compiler for 80x86" with flags "/nologo /G5 /ML /W3 /GX /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /FR".\Release/" /Fp".\Release/ref_gl.pch" /YX /Fo".\Release/" /Fd".\Release/" /FD /c "
+			"OLE Type Library Maker" with flags "/nologo /D "NDEBUG" /mktyplib203 /win32 "
+			"Win32 Resource Compiler" with flags "/l 0x409 /d "NDEBUG" "
+			"Browser Database Maker" with flags "/nologo /o"..\Release/ref_gl.bsc" "
+			"COFF Linker for 80x86" with flags "kernel32.lib user32.lib gdi32.lib winmm.lib /nologo /subsystem:windows /dll /incremental:no /pdb:"..\Release/ref_gl.pdb" /machine:I386 /def:".\ref_gl.def" /out:"..\Release/ref_gl.dll" /implib:"..\Release/ref_gl.lib" "
+			"Custom Build" with flags ""
+			"<Component 0xa>" with flags ""
+
+Creating temp file "C:\WINNT\TEMP\RSPAB5.tmp" with contents </nologo /G5 /ML /W3 /GX /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /FR".\Release/" /Fp".\Release/ref_gl.pch" /YX /Fo".\Release/" /Fd".\Release/" /FD /c 
+"F:\Daikatana\user\dk_shared.c"
+"F:\Daikatana\ncode\ref_gl\gl_draw.c"
+"F:\Daikatana\ncode\ref_gl\gl_image.c"
+"F:\Daikatana\ncode\ref_gl\gl_light.c"
+"F:\Daikatana\ncode\ref_gl\gl_mesh.c"
+"F:\Daikatana\ncode\ref_gl\gl_model.c"
+"F:\Daikatana\ncode\ref_gl\gl_rmain.c"
+"F:\Daikatana\ncode\ref_gl\gl_rmisc.c"
+"F:\Daikatana\ncode\ref_gl\gl_rsurf.c"
+"F:\Daikatana\ncode\ref_gl\gl_warp.c"
+"F:\Daikatana\ncode\win32\glw_imp.c"
+"F:\Daikatana\ncode\win32\q_shwin.c"
+"F:\Daikatana\ncode\win32\qgl_win.c"
+>
+Creating command line "cl.exe @C:\WINNT\TEMP\RSPAB5.tmp" 
+Creating temp file "C:\WINNT\TEMP\RSPAB6.tmp" with contents <kernel32.lib user32.lib gdi32.lib winmm.lib /nologo /subsystem:windows /dll /incremental:no /pdb:"..\Release/ref_gl.pdb" /machine:I386 /def:".\ref_gl.def" /out:"..\Release/ref_gl.dll" /implib:"..\Release/ref_gl.lib" 
+.\Release\dk_shared.obj
+.\Release\gl_draw.obj
+.\Release\gl_image.obj
+.\Release\gl_light.obj
+.\Release\gl_mesh.obj
+.\Release\gl_model.obj
+.\Release\gl_rmain.obj
+.\Release\gl_rmisc.obj
+.\Release\gl_rsurf.obj
+.\Release\gl_warp.obj
+.\Release\glw_imp.obj
+.\Release\q_shwin.obj
+.\Release\qgl_win.obj>
+Creating command line "link.exe @C:\WINNT\TEMP\RSPAB6.tmp" 
+Compiling...
+dk_shared.c
+gl_draw.c
+gl_image.c
+gl_light.c
+gl_mesh.c
+gl_model.c
+gl_rmain.c
+gl_rmisc.c
+gl_rsurf.c
+gl_warp.c
+glw_imp.c
+q_shwin.c
+qgl_win.c
+Linking...
+   Creating library ..\Release/ref_gl.lib and object ..\Release/ref_gl.exp
+LINK : warning LNK4089: all references to "WINMM.dll" discarded by /OPT:REF
+Creating temp file "C:\WINNT\TEMP\RSPAB8.tmp" with contents </nologo /o"..\Release/ref_gl.bsc" 
+.\Release\dk_shared.sbr
+.\Release\gl_draw.sbr
+.\Release\gl_image.sbr
+.\Release\gl_light.sbr
+.\Release\gl_mesh.sbr
+.\Release\gl_model.sbr
+.\Release\gl_rmain.sbr
+.\Release\gl_rmisc.sbr
+.\Release\gl_rsurf.sbr
+.\Release\gl_warp.sbr
+.\Release\glw_imp.sbr
+.\Release\q_shwin.sbr
+.\Release\qgl_win.sbr>
+Creating command line "bscmake.exe @C:\WINNT\TEMP\RSPAB8.tmp" 
+Creating browse info file...
+
+
+
+ref_gl.dll - 0 error(s), 1 warning(s)

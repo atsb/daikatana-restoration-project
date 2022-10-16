@@ -1,0 +1,8 @@
+LIBRARY AudioImp_DSound3d.dll
+EXPORTS
+	GetPluginDesc			  @1
+	GetNumPlugins			  @2
+
+;	GetAudioImp               @2 PRIVATE          ; object creation
+;	ReleaseAudioImp           @3 PRIVATE          ; object destruction
+

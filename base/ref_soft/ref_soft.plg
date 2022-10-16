@@ -1,0 +1,220 @@
+--------------------Configuration: ref_soft - Win32 Debug--------------------
+Begining build with project "F:\Daikatana\ncode\ref_soft\ref_soft.dsp", at root.
+Active configuration is Win32 (x86) Dynamic-Link Library (based on Win32 (x86) Dynamic-Link Library)
+
+Project's tools are:
+			"32-bit C/C++ Compiler for 80x86" with flags "/nologo /G5 /MD /W3 /Gm /GX /Zi /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /FR".\Debug/" /Fp".\Debug/ref_soft.pch" /YX /Fo".\Debug/" /Fd".\Debug/" /FD /c "
+			"OLE Type Library Maker" with flags "/nologo /D "_DEBUG" /mktyplib203 /win32 "
+			"Win32 Resource Compiler" with flags "/l 0x409 /d "_DEBUG" "
+			"Browser Database Maker" with flags "/nologo /o"..\Debug/ref_soft.bsc" "
+			"COFF Linker for 80x86" with flags "winmm.lib kernel32.lib user32.lib gdi32.lib /nologo /subsystem:windows /dll /profile /debug /machine:I386 /nodefaultlib:"libc" /def:".\ref_soft.def" /out:"..\Debug/ref_soft.dll" /implib:"..\Debug/ref_soft.lib" "
+			"Custom Build" with flags ""
+			"<Component 0xa>" with flags ""
+
+Creating temp file "C:\WINNT\TEMP\RSPACE.bat" with contents <@echo off
+ml /c /Cp /coff /Fo.\..\Debug\r_varsa.obj /Zm /Zi .\r_varsa.asm
+>
+Creating command line "C:\WINNT\TEMP\RSPACE.bat" 
+Creating temp file "C:\WINNT\TEMP\RSPACF.bat" with contents <@echo off
+ml /c /Cp /coff /Fo.\..\Debug\r_surf8.obj /Zm /Zi .\r_surf8.asm
+>
+Creating command line "C:\WINNT\TEMP\RSPACF.bat" 
+Creating temp file "C:\WINNT\TEMP\RSPAD0.bat" with contents <@echo off
+ml /c /Cp /coff /Fo.\..\Debug\r_spr8.obj /Zm /Zi .\r_spr8.asm
+>
+Creating command line "C:\WINNT\TEMP\RSPAD0.bat" 
+Creating temp file "C:\WINNT\TEMP\RSPAD1.bat" with contents <@echo off
+ml /c /Cp /coff /Fo.\..\Debug\r_scana.obj /Zm /Zi .\r_scana.asm
+>
+Creating command line "C:\WINNT\TEMP\RSPAD1.bat" 
+Creating temp file "C:\WINNT\TEMP\RSPAD2.bat" with contents <@echo off
+ml /c /Cp /coff /Fo.\..\Debug\r_polysa.obj /Zm /Zi .\r_polysa.asm
+>
+Creating command line "C:\WINNT\TEMP\RSPAD2.bat" 
+Creating temp file "C:\WINNT\TEMP\RSPAD3.bat" with contents <@echo off
+ml /c /Cp /coff /Fo.\..\Debug\r_edgea.obj /Zm /Zi .\r_edgea.asm
+>
+Creating command line "C:\WINNT\TEMP\RSPAD3.bat" 
+Creating temp file "C:\WINNT\TEMP\RSPAD4.bat" with contents <@echo off
+ml /c /Cp /coff /Fo.\..\Debug\r_drawf16.obj /Zm /Zi .\r_drawf16.asm
+>
+Creating command line "C:\WINNT\TEMP\RSPAD4.bat" 
+Creating temp file "C:\WINNT\TEMP\RSPAD5.bat" with contents <@echo off
+ml /c /Cp /coff /Fo.\..\Debug\r_drawa.obj /Zm /Zi .\r_drawa.asm
+>
+Creating command line "C:\WINNT\TEMP\RSPAD5.bat" 
+Creating temp file "C:\WINNT\TEMP\RSPAD6.bat" with contents <@echo off
+ml /c /Cp /coff /Fo.\..\Debug\r_draw16.obj /Zm /Zi .\r_draw16.asm
+>
+Creating command line "C:\WINNT\TEMP\RSPAD6.bat" 
+Creating temp file "C:\WINNT\TEMP\RSPAD7.bat" with contents <@echo off
+ml /c /Cp /coff /Fo.\..\Debug\r_aclipa.obj /Zm /Zi .\r_aclipa.asm
+>
+Creating command line "C:\WINNT\TEMP\RSPAD7.bat" 
+Creating temp file "C:\WINNT\TEMP\RSPAD8.tmp" with contents </nologo /G5 /MD /W3 /Gm /GX /Zi /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /FR".\Debug/" /Fp".\Debug/ref_soft.pch" /YX /Fo".\Debug/" /Fd".\Debug/" /FD /c 
+"F:\Daikatana\user\dk_shared.c"
+"F:\Daikatana\ncode\win32\q_shwin.c"
+"F:\Daikatana\ncode\ref_soft\r_aclip.c"
+"F:\Daikatana\ncode\ref_soft\r_alias.c"
+"F:\Daikatana\ncode\ref_soft\r_bmp.c"
+"F:\Daikatana\ncode\ref_soft\r_bsp.c"
+"F:\Daikatana\ncode\ref_soft\r_draw.c"
+"F:\Daikatana\ncode\ref_soft\r_edge.c"
+"F:\Daikatana\ncode\ref_soft\r_image.c"
+"F:\Daikatana\ncode\ref_soft\r_light.c"
+"F:\Daikatana\ncode\ref_soft\r_main.c"
+"F:\Daikatana\ncode\ref_soft\r_misc.c"
+"F:\Daikatana\ncode\ref_soft\r_model.c"
+"F:\Daikatana\ncode\ref_soft\r_part.c"
+"F:\Daikatana\ncode\ref_soft\r_poly.c"
+"F:\Daikatana\ncode\ref_soft\r_polyse.c"
+"F:\Daikatana\ncode\ref_soft\r_rast.c"
+"F:\Daikatana\ncode\ref_soft\r_scan.c"
+"F:\Daikatana\ncode\ref_soft\r_sprite.c"
+"F:\Daikatana\ncode\ref_soft\r_surf.c"
+"F:\Daikatana\ncode\win32\rw_ddraw.c"
+"F:\Daikatana\ncode\win32\rw_dib.c"
+"F:\Daikatana\ncode\win32\rw_imp.c"
+>
+Creating command line "cl.exe @C:\WINNT\TEMP\RSPAD8.tmp" 
+Performing Custom Build Step
+Microsoft (R) Macro Assembler Version 6.11
+Copyright (C) Microsoft Corp 1981-1993.  All rights reserved.
+
+ Assembling: .\r_varsa.asm
+Performing Custom Build Step
+Microsoft (R) Macro Assembler Version 6.11
+Copyright (C) Microsoft Corp 1981-1993.  All rights reserved.
+
+ Assembling: .\r_surf8.asm
+Performing Custom Build Step
+Microsoft (R) Macro Assembler Version 6.11
+Copyright (C) Microsoft Corp 1981-1993.  All rights reserved.
+
+ Assembling: .\r_spr8.asm
+Performing Custom Build Step
+Microsoft (R) Macro Assembler Version 6.11
+Copyright (C) Microsoft Corp 1981-1993.  All rights reserved.
+
+ Assembling: .\r_scana.asm
+Performing Custom Build Step
+Microsoft (R) Macro Assembler Version 6.11
+Copyright (C) Microsoft Corp 1981-1993.  All rights reserved.
+
+ Assembling: .\r_polysa.asm
+Performing Custom Build Step
+Microsoft (R) Macro Assembler Version 6.11
+Copyright (C) Microsoft Corp 1981-1993.  All rights reserved.
+
+ Assembling: .\r_edgea.asm
+Performing Custom Build Step
+Microsoft (R) Macro Assembler Version 6.11
+Copyright (C) Microsoft Corp 1981-1993.  All rights reserved.
+
+ Assembling: .\r_drawf16.asm
+Performing Custom Build Step
+Microsoft (R) Macro Assembler Version 6.11
+Copyright (C) Microsoft Corp 1981-1993.  All rights reserved.
+
+ Assembling: .\r_drawa.asm
+Performing Custom Build Step
+Microsoft (R) Macro Assembler Version 6.11
+Copyright (C) Microsoft Corp 1981-1993.  All rights reserved.
+
+ Assembling: .\r_draw16.asm
+Performing Custom Build Step
+Microsoft (R) Macro Assembler Version 6.11
+Copyright (C) Microsoft Corp 1981-1993.  All rights reserved.
+
+ Assembling: .\r_aclipa.asm
+Creating temp file "C:\WINNT\TEMP\RSPADA.tmp" with contents <winmm.lib kernel32.lib user32.lib gdi32.lib /nologo /subsystem:windows /dll /profile /debug /machine:I386 /nodefaultlib:"libc" /def:".\ref_soft.def" /out:"..\Debug/ref_soft.dll" /implib:"..\Debug/ref_soft.lib" 
+.\Debug\dk_shared.obj
+.\Debug\q_shwin.obj
+.\Debug\r_aclip.obj
+.\Debug\r_alias.obj
+.\Debug\r_bmp.obj
+.\Debug\r_bsp.obj
+.\Debug\r_draw.obj
+.\Debug\r_edge.obj
+.\Debug\r_image.obj
+.\Debug\r_light.obj
+.\Debug\r_main.obj
+.\Debug\r_misc.obj
+.\Debug\r_model.obj
+.\Debug\r_part.obj
+.\Debug\r_poly.obj
+.\Debug\r_polyse.obj
+.\Debug\r_rast.obj
+.\Debug\r_scan.obj
+.\Debug\r_sprite.obj
+.\Debug\r_surf.obj
+.\Debug\rw_ddraw.obj
+.\Debug\rw_dib.obj
+.\Debug\rw_imp.obj
+\Daikatana\ncode\Debug\r_aclipa.obj
+\Daikatana\ncode\Debug\r_draw16.obj
+\Daikatana\ncode\Debug\r_drawa.obj
+\Daikatana\ncode\Debug\r_drawf16.obj
+\Daikatana\ncode\Debug\r_edgea.obj
+\Daikatana\ncode\Debug\r_polysa.obj
+\Daikatana\ncode\Debug\r_scana.obj
+\Daikatana\ncode\Debug\r_spr8.obj
+\Daikatana\ncode\Debug\r_surf8.obj
+\Daikatana\ncode\Debug\r_varsa.obj>
+Creating command line "link.exe @C:\WINNT\TEMP\RSPADA.tmp" 
+Compiling...
+dk_shared.c
+q_shwin.c
+r_aclip.c
+r_alias.c
+r_bmp.c
+r_bsp.c
+r_draw.c
+r_edge.c
+r_image.c
+r_light.c
+r_main.c
+r_misc.c
+r_model.c
+r_part.c
+r_poly.c
+r_polyse.c
+r_rast.c
+r_scan.c
+r_sprite.c
+r_surf.c
+rw_ddraw.c
+rw_dib.c
+rw_imp.c
+Linking...
+   Creating library ..\Debug/ref_soft.lib and object ..\Debug/ref_soft.exp
+Creating temp file "C:\WINNT\TEMP\RSPADC.tmp" with contents </nologo /o"..\Debug/ref_soft.bsc" 
+.\Debug\dk_shared.sbr
+.\Debug\q_shwin.sbr
+.\Debug\r_aclip.sbr
+.\Debug\r_alias.sbr
+.\Debug\r_bmp.sbr
+.\Debug\r_bsp.sbr
+.\Debug\r_draw.sbr
+.\Debug\r_edge.sbr
+.\Debug\r_image.sbr
+.\Debug\r_light.sbr
+.\Debug\r_main.sbr
+.\Debug\r_misc.sbr
+.\Debug\r_model.sbr
+.\Debug\r_part.sbr
+.\Debug\r_poly.sbr
+.\Debug\r_polyse.sbr
+.\Debug\r_rast.sbr
+.\Debug\r_scan.sbr
+.\Debug\r_sprite.sbr
+.\Debug\r_surf.sbr
+.\Debug\rw_ddraw.sbr
+.\Debug\rw_dib.sbr
+.\Debug\rw_imp.sbr>
+Creating command line "bscmake.exe @C:\WINNT\TEMP\RSPADC.tmp" 
+Creating browse info file...
+
+
+
+ref_soft.dll - 0 error(s), 0 warning(s)

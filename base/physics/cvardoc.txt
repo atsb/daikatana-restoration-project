@@ -1,0 +1,76 @@
+dm_frag_limit (implemented)
+	sets the server frag limit
+	0 means no limit
+
+dm_time_limit (implemented )
+	sets the server time limit
+	0 means no limit
+
+dm_skill_level (not implemented)
+	0	= very easy
+	1	= easy
+	2	= medium
+	3	= difficult
+	4	= very difficult
+
+dm_max_players (not implemented)
+	sets the maximum number of players
+
+dm_weapons_stay (implemented - not tested)
+	true	= weapons stay when picked up
+	false	= weapons are removed when picked up
+
+dm_item_respawn (implemented - not tested)
+	true	= items respawn after being picked up
+	false	= don't respawn
+
+dm_spawn_farthest (not implemented)
+	true	= when player respawns, player should be placed as far as possible from all other players
+	false	= normal respawn
+
+dm_allow_exiting (implemented - not tested)
+	true	= allow players to exit a deathmatch level
+	false	= do not allow players to exit a deathmathc level
+
+dm_same_map (implemented)
+	true	= when the level ends, reload the current map
+	false	= when the level ends, go to the next map
+
+dm_force_respawn (partially implemented - need to add default delay)
+	true	= player automatically respawns after dying
+	false	= player must press a key to respawn
+
+dm_falling_damage (not implemented)
+	true	= falling hurts players
+	false	= falling does not hurt players
+
+dm_instant_powerups (implemented )
+	true	= use powerup upon pickup
+	false	= put it in the inventory for later use
+
+dm_allow_powerups (implemented)
+	true	= allow poerups to spawn
+	false	= do not allow powerups to spawn
+
+dm_allow_health (implemented)
+	true	= allow health to spawn
+	false	= do not allow health to spawn
+
+dm_allow_armor (implemented)
+	true	= allow armor to spawn
+	false	= do not allow armor to spawn
+
+g_unlimited_ammo (implemented - not tested)
+	true	= players have infinite ammo
+	false	= players have limited ammo
+
+dm_fixed_fov (not implemented)
+	dont know (i guess it would allow the use of sniping or not...)
+
+dm_teamplay (not implemented)
+	true	= teamplay rules active
+	false	= normal rules active
+
+dm_friendly_fire ( implemented )
+	true	= shots do not hurt other players (yet...) (green elf needs food badly)
+	false	= shots hurt other players

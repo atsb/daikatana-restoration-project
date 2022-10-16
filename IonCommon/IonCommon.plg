@@ -1,0 +1,288 @@
+--------------------Configuration: IonCommon - Win32 Debug--------------------
+Begining build with project "D:\Daikatana\IonCommon\IonCommon.dsp", at root.
+Active configuration is Win32 (x86) Static Library (based on Win32 (x86) Static Library)
+
+Project's tools are:
+			"32-bit C/C++ Compiler for 80x86" with flags "/nologo /MTd /W4 /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FR"Debug/" /Fp"Debug/IonCommon.pch" /YX /Fo"Debug/" /Fd"Debug/" /FD /c "
+			"Browser Database Maker" with flags "/nologo /o"Debug/IonCommon.bsc" "
+			"Library Manager" with flags "/nologo /out:"..\libs\IonCommon.lib" "
+			"Custom Build" with flags ""
+			"<Component 0xa>" with flags ""
+
+Creating temp file "C:\TEMP\RSP1AC.tmp" with contents </nologo /MTd /W4 /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FR"Debug/" /Fp"Debug/IonCommon.pch" /YX /Fo"Debug/" /Fd"Debug/" /FD /c 
+"D:\Daikatana\user\dk_matrix.cpp"
+"D:\Daikatana\user\dk_point.cpp"
+"D:\Daikatana\user\dk_shared.cpp"
+>
+Creating command line "cl.exe @C:\TEMP\RSP1AC.tmp" 
+Creating command line "link.exe -lib /nologo /out:"..\libs\IonCommon.lib"  .\Debug\dk_matrix.obj .\Debug\dk_point.obj .\Debug\dk_shared.obj" 
+Compiling...
+dk_matrix.cpp
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'acosl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'asinl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'atanl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'atan2l' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'ceill' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'cosl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'coshl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'expl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'fabsl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'floorl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'fmodl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'frexpl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'ldexpl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'logl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'log10l' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'modfl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'powl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'sinl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'sinhl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'sqrtl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'tanl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'tanhl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'frexpf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'ldexpf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'acosf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'asinf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'atanf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'atan2f' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'ceilf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'cosf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'coshf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'expf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'fabsf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'floorf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'fmodf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'logf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'log10f' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'modff' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'powf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'sinf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'sinhf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'sqrtf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'tanf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'tanhf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'Set' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'Set' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'SetX' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'SetY' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'SetZ' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'AddX' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'AddY' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'AddZ' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'MultX' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'MultY' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'MultZ' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'Pitch' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'Yaw' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'Roll' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'SetPitch' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'SetYaw' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'SetRoll' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'Distance' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'CVector::CVector' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'CVector::CVector' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'CVector::CVector' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'Equal' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'Equal' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'Equal' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'Equal' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'CopyTo' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'Subtract' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'Normalize' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'Length' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'Negate' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'Negate' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'CrossProduct' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'Add' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'Add' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'Add' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'Add' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'Zero' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'Multiply' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: '=' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: '=' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: 'operator`const float *(void)const '' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: '*' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_matrix.cpp(203) : warning C4514: '[]' : unreferenced inline function has been removed
+dk_point.cpp
+D:\Daikatana\user\dk_point.cpp(243) : warning C4127: conditional expression is constant
+D:\Daikatana\user\dk_point.cpp(243) : warning C4127: conditional expression is constant
+D:\Daikatana\user\dk_point.cpp(260) : warning C4127: conditional expression is constant
+D:\Daikatana\user\dk_point.cpp(260) : warning C4127: conditional expression is constant
+D:\Daikatana\user\dk_point.cpp(276) : warning C4127: conditional expression is constant
+D:\Daikatana\user\dk_point.cpp(276) : warning C4127: conditional expression is constant
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'acosl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'asinl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'atanl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'atan2l' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'ceill' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'cosl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'coshl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'expl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'fabsl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'floorl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'fmodl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'frexpl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'ldexpl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'logl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'log10l' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'modfl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'powl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'sinl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'sinhl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'sqrtl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'tanl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'tanhl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'frexpf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'ldexpf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'acosf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'asinf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'atanf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'atan2f' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'ceilf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'cosf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'coshf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'expf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'fabsf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'floorf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'fmodf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'logf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'log10f' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'modff' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'powf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'sinf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'sinhf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'sqrtf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'tanf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'tanhf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'Set' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'AddX' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'AddY' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'AddZ' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'MultX' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'MultY' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'MultZ' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'Pitch' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'Yaw' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'Roll' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'Distance' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'CVector::CVector' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'Equal' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'CopyTo' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'Subtract' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'Length' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'Negate' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'Negate' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'DotProduct' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'CrossProduct' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'Add' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'Add' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'Add' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'Add' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'Zero' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'Multiply' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: '=' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: '=' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: '*' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: '[]' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_point.cpp(796) : warning C4514: 'GetValue' : unreferenced inline function has been removed
+dk_shared.cpp
+D:\Daikatana\user\dk_shared.cpp(39) : warning C4100: 'f' : unreferenced formal parameter
+D:\Daikatana\user\dk_shared.cpp(205) : warning C4127: conditional expression is constant
+D:\Daikatana\user\dk_shared.cpp(552) : warning C4127: conditional expression is constant
+D:\Daikatana\user\dk_shared.cpp(717) : warning C4127: conditional expression is constant
+D:\Daikatana\user\dk_shared.cpp(765) : warning C4127: conditional expression is constant
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'acosl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'asinl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'atanl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'atan2l' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'ceill' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'cosl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'coshl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'expl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'fabsl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'floorl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'fmodl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'frexpl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'ldexpl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'logl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'log10l' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'modfl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'powl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'sinl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'sinhl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'sqrtl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'tanl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'tanhl' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'frexpf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'ldexpf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'acosf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'asinf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'atanf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'atan2f' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'ceilf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'cosf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'coshf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'expf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'fabsf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'floorf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'fmodf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'logf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'log10f' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'modff' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'powf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'sinf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'sinhf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'sqrtf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'tanf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'tanhf' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'Set' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'Set' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'SetX' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'SetY' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'SetZ' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'AddX' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'AddY' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'AddZ' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'MultX' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'MultY' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'MultZ' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'Pitch' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'Yaw' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'Roll' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'SetPitch' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'SetYaw' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'SetRoll' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'Distance' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'CVector::CVector' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'CVector::CVector' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'Equal' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'Equal' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'Equal' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'Equal' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'CopyTo' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'Subtract' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'Normalize' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'Length' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'Negate' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'Negate' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'DotProduct' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'CrossProduct' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'Add' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'Add' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'Add' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'Add' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'Zero' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: 'Multiply' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: '=' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: '=' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(1254) : warning C4514: '*' : unreferenced inline function has been removed
+D:\Daikatana\user\dk_shared.cpp(214) : warning C4706: assignment within conditional expression
+Creating library...
+Creating command line "bscmake.exe /nologo /o"Debug/IonCommon.bsc"  .\Debug\dk_matrix.sbr .\Debug\dk_point.sbr .\Debug\dk_shared.sbr" 
+Creating browse info file...
+
+
+
+IonCommon.lib - 0 error(s), 259 warning(s)

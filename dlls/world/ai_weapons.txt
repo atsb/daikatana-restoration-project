@@ -1,0 +1,49 @@
+ai_weapons.cpp:
+1019 		sprintf(soundbuf, "global/e_bulflesh%c.wav",n );
+1040 		sprintf(soundbuf, "global/e_ricochet%c.wav",n );
+1953 	gstate->StartEntitySound( self, CHAN_AUTO, gstate->SoundIndex("global/e_explodeb.wav"), 
+2127     gstate->StartEntitySound( rocket, CHAN_AUTO, gstate->SoundIndex("e4/m_rockgangataka.wav"), 
+2203     gstate->StartEntitySound( rocket, CHAN_AUTO, gstate->SoundIndex("global/e_firetravelb.wav"), 
+2281     gstate->StartEntitySound( rocket, CHAN_AUTO, gstate->SoundIndex("e4/m_rockgangataka.wav"), 
+2359     gstate->StartEntitySound( rocket, CHAN_AUTO, gstate->SoundIndex("e4/m_rockgangataka.wav"), 
+2437     gstate->StartEntitySound( rocket, CHAN_AUTO, gstate->SoundIndex("e4/m_rockgangataka.wav"), 
+2474 		gstate->StartEntitySound(self, CHAN_AUTO, gstate->SoundIndex("global/e_arrowimp.wav"), 
+2690 		gstate->StartEntitySound(self, CHAN_AUTO, gstate->SoundIndex("global/we_zapb.wav"), 
+2774 	gstate->StartEntitySound(laser, CHAN_AUTO, gstate->SoundIndex("global/we_zapa.wav"), 
+2834 		gstate->StartEntitySound( self, CHAN_AUTO, gstate->SoundIndex("global/we_zapa.wav"), 
+2839 		gstate->StartEntitySound( self, CHAN_AUTO, gstate->SoundIndex("global/we_zapb.wav"), 
+3730 	gstate->StartEntitySound( self, CHAN_AUTO, gstate->SoundIndex("e3/m_wwisplightning.wav"), 1.0f, ATTN_NORM_MIN, ATTN_NORM_MAX );	
+3769 		gstate->StartEntitySound( self, CHAN_AUTO, gstate->SoundIndex("e3/we_wwispcorditec.wav"), 1.0f, ATTN_NORM_MIN, ATTN_NORM_MAX );	
+3947 		gstate->StartEntitySound(pAxe, CHAN_AUTO, gstate->SoundIndex("e3/m_dwaraxfly.wav"), 
+4032 		//gstate->StartEntitySound( self, CHAN_AUTO, gstate->SoundIndex("e3/we_bolterhitwood.wav"), 
+4076 //		gstate->StartEntitySound(pKnife, CHAN_AUTO, gstate->SoundIndex("e3/m_dwaraxfly.wav"), 
+4141 		gstate->StartEntitySound( client, CHAN_LOOP, gstate->SoundIndex("global/e_atmospheref.wav"),0.0f, 0, 0 );
+4228 			gstate->StartEntitySound( other, CHAN_LOOP, gstate->SoundIndex("global/e_atmospheref.wav"),1.0f, ATTN_NORM_MIN, ATTN_NORM_MAX );
+4489     gstate->StartEntitySound( self, CHAN_AUTO, gstate->SoundIndex("e4/we_sluggershoota.wav"), 
+4712 	gstate->StartEntitySound( self, CHAN_AUTO, gstate->SoundIndex("global/e_explodeh.wav"), 
+4830     gstate->StartEntitySound( self, CHAN_AUTO, gstate->SoundIndex("global/e_firetraveld.wav"), 
+5038 	//gstate->StartEntitySound( self, CHAN_AUTO, gstate->SoundIndex("global/we_zapa.wav"), 
+5225 	sprintf(buffer,"e3/we_wwispcordite%c.wav",Letter_Offset);
+5369 	gstate->StartEntitySound( self, CHAN_AUTO, gstate->SoundIndex("e3/we_wwispaway.wav"),1.0f, ATTN_NORM_MIN, ATTN_NORM_MAX );
+5538     // move in sine wave
+5668 	gstate->StartEntitySound( self, CHAN_AUTO, gstate->SoundIndex("e3/we_wwispshoota.wav"),1.0f, ATTN_NORM_MIN, ATTN_NORM_MAX );
+6045 	gstate->StartEntitySound( self, CHAN_LOOP, gstate->SoundIndex("global/e_firetravela.wav"), 0.0f, 0.0f, 0.0f );
+6176 //	gstate->StartEntitySound( temp, CHAN_LOOP, gstate->SoundIndex("global/e_travela.wav"), 1.0f, 128.0f, 256.0f );
+6223 	//gstate->StartEntitySound( self, CHAN_AUTO, gstate->SoundIndex("global/e_explode1.wav"), 1.0f, ATTN_NORM_MIN, ATTN_NORM_MAX );
+6239 	gstate->StartEntitySound( self, CHAN_LOOP, gstate->SoundIndex("global/e_firetravele.wav"), 0.0f, 0.0f, 0.0f );
+6356 	//electromagnetic shockwaves rippling time and the fabric of space.
+6466 	gstate->StartEntitySound( pStave, CHAN_LOOP, gstate->SoundIndex("global/e_torchd.wav"), 1.0f, 128.0f, 512.0f );	
+6518 				gstate->StartEntitySound( self, CHAN_AUTO, gstate->SoundIndex("global/e_warploopb.wav"), 0.25f, 128.0f, 512.0f );	
+6656 		gstate->StartEntitySound( self, CHAN_AUTO, gstate->SoundIndex("global/e_warploopb.wav"), 0.25f, 128.0f, 512.0f );
+6783 #define REAPER_ATTACK_SOUND   "e3/we_reaperattack2.wav"
+6784 #define REAPER_APPEAR_SOUND   "e3/we_reaperappear2.wav"
+7310 	gstate->StartEntitySound( self, CHAN_AUTO, gstate->SoundIndex("global/e_explodeh.wav"),0.75f, ATTN_NORM_MIN, ATTN_NORM_MAX );
+7422     gstate->StartEntitySound( self, CHAN_AUTO, gstate->SoundIndex("global/e_firetraveld.wav"), 1.0f, ATTN_NORM_MIN, ATTN_NORM_MAX );
+7486     gstate->StartEntitySound( self, CHAN_AUTO, gstate->SoundIndex("global/e_firetraveld.wav"), 
+7502 	gstate->StartEntitySound( self, CHAN_AUTO, gstate->SoundIndex("e4/we_ripgunexplode.wav"), 
+7582     "e4/we_ripgunhita.wav",
+7583     "e4/we_ripgunhitb.wav",
+7584     "e4/we_ripgunhitc.wav",
+7585     "e4/we_ripgunhitd.wav",
+7586     "e4/we_ripgunhite.wav",
+7587     "e4/we_ripgunhitf.wav"

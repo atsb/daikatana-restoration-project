@@ -1,0 +1,11 @@
+LIBRARY IONVideo.dll
+DESCRIPTION 'ION Storm Video Player'
+EXPORTS
+	Video_Init			PRIVATE
+	Video_Cleanup		PRIVATE
+	Video_Play			PRIVATE
+
+;	Video_SetVideoMode	PRIVATE
+;	Video_Pause			PRIVATE
+;	Video_OnActivate	PRIVATE
+

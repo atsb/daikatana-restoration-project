@@ -1,0 +1,146 @@
+Pseudocode for various TASK types to track program flow for each type
+of task.
+
+TASK_SWITCH:
+------------
+called from ai_check_node_target when current node targets a switch AND
+next_node of travel has "the same target as the switch"? FIXME: make sure
+of this!
+
+Goal type:	GOAL_OBJECT
+Object:		switch to activate
+
+ai_go_to_switch: 
+	ai_path_follow:
+		go from current node to node nearest switch
+	ai_follow:
+		when at node nearest switch, go straight to switch
+	ai_use_switch:
+		use switch
+		pop TASK_SWITCH
+		spawn appropriate task for object switch activates
+
+
+TASK_PLAT:
+----------
+called from ai_use_switch when the switch being used targets a plat.
+
+Goal type:	GOAL_OBJECT
+Object:		platform to use
+
+ai_go_to_plat:
+	if not standing on platform:
+		ai_path_follow:
+			go from current node to node nearest plat
+		ai_follow:
+			go to directly to node nearest plat
+		ai_wait_for_state:
+			wait for plat to reach state opposite of state before being switched
+			pop TASK_PLAT
+			spawn TASK_RIDE_PLAT
+
+	if standing on platform:
+			spawn	TASK_RIDE_PLAT
+
+
+TASK_RIDE_PLAT:
+---------------
+called from ai_go_to_plat if already standing on the platform that
+was activated during the task switch.
+
+Goal Type:	GOAL_OBJECT
+Object:		platform to ride
+
+ai_ride_plat:
+	ai_path_follow:
+		go to node at center of plat (hmmm... what exactly does this mean...)
+	ai_follow:
+		go to center of plat to avoid clipping on overhangs
+	ai_wait_for_state:
+		wait for plat to reach state opposite of current state
+
+
+TASK_CHASE:
+-----------
+called from ai_find_target when an enemy is sighted
+
+Goal type:	GOAL_ENEMY
+Object:		enemy to pursue
+
+ai_go_to_enemy:
+	if goal_node != base_node
+		if ai_path_for_task:
+			ai_begin_path_follow
+
+	ai_begin_follow:
+
+pushed in ai_begin_pain when attacked by an enemy
+
+popped in ai_killed_enemy
+
+
+TASK_STAND:
+-----------
+Usually called from ai_init_monster or entity's spawn function.
+
+Goal type:	GOAL_TEMP -- there is no actual goal associated with TASK_STAND
+Object:		NULL
+
+
+TASK_DOOR:
+----------
+
+Goal type:	GOAL_OBJECT
+Object:		door to use
+
+
+TASK_WANDER:
+------------
+Entity is wandering around randomly without using the node system.
+
+Goal type:	GOAL_NONE -- no real goal associated with this task
+Object:		self
+
+
+TASK_NODE_WANDER:
+-----------------
+Entity is wandering along nodes.
+
+Goal type:	GOAL_NONE -- no real goal associated with this task
+Object:		self
+
+
+TASK_PATH_WANDER:
+-----------------
+Entity is wandering along monster paths.
+
+Goal type:	GOAL_NONE -- no real goal associated with this task
+Object:		self
+
+
+TASK_ATTACK:
+------------
+called from ai_path_follow for MISCFLAG_RANGEDATTACK entities when
+enemy is visible and within range
+
+Goal type:	GOAL_ENEMY
+Object:		enemy to attack
+
+called from ai_follow when enemy is visible and task type is TASK_CHASE
+
+popped in each entity's attack routine before exiting
+
+popped when an entity enters pain frames and is being attacked by an
+enemy other than its current enemy
+
+
+TASK_FOLLOW:
+------------
+Entity is following another entity owner.
+
+Goal type:	GOAL_OWNER
+Object:		owner.
+
+
+TASK_DOOR_SLIDING:
+------------------

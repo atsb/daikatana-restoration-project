@@ -1,0 +1,390 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: daikatana - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "D:\DOCUME~2\ADMINI~1.UPS\LOCALS~1\Temp\RSPB2.tmp" with contents
+[
+/nologo /G5 /MT /W3 /GX /O2 /I "." /I ".\dk_" /I ".\client" /I ".\win32" /I ".\qcommon" /I ".\server" /I "..\user" /I "..\audio" /I "..\user\collection" /I "..\libent" /D "DAIKATANA_OEM" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /Fp".\Release/daikatana.pch" /YX /Fo".\Release/" /Fd".\Release/" /FD /c 
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_beams.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_bitmap.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_cin_playback.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_cl_curve.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\user\dk_gce_entities.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\user\dk_gce_headscript.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_gce_load.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_gce_main.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\user\dk_gce_script.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\user\dk_gce_spline.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_log.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\user\dk_matrix.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_menu.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_menu_advanced.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_menu_controls.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_menu_demos.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_menu_joystick.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_menu_keyboard.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_menu_loadgame.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_menu_mouse.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_menu_multiplayer.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_menu_newgame.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_menu_options.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_menu_quit.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_menu_savegame.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_menu_sound.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_menu_video.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_menu_weapons.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_model.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_print.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_resource.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_scoreboard.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_win.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\mp_launch.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\Artifact_fx.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\win32\cd_win.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\client\cl_ents.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\client\cl_flash.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\client\cl_fx.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\client\cl_icons.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\client\cl_input.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\client\cl_inventory.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\client\cl_main.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\client\cl_parse.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\client\cl_pred.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\client\cl_pv.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\client\cl_scrn.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\client\cl_selector.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\client\cl_sidekick.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\client\cl_tent.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\client\cl_view.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\client.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\qcommon\cmd.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\qcommon\cmodel_dynamic.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\qcommon\common.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\win32\conproc.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\client\console.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\qcommon\cvar.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\Goa\CEngine\darray.c"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_screen_coord.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\Audio\DkAudioImpLoader.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\qcommon\files.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\Goa\Sdk\goautil.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\Goa\CEngine\gserver.c"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\Goa\CEngine\gserverlist.c"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\Goa\CEngine\gutil.c"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\Goa\CEngine\hashtable.c"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\win32\Imeui.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\win32\in_win.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\client\keys.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\qcommon\md4.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\user\memmgr.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\client\menu.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\qcommon\net_chan.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\win32\net_wins.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\Goa\nonport.c"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\qcommon\pmove.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\Projectile_fx.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\win32\q_shwin.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\client\qmenu.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\server\sv_ccmds.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\server\sv_clientString.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\server\sv_ents.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\server\sv_game.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\server\sv_init.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\server\sv_main.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\server\sv_send.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\server\sv_user.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\server\sv_world.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\win32\sys_win.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\win32\vid_dll.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\win32\vid_menu.cpp"
+"F:\daikatana_dev\daikatana\Daikatana\shadow\base\client\x86.cpp"
+]
+Creating command line "cl.exe @D:\DOCUME~2\ADMINI~1.UPS\LOCALS~1\Temp\RSPB2.tmp" 
+Creating temporary file "D:\DOCUME~2\ADMINI~1.UPS\LOCALS~1\Temp\RSPB3.tmp" with contents
+[
+winmm.lib wsock32.lib advapi32.lib kernel32.lib user32.lib gdi32.lib IonCommonRelease.lib mss32.lib /nologo /subsystem:windows /pdb:none /debug /machine:I386 /nodefaultlib:"libc.lib" /out:".\Release/daikatana.exe" /libpath:"..\dlls\world\release" /libpath:"..\libs" 
+.\Release\dk_beams.obj
+.\Release\dk_bitmap.obj
+.\Release\dk_cin_playback.obj
+.\Release\dk_cl_curve.obj
+.\Release\dk_gce_entities.obj
+.\Release\dk_gce_headscript.obj
+.\Release\dk_gce_load.obj
+.\Release\dk_gce_main.obj
+.\Release\dk_gce_script.obj
+.\Release\dk_gce_spline.obj
+.\Release\dk_log.obj
+.\Release\dk_matrix.obj
+.\Release\dk_menu.obj
+.\Release\dk_menu_advanced.obj
+.\Release\dk_menu_controls.obj
+.\Release\dk_menu_demos.obj
+.\Release\dk_menu_joystick.obj
+.\Release\dk_menu_keyboard.obj
+.\Release\dk_menu_loadgame.obj
+.\Release\dk_menu_mouse.obj
+.\Release\dk_menu_multiplayer.obj
+.\Release\dk_menu_newgame.obj
+.\Release\dk_menu_options.obj
+.\Release\dk_menu_quit.obj
+.\Release\dk_menu_savegame.obj
+.\Release\dk_menu_sound.obj
+.\Release\dk_menu_video.obj
+.\Release\dk_menu_weapons.obj
+.\Release\dk_model.obj
+.\Release\dk_print.obj
+.\Release\dk_resource.obj
+.\Release\dk_scoreboard.obj
+.\Release\dk_win.obj
+.\Release\mp_launch.obj
+.\Release\Artifact_fx.obj
+.\Release\cd_win.obj
+.\Release\cl_ents.obj
+.\Release\cl_flash.obj
+.\Release\cl_fx.obj
+.\Release\cl_icons.obj
+.\Release\cl_input.obj
+.\Release\cl_inventory.obj
+.\Release\cl_main.obj
+.\Release\cl_parse.obj
+.\Release\cl_pred.obj
+.\Release\cl_pv.obj
+.\Release\cl_scrn.obj
+.\Release\cl_selector.obj
+.\Release\cl_sidekick.obj
+.\Release\cl_tent.obj
+.\Release\cl_view.obj
+.\Release\client.obj
+.\Release\cmd.obj
+.\Release\cmodel_dynamic.obj
+.\Release\common.obj
+.\Release\conproc.obj
+.\Release\console.obj
+.\Release\cvar.obj
+.\Release\darray.obj
+.\Release\dk_screen_coord.obj
+.\Release\DkAudioImpLoader.obj
+.\Release\files.obj
+.\Release\goautil.obj
+.\Release\gserver.obj
+.\Release\gserverlist.obj
+.\Release\gutil.obj
+.\Release\hashtable.obj
+.\Release\Imeui.obj
+.\Release\in_win.obj
+.\Release\keys.obj
+.\Release\md4.obj
+.\Release\memmgr.obj
+.\Release\menu.obj
+.\Release\net_chan.obj
+.\Release\net_wins.obj
+.\Release\nonport.obj
+.\Release\pmove.obj
+.\Release\Projectile_fx.obj
+.\Release\q_shwin.obj
+.\Release\qmenu.obj
+.\Release\sv_ccmds.obj
+.\Release\sv_clientString.obj
+.\Release\sv_ents.obj
+.\Release\sv_game.obj
+.\Release\sv_init.obj
+.\Release\sv_main.obj
+.\Release\sv_send.obj
+.\Release\sv_user.obj
+.\Release\sv_world.obj
+.\Release\sys_win.obj
+.\Release\vid_dll.obj
+.\Release\vid_menu.obj
+.\Release\x86.obj
+]
+Creating command line "link.exe @D:\DOCUME~2\ADMINI~1.UPS\LOCALS~1\Temp\RSPB3.tmp"
+<h3>Output Window</h3>
+Compiling...
+dk_beams.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+dk_bitmap.cpp
+F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_bitmap.cpp(3) : fatal error C1083: Cannot open include file: 'dk_system.h': No such file or directory
+dk_cin_playback.cpp
+F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_cin_playback.cpp(1) : fatal error C1083: Cannot open include file: 'dk_misc.h': No such file or directory
+dk_cl_curve.cpp
+F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_cl_curve.cpp(1) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+dk_gce_entities.cpp
+fatal error C1083: Cannot open source file: 'F:\daikatana_dev\daikatana\Daikatana\shadow\user\dk_gce_entities.cpp': No such file or directory
+dk_gce_headscript.cpp
+fatal error C1083: Cannot open source file: 'F:\daikatana_dev\daikatana\Daikatana\shadow\user\dk_gce_headscript.cpp': No such file or directory
+dk_gce_load.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+dk_gce_main.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+dk_gce_script.cpp
+fatal error C1083: Cannot open source file: 'F:\daikatana_dev\daikatana\Daikatana\shadow\user\dk_gce_script.cpp': No such file or directory
+dk_gce_spline.cpp
+fatal error C1083: Cannot open source file: 'F:\daikatana_dev\daikatana\Daikatana\shadow\user\dk_gce_spline.cpp': No such file or directory
+dk_log.cpp
+F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_log.cpp(2) : fatal error C1083: Cannot open include file: 'dk_system.h': No such file or directory
+dk_matrix.cpp
+fatal error C1083: Cannot open source file: 'F:\daikatana_dev\daikatana\Daikatana\shadow\user\dk_matrix.cpp': No such file or directory
+dk_menu.cpp
+F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_menu.cpp(2) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+dk_menu_advanced.cpp
+F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_menu_advanced.cpp(1) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+dk_menu_controls.cpp
+F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_menu_controls.cpp(1) : fatal error C1083: Cannot open include file: 'dk_buffer.h': No such file or directory
+dk_menu_demos.cpp
+F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_menu_demos.cpp(1) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+dk_menu_joystick.cpp
+F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_menu_joystick.cpp(1) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+dk_menu_keyboard.cpp
+F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_menu_keyboard.cpp(1) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+dk_menu_loadgame.cpp
+F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_menu_loadgame.cpp(1) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+dk_menu_mouse.cpp
+F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_menu_mouse.cpp(2) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+dk_menu_multiplayer.cpp
+F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_menu_multiplayer.cpp(1) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+dk_menu_newgame.cpp
+F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_menu_newgame.cpp(1) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+dk_menu_options.cpp
+F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_menu_options.cpp(1) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+dk_menu_quit.cpp
+F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_menu_quit.cpp(1) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+dk_menu_savegame.cpp
+F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_menu_savegame.cpp(1) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+dk_menu_sound.cpp
+F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_menu_sound.cpp(1) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+dk_menu_video.cpp
+F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_menu_video.cpp(1) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+dk_menu_weapons.cpp
+F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_menu_weapons.cpp(1) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+dk_model.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+dk_print.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+dk_resource.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+dk_scoreboard.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+dk_win.cpp
+mp_launch.cpp
+Artifact_fx.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+cd_win.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+cl_ents.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+cl_flash.cpp
+F:\daikatana_dev\daikatana\Daikatana\shadow\base\client\cl_flash.cpp(3) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+cl_fx.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+cl_icons.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+cl_input.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+cl_inventory.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+cl_main.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+cl_parse.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+cl_pred.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+cl_pv.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+cl_scrn.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+cl_selector.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+cl_sidekick.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+cl_tent.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+cl_view.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+client.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+cmd.cpp
+F:\daikatana_dev\daikatana\Daikatana\shadow\base\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+cmodel_dynamic.cpp
+F:\daikatana_dev\daikatana\Daikatana\shadow\base\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+common.cpp
+F:\daikatana_dev\daikatana\Daikatana\shadow\base\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+conproc.cpp
+console.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+cvar.cpp
+F:\daikatana_dev\daikatana\Daikatana\shadow\base\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+darray.c
+dk_screen_coord.cpp
+F:\daikatana_dev\daikatana\Daikatana\shadow\base\dk_\dk_screen_coord.cpp(1) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+DkAudioImpLoader.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+files.cpp
+F:\daikatana_dev\daikatana\Daikatana\shadow\base\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+goautil.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+gserver.c
+gserverlist.c
+gutil.c
+hashtable.c
+Imeui.cpp
+in_win.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+keys.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+md4.cpp
+memmgr.cpp
+fatal error C1083: Cannot open source file: 'F:\daikatana_dev\daikatana\Daikatana\shadow\user\memmgr.cpp': No such file or directory
+menu.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+net_chan.cpp
+F:\daikatana_dev\daikatana\Daikatana\shadow\base\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+net_wins.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+nonport.c
+pmove.cpp
+F:\daikatana_dev\daikatana\Daikatana\shadow\base\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+Projectile_fx.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+q_shwin.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+qmenu.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+sv_ccmds.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+sv_clientString.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+sv_ents.cpp
+F:\daikatana_dev\daikatana\Daikatana\shadow\base\server\sv_ents.cpp(2) : fatal error C1083: Cannot open include file: 'dk_system.h': No such file or directory
+sv_game.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+sv_init.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+sv_main.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+sv_send.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+sv_user.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+sv_world.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+sys_win.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+vid_dll.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+vid_menu.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+x86.cpp
+.\qcommon\qcommon.h(6) : fatal error C1083: Cannot open include file: 'dk_shared.h': No such file or directory
+Error executing cl.exe.
+
+
+
+<h3>Results</h3>
+daikatana.exe - 82 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

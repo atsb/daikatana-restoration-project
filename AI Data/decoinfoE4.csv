@@ -1,0 +1,85 @@
+;ModelName, PathName, MoveType, SolidType, Mass, Exploding, HitPoints, MinX, MinY, MinZ, MaxX, MaxY, MaxZ,GibType ,AnimSeq,seq0,seq1,seq2,seq3,seq4,,,
+
+1stwheel, models/e4/d4_wheel.dkm, none, bbox,1,0,20,-27,-6,-31,26,6,18,0,0,0,0,0,0,0,0,0,
+d4_afish, models/e4/d4_afish.dkm, none, bbox,1,0,20,-8,-3,-28,11,4,-19,0,1, 0~41,0,0,0,0,0,0,
+d4_rat, models/e4/d4_rat.dkm, none, bbox,1,0,20,-8,-3,-31,18,3,-26,0,0,0,0,0,0,0,0,0,
+barrel1, models/e4/d4_brl1.dkm, none, bbox,1,0,20,-11,-12,-32,12,11,2,0,0,0,0,0,0,0,0,0,
+barrel2, models/e4/d4_brl2.dkm, toss, bbox,1,1,20,-11,-12,-32,12,11,2,0,0,0,0,0,0,0,0,0,
+barrel3, models/e4/d4_brl3.dkm, toss, bbox,1,1,80,-10,-10,-24,10,12,7,0,0,0,0,0,0,0,0,0,
+bonsai1, models/e4/d4_bon.dkm, none, bbox,1,0,20,-5,-13,-31,5,7,-17,0,0,0,0,0,0,0,0,0,
+bonsai2, models/e4/d4_bon2.dkm, none, bbox,1,0,20,-6,-7,-31,6,5,-21,0,0,0,0,0,0,0,0,0,
+bonsai3, models/e4/d4_bon3.dkm, none, bbox,1,0,20,-9,-9,-32,8,7,-15,0,0,0,0,0,0,0,0,0,
+d4_bot1, models/e4/d4_bot1.dkm, none, bbox,1,0,20,-2,-2,-30,1,2,-16,0,0,0,0,0,0,0,0,0,
+d4_bot2, models/e4/d4_bot2.dkm, none, bbox,1,0,20,-2,-2,-30,2,2,-16,0,0,0,0,0,0,0,0,0,0
+d4_bread, models/e4/d4_bread.dkm, none, bbox,1,0,20,-2,-2,-31,6,2,-25,0,0,0,0,0,0,0,0,0,
+bush1, models/e4/d4_bush1.dkm, none, bbox,1,0,20,-11,-15,-31,14,15,-11,0,0,0,0,0,0,0,0,0,
+d4_cof, models/e4/d4_cof.dkm, none, bbox,1,0,20,-2,-3,-32,2,3,-27,0,0,0,0,0,0,0,0,0,
+demon, models/e4/d4_demon.dkm, none, bbox,1,0,20,-16,-57,-32,23,58,86,0,0,0,0,0,0,0,0,0
+goldencup, models/e4/d4_gcup.dkm, none, bbox,1,0,20,-4,-5,-32,4,5,-19,0,0,0,0,0,0,0,0,0
+ironbox, models/e4/d4_iron.dkm, toss, bbox,2,0,20,-13,-13,-24,13,13,4,0,0,0,0,0,0,0,0,0
+japplant1, models/e4/d4_jppl1.dkm, none, bbox,1,0,20,-17,-20,-32,17,20,7,0,0,0,0,0,0,0,0,0
+japplant2, models/e4/d4_jppl2.dkm, none, bbox,1,0,20,-12,-9,-31,12,9,5,0,0,0,0,0,0,0,0,0
+jappot1, models/e4/d4_jppt1.dkm, none, bbox,1,0,20,-17,-20,-32,17,20,7,0,0,0,0,0,0,0,0,0
+jappot2, models/e4/d4_jppt2.dkm, none, bbox,1,0,20,-8,-8,-28,8,8,-2,0,0,0,0,0,0,0,0,0
+kendorack, models/e4/d4_kendo.dkm, none, bbox,1,0,20,-2,-31,-27,2,30,-10,0,0,0,0,0,0,0,0,0
+lantern, models/e4/d4_lant.dkm, none, bbox,1,0,20,-9,-9,-27,9,9,0,0,0,0,0,0,0,0,0,0
+pipeend, models/e4/d4_pipe1.dkm, none, bbox,1,0,20,-5,-26,-24,5,22,2,0,0,0,0,0,0,0,0,0
+pipend2, models/e4/d4_pipe2.dkm, none, bbox,1,0,20,-5,-18,-24,5,31,2,0,0,0,0,0,0,0,0,0
+d4_cup, models/e4/d4_cup.dkm, none, bbox,1,0,20,-1,-4,-28,2,2,-20,0,0,0,0,0,0,0,0,0
+pot1, models/e4/d4_pan1.dkm, none, bbox,1,0,20,-17,-10,-27,17,10,-20,0,0,0,0,0,0,0,0,0
+pot3, models/e4/d4_pan2.dkm, none, bbox,1,0,20,-7,-6,-28,6,11,-14,0,0,0,0,0,0,0,0,0
+shitzu, models/e4/d4_fu.dkm, none, bbox,1,0,20,-16,-14,-29,16,14,26,0,0,0,0,0,0,0,0,0
+pracswo, models/e4/d4_sword.dkm, none, bbox,1,0,20,-2,-1,-30,2,1,25,0,0,0,0,0,0,0,0,0
+rock1, models/e4/d4_rock1.dkm, none, bbox,1,0,20,-2,-3,-28,3,3,-23,0,0,0,0,0,0,0,0,0
+samarmor, models/e4/d4_armor.dkm, none, bbox,1,0,20,-17,-16,-28,17,16,51,0,0,0,0,0,0,0,0,0
+d4_gull, models/e4/d4_gull.dkm, none, bbox,1,0,20,-19,-60,-56,15,61,35,0,2, 0~20, 20~60,0,0,0,0,0
+sodacan, models/e4/d4_soda.dkm, none, bbox,1,0,20,-2,-2,-28,2,2,-20,0,0,0,0,0,0,0,0,0
+tray, models/e4/d4_tray.dkm, none, bbox,1,0,20,-9,-13,-27,9,15,-26,0,0,0,0,0,0,0,0,0
+banner1, models/e4/d4_banner.dkm, none, bbox,1,0,20,-1,-197,-28,1,197,23,0,0,0,0,0,0,0,0,0
+wires1, models/e4/d4_wires1.dkm, none, bbox,1,0,20,-28,-203,-31,10,203,20,0,0,0,0,0,0,0,0,0
+trashcan, models/e4/d4_trashcan.dkm, none, bbox,1,0,20,-18,-17,-28,18,18,15,0,0,0,0,0,0,0,0,0
+; testing purposes,,,,,,,,,,,,,,,,,,,,,
+m_sgirl, models/e4/m_sgirl.dkm, none, bbox,1,0,20,-16,-16,-24,16,16,32,0,0,0,0,0,0,0,0,0
+m_sdiver, models/e4/m_sdiver.dkm, none, bbox,1,0,20,-16,-16,-24,16,16,32,0,0,0,0,0,0,0,0,0
+m_rocketmp, models/e4/m_rocketmp.dkm, none, bbox,1,0,20,-16,-16,-24,16,16,32,0,0,0,0,0,0,0,0,0
+m_wpris, models/e4/m_wpris.dkm, none, bbox,1,0,20,-16,-16,-24,16,16,32,0,0,0,0,0,0,0,0,0
+m_bpris, models/e4/m_bpris.dkm, none, bbox,1,0,20,-16,-16,-24,16,16,32,0,0,0,0,0,0,0,0,0
+m_shark, models/e4/m_shark.dkm, none, bbox,1,0,20,-16,-16,-24,16,16,32,0,0,0,0,0,0,0,0,0
+m_sealcap, models/e4/m_sealcap.dkm, none, bbox,1,0,20,-16,-16,-24,16,16,32,0,0,0,0,0,0,0,0,0
+m_chgang, models/e4/m_chgang.dkm, none, bbox,1,0,20,-16,-16,-24,16,16,32,0,0,0,0,0,0,0,0,0
+m_alien, models/e4/m_alien.dkm, none, bbox,1,0,20,-16,-16,-24,16,16,32,0,0,0,0,0,0,0,0,0
+m_uzi, models/e4/m_uzi.dkm, none, bbox,1,0,20,-16,-16,-24,16,16,32,0,0,0,0,0,0,0,0,0
+m_rockgang, models/e4/m_rockgang.dkm, none, bbox,1,0,20,-16,-16,-24,16,16,32,0,0,0,0,0,0,0,0,0
+m_chopper, models/e4/m_chopper.dkm, none, bbox,1,0,20,-16,-16,-24,16,16,32,0,0,0,0,0,0,0,0,0
+m_scomndo, models/e4/m_scomndo.dkm, none, bbox,1,0,20,-16,-16,-24,16,16,32,0,0,0,0,0,0,0,0,0
+m_labmonkey, models/e4/m_labmonkey.dkm, none, bbox,1,0,20,-16,-16,-24,16,16,32,0,0,0,0,0,0,0,0,0
+m_kage, models/e4/m_kage.dkm, none, bbox,1,0,20,-16,-16,-24,16,16,32,0,0,0,0,0,0,0,0,0
+m_drug, models/e4/m_drug.dkm, none, bbox,1,0,20,-16,-16,-24,16,16,32,0,0,0,0,0,0,0,0,0
+Tosh, models/e4/Toshiro_ebihara_low.dkm, none, bbox,1,0,20,-12,-12,-24,12,12,32,0,0,0,0,0,0,0,0,0
+
+
+; Each line in this file contains data on the decos in the directories,,,,,,,,,,,,,,,,,,,,,
+"; under this directory.  Comment lines begin with a "";"" and will be ignored.",,,,,,,,,,,,,,,,,,,,,
+; The format of each line is:,,,,,,,,,,,,,,,,,,,,,
+;         ModelName, PathName, MoveType, SolidType, Mass, Exploding, HitPoints, MinX, MinY, MinZ, MaxX, MaxY, MaxZ,,,,,,,,,
+;,,,
+"; ModelName- The name of the model.  This is the value given to the ""model"" tag",,,
+;            that was assigned when the entity was inserted into the map.,,,
+; PathName-  The path of the .dkm file," for example ""models/deco/e2/2shield1.dkm"".",,
+;            Do not include quotes.,,,
+"; MoveType-  Either ""toss"""," ""bounce"""," or ""none"".  Do not include quotes.",
+"; SolidType- Either ""bbox"" or ""not"".  Do not include quotes.",,,
+; Mass-      The mass of the deco.  1.0 is the same as player mass, 2.0 is twice ,,
+;            the player mass, etc.,,
+; Exploding- 1 if the deco can be destroyed, 0 if the deco can not be destroyed.,,
+; HitPoints- If the deco can be destroyed, this is the amount of damage it can take.,,
+;            If the Exploding field is 0, this field is ignored.,,
+; Min*,Max*- These fields specify the size of the object.,,
+; GibType   - Type of gibs this thing throws off when beaten down. ,,,
+";			  Valid settings are:  WOOD", GLASS, METAL, WHITE.... default value is 0 (which means it doesn't explode)
+; AnimSeq   - Number of animation sequences this deco has.  For decos with only one frame ,,,
+;             this should be zero..zilch.. nada!!!,
+"; seq0-seq4 - frames or frame sequences of animation  use ""-"" for a set of frames use ""~"" to loop the frames",
+;,
+; render fx - 0 = default, 1 = translucent
+; render fx - [if translucent, set alpha (0.0 - 1.0)]

@@ -1,0 +1,171 @@
+WORLD.CPP:
+"exitwater.wav",
+"landinwater.wav",
+"swim1.wav",
+"breathe.wav",
+"breathe2.wav",
+"choke1.wav",
+"choke3.wav",
+"waterdeath.wav",
+"waterchoke1.wav",
+"jump1.wav",
+"jump2.wav",
+"jump3.wav",
+"land1.wav",
+"land2.wav",
+"land3.wav",
+"land4.wav",
+//	    "landhurt.wav",
+"landhurt1.wav",
+"landhurt2.wav",
+"death1.wav",
+"death2.wav",
+"death3.wav",
+"death4.wav",
+"death5.wav",
+"death6.wav",
+"death7.wav",
+"pain1.wav",
+"pain2.wav",
+"pain3.wav",
+"pain4.wav",
+"pain5.wav",
+"pain6.wav",
+"pain7.wav",
+"udeath.wav",
+"global/a_powerquad.wav");
+"global/i_pickup6.wav");
+"global/e_teleportstart.wav"); // 3.5 dsn  boost blink sounds
+"global/i_c4ammo.wav");
+"global/e_talk.wav");
+"global/a_ames.wav");
+"menus/e_atmosphereb.wav");
+"menus/Enter Menu_001.wav");
+"menus/600ms rotate descend_001.wav");
+"menus/600ms rotate ascend_001.wav");
+"menus/no_001.wav");
+"menus/button_003.wav");
+"menus/button_004.wav");
+"menus/button_005.wav");
+"global/we_zapa.wav");
+"global/we_zapb.wav");
+"e3/we_wwispcorditea.wav");
+"e3/we_wwispcorditeb.wav");
+"e3/we_wwispcorditec.wav");
+"hiro/swim1.wav");
+"hiro/swim2.wav");
+"hiro/swim3.wav");
+"hiro/swim4.wav");
+"global/e_bulflesha.wav");
+"global/e_bulfleshb.wav");
+"global/e_bulfleshc.wav");
+"global/e_bulfleshd.wav");
+"global/e_bulfleshe.wav");
+"global/e_firetravela.wav");
+"global/e_firetravelb.wav");
+"global/e_firetravelc.wav");
+"global/e_firetraveld.wav");
+"global/e_firetravele.wav");
+"global/earthquake_a.wav");
+"global/earthquake_b.wav");
+"global/earthquake_c.wav");
+"global/earthquake_d.wav");
+"global/earthquake_e.wav");
+"hiro/death8.wav");
+"hiro/death9.wav");
+"hiro/death10.wav");
+"hiro/pain8.wav");
+"hiro/pain9.wav");
+"hiro/pain10.wav");
+"global/e_ricocheta.wav");
+"global/e_ricochetb.wav");
+"global/e_ricochetc.wav");
+"global/e_ricochetd.wav");
+"global/e_ricochete.wav");
+"global/e_ricochetf.wav");
+"global/e_ricochetg.wav");
+"global/e_ricocheth.wav");
+"global/we_noammo.wav");       // global no-ammo sound
+"global/we_noammo.wav");       // global no-ammo sound
+"global/e_explodeb.wav");
+"global/e_explodec.wav");
+"global/m_gibslopa.wav");
+"global/m_gibslopb.wav");
+"global/m_gibslopc.wav");
+"global/m_gibslopd.wav");
+"global/m_gibslope.wav");
+"global/m_gibsurfa.wav");
+"global/m_gibsurfb.wav");
+"global/m_gibsurfc.wav");
+"global/skill_increase.wav");
+"global/skill_selector.wav");
+"global/skill_start.wav");
+"global/inventory_open.wav");
+"global/inventory_update.wav");
+"global/e_arrowimp.wav");
+"e3/m_dwaraxfly.wav");
+"hiro/grunt11.wav" );
+"hiro/grunt12.wav" );
+"hiro/grunt13.wav" );
+"superfly/laugh1.wav" );
+"superfly/laugh2.wav" );
+"superfly/laugh3.wav" );
+"mikiko/pain1.wav" );
+"mikiko/pain2.wav" );
+"mikiko/pain3.wav" );
+"e1/we_dg_h.wav" );
+"e1/we_ug_bttd.wav" );
+"e1/we_ib_i.wav" );
+"e1/we_cv_wam.wav" );
+"e1/we_sc6_sd.wav" );
+"e1/we_sw_pgtw.wav" );
+"e1/we_shw_s.wav" );
+"e2/we_dod_uf.wav" );
+"e2/we_v_bm.wav" );
+"e2/we_sf_cc.wav" );
+"e2/we_hoh_t.wav" );
+"e2/we_pt_s.wav" );
+"e2/we_eoz_kbz.wav" );
+"e3/we_sc_clah.wav" );
+"e3/we_bol_ttt.wav" );
+"e3/we_bal_tth.wav" );
+"e3/we_ss_t.wav" );
+"e3/we_ww_hv.wav" );
+"e3/we_nn_dbtd.wav" );
+"e4/we_g_smg.wav" );
+"e4/we_sl_s.wav" );
+"e4/we_k_iib.wav" );
+"e4/we_r_sid.wav" );
+"e4/we_n_bmu.wav" );
+"e4/we_m_b.wav" );
+"superfly/waterchoke2.wav" );
+"superfly/waterchoke3.wav" );
+"superfly/waterchoke4.wav" );
+"mikiko/waterchoke1.wav" );
+"mikiko/waterchoke2.wav" );
+"mikiko/waterchoke3.wav" );
+"hiro/waterdeath1.wav" );
+"hiro/waterdeath2.wav" );
+"hiro/waterdeath3.wav" );
+"hiro/waterland4.wav" );
+"hiro/waterland6.wav" );
+"global/we_swordwhoosha.wav");
+"global/we_swordwhooshb.wav");
+"global/we_swordwhooshc.wav");
+"global/we_swordwhooshd.wav");
+"global/we_swordwhooshe.wav");
+"global/we_swordwhooshf.wav");
+"global/m_swordhita.wav");
+"global/m_swordhitb.wav");
+"global/m_swordhitc.wav");
+"global/m_swordhitd.wav");
+"global/m_swordhite.wav");
+"global/we_swordclanka.wav");
+"global/we_swordclankb.wav");
+"global/we_swordclankc.wav");
+"global/we_swordclankd.wav");
+"global/we_swordclanke.wav");
+"global/we_swordstaba.wav");
+"global/we_swordstabb.wav");
+"global/we_swordstabc.wav");
+"global/we_swordstabd.wav");

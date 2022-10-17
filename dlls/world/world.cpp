@@ -235,6 +235,23 @@ void	path_to_player (userEntity_t *self);
 void	WorldCINInit();
 void    WorldCINKill();
 
+#ifndef _WIN32
+#include <string.h>
+#include<ctype.h>
+
+char *_strlwr(char *str)
+{
+  unsigned char *p = (unsigned char *)str;
+
+  while (*p) {
+     *p = tolower((unsigned char)*p);
+      p++;
+  }
+
+  return str;
+}
+#endif
+
 //#ifdef _DEBUG
 #pragma message( "// SCG[1/11/00]: Remove for Release build" )
 void	af_powerup (userEntity_t *self);

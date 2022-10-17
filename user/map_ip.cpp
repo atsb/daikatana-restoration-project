@@ -50,7 +50,11 @@ void CMapIntegerToPtr::Init()
 
 inline UINT CMapIntegerToPtr::HashKey(int key) const
 {
+#ifdef _WIN32
 	return ((UINT)(void*)(DWORD)key) >> 4;
+#else
+	return ((UINT)key) >> 4;
+#endif
 }
 
 void CMapIntegerToPtr::InitHashTable( UINT nHashSize, BOOL bAllocNow )

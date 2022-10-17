@@ -24,18 +24,18 @@
 
 #include <unistd.h>
 
-typedef unsigned char	BYTE;
-typedef int				BOOL;
-typedef unsigned long	UINT;
-typedef unsigned long	ULONG;
-typedef unsigned long	DWORD;
+typedef unsigned char		BYTE;
+typedef int			BOOL;
+typedef unsigned int		UINT;
+typedef unsigned long long	ULONG;
+typedef unsigned int		DWORD;
 typedef char*			LPSTR;
 typedef char*			LPCTSTR;
 typedef void*			PVOID;
 typedef void*			LPVOID;
 typedef void*			HANDLE;
 typedef void*			HINSTANCE;
-typedef void*           HMODULE;
+typedef void*           	HMODULE;
 
 #ifndef strcmpi
     #define strcmpi strcasecmp

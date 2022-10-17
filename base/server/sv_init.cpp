@@ -37,7 +37,7 @@ int SV_FindIndex (const char *name, int start, int max, qboolean create)
 		MSG_WriteChar (&sv.multicast, svc_configstring);
 		MSG_WriteShort (&sv.multicast, start+i);
 		MSG_WriteString (&sv.multicast, name);
-		SV_Multicast (CVector(0,0,0), MULTICAST_ALL_R);
+		//SV_Multicast (CVector(0,0,0), MULTICAST_ALL_R);
 	}
 	
 	return i;

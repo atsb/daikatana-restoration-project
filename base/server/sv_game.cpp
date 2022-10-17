@@ -260,7 +260,7 @@ void PF_Configstring (int index, char *val)
 		MSG_WriteChar (&sv.multicast, svc_configstring);
 		MSG_WriteShort (&sv.multicast, index);
 		MSG_WriteString (&sv.multicast, val);
-		SV_Multicast (CVector(0,0,0), MULTICAST_ALL_R);
+		//SV_Multicast (CVector(0,0,0), MULTICAST_ALL_R);
 	}
 }
 void PF_WriteChar (int c) {MSG_WriteChar (&sv.multicast, c);}
@@ -531,9 +531,9 @@ void	SV_InitNewGame (void)
 	import.FS_Gets = FS_Gets;
 	import.FS_GetBytesRead = FS_GetBytesRead;
 
-    import.CIN_CamLocation = CIN_CamLocation;
-    import.CIN_GCE_Interface = CIN_GCE_Interface;
-    import.CIN_WorldPlayback = CIN_WorldPlayback;
+    	import.CIN_CamLocation = CIN_CamLocation;
+    	import.CIN_GCE_Interface = CIN_GCE_Interface;
+    	import.CIN_WorldPlayback = CIN_WorldPlayback;
 	
 	import.SV_EmitSyncEntity = SV_EmitSyncEntity;
 
@@ -547,7 +547,7 @@ void	SV_InitNewGame (void)
 	import.TestMulticast = SV_TestMulticast;
 	import.TestUnicast = PF_TestUnicast;
 
-	import.AutoSave = SV_AutoSave;
+	//import.AutoSave = SV_AutoSave;
 	CS_Init(import);
 
 	//	Nelno:	Load up physics.dll, which will load other DLLs

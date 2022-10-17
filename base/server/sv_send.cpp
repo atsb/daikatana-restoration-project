@@ -104,7 +104,7 @@ void SV_BroadcastCommand (char *fmt, ...)
 	va_end (argptr);
 	MSG_WriteByte (&sv.multicast, svc_stufftext);
 	MSG_WriteString (&sv.multicast, string);
-	SV_Multicast (vZero, MULTICAST_ALL_R);
+	//SV_Multicast (vZero, MULTICAST_ALL_R);
 }
 
 qboolean SV_TestMulticast(multicast_t to)
@@ -248,7 +248,7 @@ void  SV_ReverbPreset (int nPresetID)
 {
 	MSG_WriteByte (&sv.multicast, svc_reverb_preset);
 	MSG_WriteShort (&sv.multicast, nPresetID);
-	SV_Multicast (CVector(0,0,0), MULTICAST_ALL);
+	//SV_Multicast (CVector(0,0,0), MULTICAST_ALL);
 }
 
 void  SV_StartStream (const char* name, float vol)
@@ -259,7 +259,7 @@ void  SV_StartStream (const char* name, float vol)
 	MSG_WriteByte (&sv.multicast, svc_start_stream);
 	MSG_WriteString (&sv.multicast, name);
 	MSG_WriteFloat (&sv.multicast, vol);
-	SV_Multicast (CVector(0,0,0), MULTICAST_ALL);
+	//SV_Multicast (CVector(0,0,0), MULTICAST_ALL);
 }
 
 void SV_StartMusic(const char* name, int chan, edict_t *ent)
@@ -272,8 +272,8 @@ void SV_StartMusic(const char* name, int chan, edict_t *ent)
 	MSG_WriteShort (&sv.multicast, chan);
 	if (ent)
 		PF_Unicast (ent, true);
-	else
-		SV_Multicast (CVector(0,0,0), MULTICAST_ALL);
+	//else
+		//SV_Multicast (CVector(0,0,0), MULTICAST_ALL);
 }
 
 void SV_StartMP3( const char* name, int channel, float fvol, int play_count, qboolean bRestart, edict_t *ent )
@@ -289,8 +289,8 @@ void SV_StartMP3( const char* name, int channel, float fvol, int play_count, qbo
 	MSG_WriteByte (&sv.multicast, bRestart);
 	if (ent)
 		PF_Unicast (ent, true);
-	else
-		SV_Multicast (CVector(0,0,0), MULTICAST_ALL);
+	//else
+		//SV_Multicast (CVector(0,0,0), MULTICAST_ALL);
 }
 
 
@@ -300,8 +300,8 @@ void SV_StopMP3(int channel, edict_t *ent)
 	MSG_WriteShort (&sv.multicast, channel);
 	if (ent)
 		PF_Unicast (ent, true);
-	else
-		SV_Multicast (CVector(0,0,0), MULTICAST_ALL);
+	//else
+		//SV_Multicast (CVector(0,0,0), MULTICAST_ALL);
 }
 /*  
 ==================
@@ -420,6 +420,7 @@ void SV_StartSound (CVector &origin, edict_t *entity, int channel,int soundindex
 	// (global radio chatter, voiceovers, etc)
 	if (!dist_min || !dist_max)
 		use_phs = false;
+		/*
 	if (channel & CHAN_RELIABLE)
 	{
 		if (use_phs)
@@ -433,7 +434,7 @@ void SV_StartSound (CVector &origin, edict_t *entity, int channel,int soundindex
 			SV_Multicast (soundOrigin, MULTICAST_PHS);
 		else
 			SV_Multicast (soundOrigin, MULTICAST_ALL);
-	}
+	}*/
 }           
 
 ///*

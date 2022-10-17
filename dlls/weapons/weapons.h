@@ -4,17 +4,25 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "dk_std.h"
 #include <time.h>
 
-#include	"p_user.h"
-#include	"hooks.h"
-#include	"common.h"
-#include	"weapon_funcs.h"
-#include    "libclient.h"
+#include "dk_std.h"
+#include "p_user.h"
+#include "hooks.h"
+#include "common.h"
+#include "weapon_funcs.h"
+#include "libclient.h"
 
-#include    "l__language.h"
+#include "l__language.h"
+#include "../world/ai_frames.h"
+/* ATSB
 #include "..\world\ai_frames.h"
+
+^^
+
+I am going to leave this here.  Whoever did that is no programmer, but instead, is a 
+giant *&^&$*($&&%*$&%(% (censored)
+*/
 
 #define TRUE      1
 #define FALSE     0

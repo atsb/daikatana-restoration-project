@@ -6,6 +6,8 @@
 //
 // ==========================================================================
 
+#include <algorithm>
+
 #if _MSC_VER
 #include <crtdbg.h>
 #endif
@@ -23,6 +25,8 @@
 #include "MonsterSound.h"
 
 /* ***************************** define types ****************************** */
+
+using namespace std;
 
 #define CSV_SIGHT_SKIP_ELEMENTS 8
 
@@ -1288,7 +1292,7 @@ void ai_frame_sounds( userEntity_t *self )
 // Note:
 //
 // ----------------------------------------------------------------------------
-frameData_t *FRAMES_GetSequence( userEntity_t *self, const char *name )
+frameData_t *FRAMES_GetSequence( userEntity_t *self, char *name )
 {
 	if(!self->pMapAnimationToSequence)
 		return NULL;

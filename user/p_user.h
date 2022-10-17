@@ -1336,9 +1336,9 @@ typedef struct serverState_s {
 	void (*StartOriginSound) (CVector& origin, int channel, int sound_index, float volume, float dist_min, float dist_max);
     void (*SetReverbPreset)(int nPresetID) ;    // jas 9/11/98 to allow trigger_change_sfx() to change reverb setting
 	void (*StreamedSound)	(const char* name, float volume);	// mdm - for streaming audio
-	void (*StartMusic) (const char* name, int chan, edict_t *ent = NULL);	
-	void (*StartMP3) (const char* name, int chan, float fvol, int play_count, qboolean bRestart = TRUE, edict_t *ent = NULL );	
-	void (*StopMP3) (int chan, edict_t *ent = NULL);	
+	void (*StartMusic) (const char* name, int chan, edict_t *ent);	
+	void (*StartMP3) (const char* name, int chan, float fvol, int play_count, qboolean bRestart, edict_t *ent );	
+	void (*StopMP3) (int chan, edict_t *ent);	
 
 	// config strings hold all the index strings, the lightstyles,
 	// and misc data like the sky definition and cdtrack.

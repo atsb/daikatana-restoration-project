@@ -334,7 +334,7 @@ typedef	struct	comon_export_s
     void			(*Damage)						(userEntity_t *target, userEntity_t *inflictor, userEntity_t *attacker, 
 														CVector &point_of_impact, CVector &damage_vec, float damage, unsigned long damage_flags);
 													
-	void			(*FlashClient)					(userEntity_t *self, float amt, float r, float g, float b, float vel=0);
+	void			(*FlashClient)					(userEntity_t *self, float amt, float r, float g, float b, float vel);
 	int				(*CanDamage)					(userEntity_t *target, userEntity_t *inflictor);
 	int				(*RadiusDamage)					(userEntity_t *inflictor, userEntity_t *attacker, userEntity_t *ignore, 
 														float damage, unsigned long damage_flags, float fRadius );
@@ -358,8 +358,8 @@ typedef	struct	comon_export_s
 	userEntity_t	*(*DeathmatchSpawnPoint)		(const char *className);
 	userEntity_t	*(*SelectSpawnPoint)			(const char *className, const char *target);
 													
-	userEntity_t	*(*FindFirstGroupMember)		(char *groupName, char *className = NULL);						//&&& AMW
-	userEntity_t	*(*FindNextGroupMember)			(char *groupName, userEntity_t *head, char *className = NULL);	//&&& AMW
+	userEntity_t	*(*FindFirstGroupMember)		(char *groupName, char *className);						//&&& AMW
+	userEntity_t	*(*FindNextGroupMember)			(char *groupName, userEntity_t *head, char *className);	//&&& AMW
 	void			(*TransformChildOffset)			( CVector &origin, CVector &offs, CVector &angles, bool bFlipYaw, CVector &out );  //&& AMW
 													
 	void			(*ClientPrint)					(userEntity_t *self, char *msg);

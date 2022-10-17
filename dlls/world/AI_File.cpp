@@ -193,6 +193,8 @@ public:
 	void CacheSounds();
 };
 
+
+
 /* ***************************** Local Variables *************************** */
 
 static int nNumMonsters = 0;
@@ -324,6 +326,12 @@ void CAIAttributes::CacheSounds()
 }
 
 
+/*
+* ATSB: And the nutter who wrote this Windows-only crap without wrapping it was???
+* Can't believe someone got paid to write such horrible shitty code.
+*
+* Fixed it though!
+*/
 
 
 // ****************************************************************************
@@ -337,7 +345,11 @@ static CAIAttributes *AIATTRIBUTE_Lookup( const char *szClassName )
 		return NULL;
 	}
 
+#ifndef _WIN32
+	char *pszTemp = _strlwr( strdup(szClassName) );
+#else
 	char *pszTemp = _strlwr( _strdup(szClassName) );
+#endif
 	void *pValue = NULL;
     mapNameToAttributes.Lookup(pszTemp, pValue);
     CAIAttributes *pAttributes = (CAIAttributes*)pValue;
@@ -348,7 +360,11 @@ static CAIAttributes *AIATTRIBUTE_Lookup( const char *szClassName )
 
 static void AIATTRIBUTE_Add( const char *szClassName, CAIAttributes *pAttributes )
 {
+#ifndef _WIN32
+	char *pszTemp = _strlwr( strdup(szClassName) );
+#else
 	char *pszTemp = _strlwr( _strdup(szClassName) );
+#endif
 
     CAIAttributes *pTempAttributes = AIATTRIBUTE_Lookup( pszTemp );
 	if ( pTempAttributes )
@@ -364,7 +380,7 @@ static void AIATTRIBUTE_Remove( const char *szClassName )
 {
 	if ( szClassName )
 	{
-		mapNameToAttributes.RemoveKey( szClassName );
+		mapNameToAttributes.RemoveKey( (char*)szClassName );
 	}
 }
 

@@ -55,7 +55,6 @@ PHYSICS_DIR			= $(BASE_DIR)/physics
 QCOMMON_DIR			= $(BASE_DIR)/qcommon
 SERVER_DIR			= $(BASE_DIR)/server
 OS_DIR				= $(BASE_DIR)/$(OS)
-LINUX_DIR			= $(BASE_DIR)/linux
 
 WEAPONS_DIR			= $(DLLS_DIR)/weapons
 WORLD_DIR			= $(DLLS_DIR)/world

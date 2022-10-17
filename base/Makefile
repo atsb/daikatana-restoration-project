@@ -55,6 +55,12 @@ OS_OBJS =				\
 	sys_solaris.o
 endif
 
+ifeq ($(UNAME_S),NETBSD)
+OS_OBJS =				\
+	net_bsd.o			\
+	net_chan.o			
+endif
+
 OBJS =					\
 	dk_log.o			\
 	dk_model.o			\
@@ -66,15 +72,12 @@ OBJS =					\
 	common.o			\
 	cvar.o				\
 	dk_screen_coord.o		\
-	files.o				\
-	glob.o				\
+	files.o			\
 	key_null.o			\
 	md4.o				\
 	memmgr.o			\
 	misc_null.o			\
-	net_bsd.o			\
-	net_chan.o			\
-	pmove.o				\
+	pmove.o			\
 	sv_ccmds.o			\
 	sv_ents.o			\
 	sv_game.o			\

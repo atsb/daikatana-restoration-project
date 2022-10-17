@@ -472,6 +472,7 @@ typedef struct game_import_t
 	int		(*dk_GetAnimSequences)	(int modelindex, frameData_t *pFrameData);
 
 	int		(*dk_GetModelSkinIndex) (int modelIndex);
+	char*		(*dk_GetModelSkinName) (int modelIndex);
 
 	char	*sv_prepped_refresh;		//	set to true when precached models have been loaded
 

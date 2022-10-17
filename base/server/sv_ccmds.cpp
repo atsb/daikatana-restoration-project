@@ -829,33 +829,33 @@ bool SV_CanSave (client_t *cl, bool msg)
 		cl = GetLocalClient();
 	}
 
-	if ( !cl || !ge || !ge->CanSave )
+	if ( !cl || !ge )
 	{
 		if (msg)
-			Com_Printf (tongue_save_error[TONGUE_SAVE_ERR_LOCAL]);
+			Com_Printf (TONGUE_SAVE_ERR_LOCAL);
 		return false;
 	}	
 		
 	if ( (sv.state != ss_game) || SCR_ScreenDisabled() )
 	{
 		if (msg)
-			Com_Printf (tongue_save_error[TONGUE_SAVE_ERR_INGAME]);
+			Com_Printf (TONGUE_SAVE_ERR_INGAME);
 		return false;
 	}
 	if (Cvar_VariableValue("deathmatch"))
 	{
 		if (msg)
-			Com_Printf (tongue_save_error[TONGUE_SAVE_ERR_DM]);
+			Com_Printf (TONGUE_SAVE_ERR_DM);
 		return false;
 	}
 	if(cl->edict->client->ps.rdflags & RDF_LETTERBOX)
 	{
 		if (msg)
-			Com_Printf (tongue_save_error[TONGUE_SAVE_ERR_CINE]);
+			Com_Printf (TONGUE_SAVE_ERR_CINE);
 		return false;
 	}
 
-	return ge->CanSave(cl->edict, msg);
+	return (cl->edict, msg);
 }
 
 short SV_DoSaveGame(char *dir, char *comment)

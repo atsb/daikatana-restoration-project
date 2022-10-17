@@ -16,4 +16,8 @@ Largely, I am a Linux user, I will focus on getting the original GL renderer up 
 
 For comparison sake, I will be looking at other ports, such as yamagi quake 2 for pulling in those small similarities that the code shares.  I will be fixing the archaic makefiles for this.
 
+# How to contribute
+
+I dislike complicated stuff.  Fork, hack, PR and repeat :) I'm more than happy for anyone to contribute, as long as your code quality is good and you are reasonably experienced in C/C++.
+
 Let's get to work.

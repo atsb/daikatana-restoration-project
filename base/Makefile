@@ -41,13 +41,15 @@ LIBS		= $(STD_LIBS) $(IONCOMMON)
 # Files
 #-----------------------------------------------------------------------------
 
-ifeq ($(OS),Linux)
+UNAME_S := $(shell uname -s)
+
+ifeq ($(UNAME_S),Linux)
 OS_OBJS =				\
 	q_shlinux.o			\
 	sys_linux.o
 endif
 
-ifeq ($(OS),solaris)
+ifeq ($(UNAME_S),,Solaris)
 OS_OBJS =				\
 	q_shsolaris.o			\
 	sys_solaris.o

@@ -74,9 +74,10 @@ static void DKLOG_FileInitialize( char *logFilePath )
 	}
 
 	int bError = FALSE;
+	int i;
 	// open files for logging to files
 	char logFileName[256];
-	for ( int i = 0; i < LOGTYPE_MAX; i++ )
+	for ( i = 0; i < LOGTYPE_MAX; i++ )
 	{
 		strcpy( logFileName, logFilePath );
 		strcat( logFileName, "/" );

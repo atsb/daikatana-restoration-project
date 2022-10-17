@@ -45,14 +45,14 @@ public:
 		this->z = v.z;
 	}
 */
-	CVector::CVector(float x, float y, float z) 
+	CVector(float x, float y, float z) 
 	{
 		this->x = x;
 		this->y = y;
 		this->z = z;
 	}
 
-	CVector::CVector(const float *vect) 
+	CVector(const float *vect) 
 	{
 		x = vect[0];
 		y = vect[1];
@@ -233,50 +233,11 @@ public:
 		float z;
 		float roll;
 	};
+	
+
 };
 
 #ifdef _DEBUG
-
-CVector CVector::operator+(const CVector &v) const;
-CVector CVector::operator-(const CVector &v) const;
-CVector CVector::operator-() const;
-CVector CVector::operator*(float n) const;
-int CVector::operator!=(const CVector &v) const;
-int CVector::operator==(const CVector &v) const;
-int CVector::operator==(int i) const;
-void CVector::operator+=(const CVector &v);
-void CVector::operator-=(const CVector &v);
-float &CVector::operator[](int nIndex);
-void CVector::operator=(const CVector &other);
-void CVector::operator=(const float *vect);
-CVector::operator const float *() const;
-void CVector::Equal( const CVector &v );
-void CVector::Equal(float x, float y, float z);
-void CVector::Equal(const CVector &p, float len);
-void CVector::Equal(const CVector &p1, float scale1, const CVector &p2, float scale2);
-void CVector::CopyTo(float *vect) const;
-void CVector::Subtract(const CVector &p0, const CVector &p1);
-float CVector::Normalize();
-float CVector::Length() const;
-void CVector::Negate();
-void CVector::Negate( const CVector &p );
-float CVector::DotProduct(const CVector &p) const;
-void CVector::CrossProduct( const CVector &v1, const CVector &v2 );
-void CVector::Add( const float fValue );
-void CVector::Add( const CVector &v );
-void CVector::Add(const CVector &p0, const CVector &p1);
-void CVector::Add(const CVector &p0, float scale);
-void CVector::Zero();
-void CVector::Multiply( float scale );
-void CVector::AngleToVectors( CVector &forward, CVector &right, CVector &up ) const;
-void CVector::VectorToAngles( CVector &angles ) const;
-void CVector::AngleToForwardVector( CVector &forward ) const;
-void CVector::Multiply( const CMatrix &mat, const CVector &p );
-void CVector::SetValue( float fValue, int nIndex );
-float CVector::GetValue( int nIndex );
-CVector operator *( float n, const CVector& b );
-void CVector::Scale(CVector & Source, float scale);
-CVector CVector::Interpolate( CVector& v1, CVector& v2, float fPercent );
 
 /* ************************************************************************* */
 /*						Helper functions and definitions					 */

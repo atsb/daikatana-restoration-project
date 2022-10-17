@@ -8,14 +8,14 @@
 
 SHELL = /bin/sh
 
-# Check OSTYPE, assume solaris if undefined.
+# Check OSTYPE, assume GNU/Linux if undefined.
 ifndef OSTYPE
-OSTYPE = solaris
+OSTYPE = Linux
 endif
 
 # Check MACHTYPE, assume intel if undefined.
 ifndef MACHTYPE
-MACHTYPE = i386
+MACHTYPE = x86_64
 endif
 
 #-----------------------------------------------------------------------------
@@ -101,10 +101,11 @@ else
 PLATFORM_CXXFLAGS =
 endif
 
-ifeq ($(OS),solaris)
-RPATH	= -R
-SHARED	= -G
-SONAME	= -h 
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Solaris)
+RPATH	= -Wl,-rpath,
+SHARED	= -shared
+SONAME	= -Wl,-soname,
 LSOCKET	= -lsocket
 else
 RPATH	= -Wl,-rpath,

@@ -1026,14 +1026,3 @@ static char *tongue_deathtag[] =
 	"%s來自%s隊伍，得到分數！\n"
 };
 
-// --------------------new-------------------------
-static char *tongue_save_error[] =
-{
-	"You must be running a local game to save!\n",
-	"You must be in a game to save!\n",
-	"You can not save in deathmatch!\n",
-	"You can not save during a cinematic!\n",
-	"You can not save while dead!\n",
-	"You can not save during intermission!\n",
-	"You can not save here!\n"
-};

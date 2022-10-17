@@ -502,14 +502,14 @@ bool P_CanSave (userEntity_t *ent, bool msg)
 	if (ent->health <= 0)
 	{
 		if (msg)
-			Com_Printf (tongue_save_error[TONGUE_SAVE_ERR_DEAD]);
+			Com_Printf (TONGUE_SAVE_ERR_DEAD);
 		return false;
 	}
 
 	if (serverState.level->intermissiontime > 0)
 	{
 		if (msg)
-			Com_Printf (tongue_save_error[TONGUE_SAVE_ERR_INTERMISSION]);
+			Com_Printf (TONGUE_SAVE_ERR_INTERMISSION);
 		return false;
 	}
 
@@ -530,14 +530,14 @@ bool P_CanSave (userEntity_t *ent, bool msg)
 		else
 		{
 			if (msg)
-				serverState.centerprint(ent, 2.0, tongue_save_error[TONGUE_SAVE_ERR_HERE]);
+				serverState.centerprint(ent, 2.0, TONGUE_SAVE_ERR_HERE);
 			return false;
 		}
 	}
 	else if (ent->groundEntity->velocity.Length() > 0)
 	{
 		if (msg)
-			serverState.centerprint(ent, 2.0, tongue_save_error[TONGUE_SAVE_ERR_HERE]);
+			serverState.centerprint(ent, 2.0, TONGUE_SAVE_ERR_HERE);
 		return false;
 	}
 /*

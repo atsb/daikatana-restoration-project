@@ -57,8 +57,7 @@ endif
 
 ifeq ($(UNAME_S),NETBSD)
 OS_OBJS =				\
-	net_bsd.o			\
-	net_chan.o			
+	net_bsd.o			
 endif
 
 OBJS =					\
@@ -86,6 +85,7 @@ OBJS =					\
 	sv_send.o			\
 	sv_user.o			\
 	sv_world.o			\
+	net_chan.o			\
 	$(OS_OBJS)
 
 OUT = $(DKDED)

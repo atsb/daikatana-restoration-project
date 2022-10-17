@@ -49,7 +49,7 @@ OS_OBJS =				\
 	sys_linux.o
 endif
 
-ifeq ($(UNAME_S),,Solaris)
+ifeq ($(UNAME_S),Solaris)
 OS_OBJS =				\
 	q_shsolaris.o			\
 	sys_solaris.o

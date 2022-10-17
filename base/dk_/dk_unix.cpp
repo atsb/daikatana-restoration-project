@@ -41,8 +41,7 @@ static	unsigned int	dk_StopTime;
 
 void	dk_GetUserName (void)
 {
-	unsigned int size = DK_MAX_USERNAME;
-	if (!getlogin_r (dk_userName, &size))
+	if (!getlogin_r (dk_userName, DK_MAX_USERNAME))
 	{
 		sprintf (dk_userName, "config");
 	}

@@ -375,9 +375,9 @@ typedef struct game_import_t
     void    (*set_reverb_preset) (int nPresetID) ; // jas
 	void	(*streamed_sound) (const char* name, float vol);
 
-	void	(*StartMusic) (const char* name, int chan, edict_t *ent = NULL);
-	void    (*StartMP3) (const char* name, int chan, float fvol, int play_count, qboolean bRestart = TRUE, edict_t *ent = NULL );	
-	void    (*StopMP3) (int chan, edict_t *ent = NULL);	
+	void	(*StartMusic) (const char* name, int chan, edict_t *ent);
+	void    (*StartMP3) (const char* name, int chan, float fvol, int play_count, qboolean bRestart, edict_t *ent);	
+	void    (*StopMP3) (int chan, edict_t *ent);	
 
 	// config strings hold all the index strings, the lightstyles,
 	// and misc data like the sky definition and cdtrack.

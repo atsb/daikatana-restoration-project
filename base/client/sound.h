@@ -87,7 +87,7 @@ typedef int (*DLL_Init_t)(DkAEInterfaceData_t* dkData, AEInfo_t* pEntryPts) ;
 
 	typedef void  (*S_StartMusic_t) (const char* name, int chan);
 	typedef void  (*S_StopMusic_t) (int chan);
-	typedef void  (*S_StartMP3_t) (const char* name, int channel, float fvol, int play_count, qboolean bRestart = TRUE );
+	typedef void  (*S_StartMP3_t) (const char* name, int channel, float fvol, int play_count, qboolean bRestart);
 	typedef void  (*S_StopMP3_t) (int channel);
 	typedef void  (*S_PauseStreams_t) (qboolean bOnOff);
 
@@ -110,7 +110,7 @@ typedef int (*DLL_Init_t)(DkAEInterfaceData_t* dkData, AEInfo_t* pEntryPts) ;
 	extern void  (*S_StartMusic) (const char* name, int chan);
 	extern void  (*S_StopMusic) (int chan);
 
-	extern void  (*S_StartMP3) (const char* name, int chan, float fvol, int play_count, qboolean bRestart = TRUE );
+	extern void  (*S_StartMP3) (const char* name, int chan, float fvol, int play_count, qboolean bRestart);
 	extern void  (*S_StopMP3) (int chan);
 	extern void  (*S_PauseStreams)( qboolean bOnOff );
 

@@ -439,7 +439,7 @@ typedef struct refexport_s
 	void	*(*RegisterModel) ( const char *name, resource_t resource );
 	void	*(*RegisterSkin)( const char *name, resource_t resource );
 	void	*(*RegisterPic)( const char *name, int *pWidth, int *pHeight, resource_t resource );
-	void	(*SetSky) (const char *name, const char *cloudname, int skynum=0);
+	void	(*SetSky) (const char *name, const char *cloudname, int skynum);
 	void	(*SetPaletteDir) (const char *name);
 	
 	void	(*EndRegistration)();

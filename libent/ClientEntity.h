@@ -78,10 +78,10 @@ class CClientEntityManager;
 class CClientEntity  
 {
 public:
-	void* CClientEntity::operator new (size_t size) { return memmgr.X_Malloc(size,MEM_TAG_ENTITY); }
-	void* CClientEntity::operator new[] (size_t size) { return memmgr.X_Malloc(size,MEM_TAG_ENTITY); }
-	void  CClientEntity::operator delete (void* ptr) { memmgr.X_Free(ptr); }
-	void  CClientEntity::operator delete[] (void* ptr) { memmgr.X_Free(ptr); }
+	void* operator new (size_t size) { return memmgr.X_Malloc(size,MEM_TAG_ENTITY); }
+	void* operator new[] (size_t size) { return memmgr.X_Malloc(size,MEM_TAG_ENTITY); }
+	void  operator delete (void* ptr) { memmgr.X_Free(ptr); }
+	void  operator delete[] (void* ptr) { memmgr.X_Free(ptr); }
 	
 	int max_entities;
 	virtual CClientEntity * Alloc();

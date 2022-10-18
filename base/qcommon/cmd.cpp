@@ -1007,7 +1007,7 @@ void	Cmd_ExecuteString (const char *text)
 
 //#if !DEDICATED_ONLY
 	// send it as a server command if we are connected
-	Cmd_ForwardToServer ();
+	//Cmd_ForwardToServer ();
 //#endif
 }
 

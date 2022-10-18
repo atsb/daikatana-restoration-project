@@ -8,7 +8,7 @@
 #include	"dk_shared.h"
 #include	"p_user.h"
 // Logic[8/17/99]: this was directly pathed, major no-no!
-#include	"dk_log.h"
+#include	"../base/dk_/dk_log.h"
 
 #include	"common.h"
 

@@ -351,8 +351,8 @@ void Com_Error (int code, char *fmt, ...)
 	va_end (argptr);
 	
 //#if !DEDICATED_ONLY
-	if (con.mode == CON_LOADING)
-		con.mode = CON_NORMAL;
+	//if (con.mode == CON_LOADING)
+	//	con.mode = CON_NORMAL;
 //#endif
 
 	if (code == ERR_DISCONNECT)
@@ -2177,7 +2177,7 @@ void	host_rates_f (void)
 		Com_Printf ("Frame rate display disabled.\n");
 
 //#if !DEDICATED_ONLY
-	dk_InitRates (viddef.width, 64);
+	//dk_InitRates (viddef.width, 64);
 //#endif
 }
 
@@ -2545,7 +2545,7 @@ void Qcommon_Frame (int msec)
 	{
 		if( Cvar_VariableValue( "console" ) == 0 )
 		{
-			M_Menu_Main_f();
+			//M_Menu_Main_f();
 		}
 		return;			// an ERR_DROP was thrown
 	}
@@ -2673,7 +2673,7 @@ void Qcommon_Frame (int msec)
 //	szCLMapName = CL_MapName();
 #endif
 	
-	CL_Frame (msec);
+	//CL_Frame (msec);
 
 	if (host_speeds->value)
 	{
@@ -2700,7 +2700,7 @@ void Qcommon_Frame (int msec)
 		dk_StopTimer ();
 //unix - DEDICATED_ONLY
 //#if !DEDICATED_ONLY
-		dk_ShowRates (viddef.width, 64);
+		//dk_ShowRates (viddef.width, 64);
 //#endif
 	}
 

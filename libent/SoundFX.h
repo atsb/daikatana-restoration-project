@@ -12,10 +12,10 @@
 class CSound  
 {
 public:
-	void* CSound::operator new (size_t size) { return memmgr.X_Malloc(size,MEM_TAG_ENTITY); }
-	void* CSound::operator new[] (size_t size) { return memmgr.X_Malloc(size,MEM_TAG_ENTITY); }
-	void  CSound::operator delete (void* ptr) { memmgr.X_Free(ptr); }
-	void  CSound::operator delete[] (void* ptr) { memmgr.X_Free(ptr); }
+	void* operator new (size_t size) { return memmgr.X_Malloc(size,MEM_TAG_ENTITY); }
+	void* operator new[] (size_t size) { return memmgr.X_Malloc(size,MEM_TAG_ENTITY); }
+	void  operator delete (void* ptr) { memmgr.X_Free(ptr); }
+	void  operator delete[] (void* ptr) { memmgr.X_Free(ptr); }
 
 	void Play(CVector & origin);
 	void Play();

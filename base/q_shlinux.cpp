@@ -181,14 +181,15 @@ int glob_match(char *pattern, char *text)
 
 //===============================================================================
 
-//byte *membase;
-//int maxhunksize;
-//int curhunksize;
-//
-//void *Hunk_Begin (int maxsize)
-//{
+byte *membase;
+int maxhunksize;
+int curhunksize;
+
+void *Hunk_Begin (int maxsize)
+{
+
 //	// reserve a huge chunk of memory, but don't commit any yet
-//	maxhunksize = maxsize + sizeof(int);
+//	maxhunksize = maxsize + sizeof(long long);
 //	curhunksize = 0;
 //	membase = mmap(0, maxhunksize, PROT_READ|PROT_WRITE, 
 //		MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
@@ -197,36 +198,37 @@ int glob_match(char *pattern, char *text)
 //
 //	*((int *)membase) = curhunksize;
 //
-//	return membase + sizeof(int);
-//}
+//	return maxhunksize;
+}
 //
-//void *Hunk_Alloc (int size)
-//{
-//	byte *buf;
+void *Hunk_Alloc (int size)
+{
+	byte *buf;
 //
 //	// round to cacheline
 //	size = (size+31)&~31;
 //	if (curhunksize + size > maxhunksize)
 //		Sys_Error("Hunk_Alloc overflow");
-//	buf = membase + sizeof(int) + curhunksize;
+	buf = membase + sizeof(long long);
 //	curhunksize += size;
-//	return buf;
-//}
+	return buf;
+}
 //
-//int Hunk_End (void)
-//{
-//	byte *n;
+int Hunk_End (void)
+{
+	byte *n;
 //
 //	n = mremap(membase, maxhunksize, curhunksize + sizeof(int), 0);
 //	if (n != membase)
 //		Sys_Error("Hunk_End:  Could not remap virtual block (%d)", errno);
 //	*((int *)membase) = curhunksize + sizeof(int);
 //	
-//	return curhunksize;
-//}
+//	n = membase + sizeof(long long);
+//	return n;
+}
 //
-//void Hunk_Free (void *base)
-//{
+void Hunk_Free (void *base)
+{
 //	byte *m;
 //
 //	if (base) {
@@ -234,7 +236,7 @@ int glob_match(char *pattern, char *text)
 //		if (munmap(m, *((int *)m)))
 //			Sys_Error("Hunk_Free: munmap failed (%d)", errno);
 //	}
-//}
+}
 
 //===============================================================================
 

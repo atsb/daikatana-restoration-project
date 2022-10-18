@@ -548,7 +548,7 @@ void	SV_InitNewGame (void)
 	import.TestUnicast = PF_TestUnicast;
 
 	//import.AutoSave = SV_AutoSave;
-	CS_Init(import);
+	//CS_Init(import);
 
 	//	Nelno:	Load up physics.dll, which will load other DLLs
 	ge = (game_export_t *)Sys_GetGameAPI (&import);

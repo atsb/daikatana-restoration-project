@@ -10,7 +10,7 @@
 #if _MSC_VER
 #include	"dk_dll.h"	
 #else
-#include	"dk_so.h"
+#include	"../dk_so.h"
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -417,33 +417,7 @@ void SV_InitGame (void)
 		svs.clients[i].edict = ent;
 		memset (&svs.clients[i].lastcmd, 0, sizeof(svs.clients[i].lastcmd));
 	}
-
-    //GAMESPY
-	if (maxclients->value > 1 && dedicated->value != 0) //if we are multi-player
-	{
-        cvar_t	*ip, *port;
-		ip = Cvar_Get ("ip", "localhost", CVAR_NOSET);
-		port = Cvar_Get ("port", va("%i", PORT_SERVER), CVAR_NOSET);
-
-		if (goa_init((int)port->value - 10, "daikatana",ip->string, NULL) == 0)
-		{
-
-			//set the callback functions
-			goa_basic_callback = basic_callback;
-			goa_info_callback = info_callback;
-			goa_rules_callback = rules_callback;
-			goa_players_callback = players_callback;
-			//set the secret key, in a semi-obfuscated manner
-			goa_secret_key[0] = 'f';
-			goa_secret_key[1] = 'l';
-			goa_secret_key[2] = '8';
-			goa_secret_key[3] = 'a';
-			goa_secret_key[4] = 'Y';
-			goa_secret_key[5] = '7';
-			goa_secret_key[6] = '\0';
-		}
-
-	}
+		//F YOU GAMESPY!
 }
 
 ///////////////////////////////////////////////////////////////////////////////

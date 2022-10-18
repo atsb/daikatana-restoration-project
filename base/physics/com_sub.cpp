@@ -46,7 +46,7 @@ userTrace_t		trace;
 common_export_t	com;
 common_export_t *memory_com = &com;
 
-static			ID_seed = 0;
+static int			ID_seed = 0;
 
 ////////////////////////////////////////
 //	vtos

@@ -14,8 +14,8 @@
 class CParticleFX_IonSpray : public CParticleFX  
 {
 public:
-    void CParticleFX_IonSpray::SpawnParticles();
-    void CParticleFX_IonSpray::SpawnParticles(CVector &start, CVector &end);
+    void SpawnParticles();
+    void SpawnParticles(CVector &start, CVector &end);
     CParticleFX_IonSpray();
 	virtual ~CParticleFX_IonSpray();
 

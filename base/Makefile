@@ -32,8 +32,7 @@ BUILD_DIR = $(BASE_BUILD)
 
 CXX			= $(STD_CXX)
 CXXFLAGS	= $(STD_CXXFLAGS) -w -I$(BASE_DIR) -I$(DK__DIR) -I$(NULL_DIR) \
-			-I$(QCOMMON_DIR) -I$(SERVER_DIR) -I$(USER_DIR) \
-			-I$(BASE_DIR)/client
+			-I$(QCOMMON_DIR) -I$(SERVER_DIR) -I$(USER_DIR)
 LDFLAGS		= $(STD_LDFLAGS) $(RPATH)./$(DLLS_SUBDIR)
 LIBS		= $(STD_LIBS) $(IONCOMMON)
 
@@ -53,11 +52,6 @@ ifeq ($(UNAME_S),Solaris)
 OS_OBJS =				\
 	q_shsolaris.o			\
 	sys_solaris.o
-endif
-
-ifeq ($(UNAME_S),NETBSD)
-OS_OBJS =				\
-	net_bsd.o			
 endif
 
 OBJS =					\
@@ -86,6 +80,7 @@ OBJS =					\
 	sv_user.o			\
 	sv_world.o			\
 	net_chan.o			\
+	net_bsd.o			\
 	$(OS_OBJS)
 
 OUT = $(DKDED)

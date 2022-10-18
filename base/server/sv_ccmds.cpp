@@ -817,7 +817,7 @@ SV_Savegame_f
 */
 void PF_centerprint (edict_t *ent, float msg_time, char *fmt, ...);
 void SV_SendToLoaclHost(const char *s);
-extern  byte  cl_savegem_count;     //  cl_main.cpp
+byte  sv_savegem_count = 0;
 bool SCR_ScreenDisabled();
 client_t *GetLocalClient();
 
@@ -836,7 +836,7 @@ bool SV_CanSave (client_t *cl, bool msg)
 		return false;
 	}	
 		
-	if ( (sv.state != ss_game) || SCR_ScreenDisabled() )
+	if ( (sv.state != ss_game) )
 	{
 		if (msg)
 			Com_Printf (TONGUE_SAVE_ERR_INGAME);
@@ -861,7 +861,7 @@ bool SV_CanSave (client_t *cl, bool msg)
 short SV_DoSaveGame(char *dir, char *comment)
 {
 /*
-	if ( (sv.state != ss_game) || SCR_ScreenDisabled() )
+	if ( (sv.state != ss_game))
 	{
 		Com_Printf ("You must be in a game to save.\n");
 		return 0;
@@ -887,7 +887,7 @@ short SV_DoSaveGame(char *dir, char *comment)
 
 	if (Cvar_VariableValue("unlimited_saves") == 0.0)
 	{
-		cl_savegem_count--;	// so the count is updated fast.
+		sv_savegem_count--;	// so the count is updated fast.
 
 		// now, actually use it.  It'll send down a message with the correct count.
 		SV_SendToLoaclHost("item_savegem_use");
@@ -926,7 +926,7 @@ void SV_Savegame_f (void)
 			PF_centerprint(svs.clients[0].edict,2.0,tongue[T_NO_SAVEGEMS]);
 		return;
 	}
-	if ( (sv.state != ss_game) || SCR_ScreenDisabled() )
+	if ( (sv.state != ss_game) )
 	{
 		Com_Printf ("You must be in a game to save.\n");
 		return;

@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <netdb.h>
 #include <sys/ioctl.h>
 #include <errno.h>
@@ -227,7 +228,7 @@ qboolean	NET_GetPacket (netsrc_t sock, netadr_t *net_from, sizebuf_t *net_messag
 {
 	int 	ret;
 	struct sockaddr from;
-	int		fromlen;
+	unsigned int	fromlen;
 	int		net_socket;
 	int		err;
 	if (NET_GetLoopPacket (sock, net_from, net_message))

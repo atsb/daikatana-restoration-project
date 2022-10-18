@@ -5,8 +5,6 @@
 #endif // JPN
 
 #include "server.h"
-//GAMESPY
-#include "../GOA/SDK/goautil.h"
 
 netadr_t	master_adr[MAX_MASTERS];	// address of group servers
 client_t	*sv_client;			// current client
@@ -943,12 +941,6 @@ void SV_Frame (int msec)
 	if (sv_frameskip > MAX_FRAME_SKIP)
 		sv_frameskip = 0;
 
-    //GAMESPY
-    goa_process_queries();
-	// send a heartbeat to the master if needed
-	//	Nelno:	We ain't sending id NOTHING!!!!
-	//	Master_Heartbeat ();
-
 	// clear teleport flags, etc for next frame
 	SV_PrepWorldFrame ();
 
@@ -1286,8 +1278,6 @@ void SV_Shutdown (const char *finalmsg, qboolean reconnect, qboolean unload_dlls
 	if (svs.clients)
 		SV_FinalMessage (finalmsg, reconnect);
 
-    //GAMESPY
-    goa_send_statechanged();
 	//Master_Shutdown ();
 
 	if (unload_dlls)

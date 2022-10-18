@@ -115,7 +115,7 @@ LSOCKET	=
 endif
 
 STD_CXX			= g++
-STD_CXXFLAGS	= $(PLATFORM_CXXFLAGS) $(BUILD_CXXFLAGS) -fno-for-scope -DDEDICATED_ONLY=0 -Duse_t=_use_t 
+STD_CXXFLAGS	= $(PLATFORM_CXXFLAGS) $(BUILD_CXXFLAGS) -fno-for-scope -DDEDICATED_ONLY=FALSE -Duse_t=_use_t 
 STD_LDFLAGS		= $(RPATH).
 STD_LIBS		= -lm -ldl -lnsl $(LSOCKET)
 

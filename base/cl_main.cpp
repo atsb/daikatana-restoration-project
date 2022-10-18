@@ -12,6 +12,7 @@
     #define _open open
     #define _lseeki64 lseek64
     #define _lseek lseek
+    #define _access access
     #define stricmp strcasecmp
 #endif
 
@@ -28,8 +29,6 @@
 #ifdef _WIN32
 #include "windows.h"
 #endif
-//GAMESPY
-#include "../GOA/CEngine/goaceng.h"
 
 extern	bspModel_t	bspModel;
 //SCG: 2-26-99
@@ -995,39 +994,9 @@ void CL_ParseStatusMessage (void)
 	M_AddToServerList (net_from, s);
 }
 
-
-//GAMESPY
-void ListCallBack(GServerList serverlist, int msg, void *instance, void *param1, void *param2)
-{
-	GServer server;
-	if (msg == LIST_PROGRESS)
-	{
-		server = (GServer)param1;
-		Com_DPrintf ("%s:%d [%d] %s %d/%d %s\n",ServerGetAddress(server),ServerGetQueryPort(server), ServerGetPing(server),ServerGetStringValue(server, "hostname","(NONE)"), ServerGetIntValue(server,"numplayers",0), ServerGetIntValue(server,"maxplayers",0), ServerGetStringValue(server,"mapname","(NO MAP)"));
-	} /*else
-
-		printf("%d \n",msg); */
-
-}
-
 void CL_PingNetServers_f(void)
 {
-	char goa_secret_key[256];
-    GServerList serverlist;
 
-	// WAW[11/23/99]: Keep secret key secret.
-	goa_secret_key[0] = 'f';
-	goa_secret_key[1] = 'l';
-	goa_secret_key[2] = '8';
-	goa_secret_key[3] = 'a';
-	goa_secret_key[4] = 'Y';
-	goa_secret_key[5] = '7';
-	goa_secret_key[6] = '\0';
-	serverlist = ServerListNew("daikatana","daikatana",goa_secret_key,10,ListCallBack,GCALLBACK_FUNCTION,NULL);
-    //serverlist = ServerListNew("unreal","daikatana","fl8aY7",10,ListCallBack,GCALLBACK_FUNCTION,NULL);
-    ServerListUpdate(serverlist,0);
-    //ServerListLANUpdate(serverlist,false,PORT_SERVER,PORT_SERVER,10);
-    ServerListFree(serverlist);
 }
 
 void CL_PingServer(char *adrstring)

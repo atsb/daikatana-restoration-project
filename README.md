@@ -2,6 +2,14 @@
 
 Daikatana restoration aiming to have a clean 1.2 source and to support modern systems.
 
+# Update
+
+Wow has it been 4 years since the last commit?!  So many things have changed.
+
+There will be updates soon, promise.  A lot has been done already outside of github, mostly because it ended up being atrociously messy and disorganised.  I have scrapped for now, the linux version and I focused solely on getting 1.0 working on Windows and merging in 1.2 fixes.
+
+Expect an official release soon.  Daikatana will live again as an open source project instead of closed-source gatekeeping.
+
 # Why?
 
 Because the only other project is the Daikatana 1.3 Project, who refuse to release their changes.  I don't care much for formalities, if anyone cared about the source, Eidos would have sued Romero back when he dropped it.  They didn't.

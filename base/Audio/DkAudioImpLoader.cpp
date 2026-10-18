@@ -35,7 +35,7 @@ void* (*S_StartSoundQuake2) (const CVector &origin, int entnum, int entchannel, 
 
 void  (*S_StartLocalSound) (const char *s);
 void  (*S_StopAllSounds)(void);
-void  (*S_Update) (const CVector &origin, const CVector &v_forward, const CVector &v_right, const CVector &v_up);
+void  (*S_Update) (CVector &origin, CVector &v_forward, CVector &v_right, CVector &v_up);
 void  (*S_BeginRegistration) (void);
 void* (*S_RegisterSound) (const char *pszName) ;
 void  (*S_EndRegistration) (int nFreeSequenceCode);
@@ -82,7 +82,7 @@ int LoadAudioEngineDLL (const char* pszAudioEngineDLL)
 
     DKM_InMenu();
 
-    dkData.cl_hwnd  = (unsigned int)cl_hwnd ;
+    dkData.cl_hwnd  = cl_hwnd ;
     dkData.pcl      = &cl ;
     dkData.cl_parse_entities = &cl_parse_entities ;
     dkData.cls       = &cls ;

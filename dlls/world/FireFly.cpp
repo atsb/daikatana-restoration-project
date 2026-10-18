@@ -1,3 +1,4 @@
+#include <stddef.h>
 // ==========================================================================
 //
 //  File:FIREFLY
@@ -63,7 +64,7 @@ typedef struct
 } fireflyHook_t;
 
 // SCG[11/19/99]: Save Info
-#define FIREFLYMASTERHOOK(x) (int)&(((fireflyMasterHook_t *)0)->x)
+#define FIREFLYMASTERHOOK(x) (int)offsetof(fireflyMasterHook_t,x)
 field_t firefly_master_hook_fields[] = 
 {
 	{"NumFlies",	FIREFLYMASTERHOOK(NumFlies),	F_INT},
@@ -79,7 +80,7 @@ field_t firefly_master_hook_fields[] =
 	{NULL, 0, F_INT}
 };
 
-#define	FIREFLYHOOK(x) (int)&(((fireflyHook_t *)0)->x)
+#define	FIREFLYHOOK(x) (int)offsetof(fireflyHook_t,x)
 field_t firefly_hook_fields[] = 
 {
 	{"sinofs",			FIREFLYHOOK(sinofs),			F_INT},

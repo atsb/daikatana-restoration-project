@@ -165,6 +165,7 @@ enum	sequence_nums
 #define DFL_AMPHIBIOUS		0x00400000	//	entity changes movetype based on waterlevel
 #define DFL_CANUSELADDER	0x00800000	//	entity can use a ladder
 #define DFL_CANUSEDOOR		0x01000000	//	entity can use a door
+#define DFL_ISBOSS		0x02000000	//	entity is a boss
 
 ///////////////////////////////////////////////////////////////////////////////
 //	command flags:	these flags are used to communicate state changes to the

@@ -476,6 +476,7 @@ void	InitServerState (game_import_t *import)
 	memset (&serverState, 0x00, sizeof (serverState_t));
 
 	serverState.basedir						= import->dk_gamedir;
+	serverState.cs						= import->cs;
 
 	serverState.Con_Printf					= import->Con_Printf;
 	serverState.Con_Dprintf					= import->Con_Dprintf;
@@ -543,7 +544,6 @@ void	InitServerState (game_import_t *import)
 // SCG[1/22/00]: 	serverState.FrameInfo					= FrameInfo;
 	serverState.GetFrameName				= import->dk_GetFrameName;
 	serverState.GetModelSkinIndex			= import->dk_GetModelSkinIndex;
-	serverState.GetModelSkinName			= import->dk_GetModelSkinName;
 	serverState.ForceModelLoad				= import->dk_ForceModelLoad;
 	serverState.PreCacheModel				=	import->dk_PreCacheModel;
 
@@ -677,7 +677,6 @@ void	InitServerState (game_import_t *import)
 
 	serverState.common_exports = &com;
 
-	serverState.cs = import->cs;
     // set up the entity manager
 //    serverState.ClientEntityManager = new CClientEntityManager; // instantiate
 //    serverState.ClientEntityManager->SetServerState(&serverState);    // give the server functions an interface to net routines

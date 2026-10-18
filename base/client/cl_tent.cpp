@@ -3703,22 +3703,7 @@ void DK_MovingFlareSnd(CVector &pos)
 
 void TrackEntFX_Daikatana(trackParamData_t *trackData)
 {
-	// see if this sword became detached from its holder
-	qboolean detached = FALSE;
-	int modelindex2 = (trackData->owner->current.modelindex2 & 0xffff0000) >> 16;
-	if (modelindex2 != trackData->extraent->current.number)
-		detached = TRUE;
-
-	if (trackData->extraent->current.modelindex2 != trackData->owner->current.number + 10000)
-		detached = TRUE;
-
     te_tracker_t *tracker = trackData->tracker;
-
-	if (detached)
-	{
-		tracker->freeMe = TRUE;
-		return;
-	}
 
 	float alpha = tracker->scale;
 	float scale = tracker->scale2;
@@ -5148,8 +5133,7 @@ void TempEvent_BloodSplat(void)
     hitModel = cl.model_draw [MSG_ReadShort (&net_message)];
     entNum = MSG_ReadShort (&net_message);
 
-// SCG[6/5/00]: #ifdef TONGUE_GERMAN
-#ifdef NO_VIOLENCE
+#ifdef TONGUE_GERMAN
 	return;
 #endif
 	if (sv_violence->value > 0.0)
@@ -5882,8 +5866,7 @@ void CL_AddTrackEnts(void)
             continue;
 		if (trackData.track->current.effects2 & EF2_BLOODY_GIB)
 		{
-// SCG[6/5/00]: #ifdef TONGUE_GERMAN
-#ifdef NO_VIOLENCE
+#ifdef TONGUE_GERMAN
 			continue;
 #endif
 			if (sv_violence->value > 0.0)

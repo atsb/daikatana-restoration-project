@@ -550,6 +550,13 @@ userEpair_t eclassStr[] =
 	{"rem", "style - 0=large (with walls), 1=medium (no walls), 2=small (monitor)"},
     {"rem", "health - health of entity (0 if indestructable)"},
     {"rem", "max_juice - max amount of health to restore before depleted (100)"},
+	{"rem",	"bestow_rate - speed at which to give health to player (0.25)"},
+	{"rem", "recharge_rate - seconds before recharging 5/% of max_juice (0 = no recharge)"},
+	{"rem", "sound_use - sound to play during initial use"},
+    {"rem", "sound_healthup - sound when health is bestowed"},
+	{"rem",	"sound_use_done - sound when max_juice is depleted"},
+	{"rem", "sound_use_out - sound when activating depleted maxjuice"},
+    {"rem", "sound_recharged - sound when hosportal is recharged"},
 
 	//////////////////////////////
 	// misc_fountain
@@ -904,8 +911,6 @@ userEpair_t eclassStr[] =
 	//////////////////////////////
 	// trigger_warp
 	//////////////////////////////
-// SCG[6/27/00]: Deleted per Stevie's request
-/*
 	{"classname",	"trigger_warp"},
 	{"color",		"0.5 0.5 0.5"},
 	{"sound",		""},
@@ -951,7 +956,6 @@ userEpair_t eclassStr[] =
 	{"rem",			"sound - name of sound to play upon firing"},
 	{"rem",			"wait - the number of seconds between triggerings and"},
 	{"rem",			"the length of time the message will be displayed"},
-*/
 
 	//////////////////////////////
 	// trigger_hurt
@@ -1891,8 +1895,7 @@ userEpair_t eclassStr[] =
 	// sound_ambient
 	//////////////////////////////
 	
-// SCG[6/27/00]: Deleted per Stevie's request
-/*	{"classname",	"trigger_fog_value"},
+	{"classname",	"trigger_fog_value"},
 	{"color",		"0 1 0"},
 	{"flag",		"TOUCHABLE"},
 
@@ -1905,7 +1908,7 @@ userEpair_t eclassStr[] =
 	{"rem",			"b     - blue componant of fog"},
 	{"rem",			"start - front of fog volume"},
 	{"rem",			"end   - back of fog volume"},
-*/
+
 	//////////////////////////////
 	// node_node
 	//////////////////////////////
@@ -4674,8 +4677,6 @@ userEpair_t eclassStr[] =
 	{"color",		"0.5 0.5 0.5"},	
 	{"size",		"-16 -16 -24 16 16 32"},
 
-// SCG[6/27/00]: Deleted per Stevie's request
-/*
 	{"classname",	"trigger_monsterjump"},
 	{"color",		"0.5 0.5 0.5"},	
 	{"flag",		"ANY_DIR"},
@@ -4694,7 +4695,7 @@ userEpair_t eclassStr[] =
 	{"rem",			"ANY_DIR - targeted triggers will make monster jump no matter what"},
 	{"rem",			"          direction the monster is travelling."},
 	{"rem",			"ONCE    - trigger will only work one time, then remove itself."},
-*/
+
 
 	{"classname",	"target_speaker"},
 	{"color",		"0.0 1.0 0.5"},

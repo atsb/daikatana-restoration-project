@@ -1,3 +1,4 @@
+#include <stdint.h>
 #pragma once
 
 #ifndef _DK_HASHTABLE_H_
@@ -11,7 +12,7 @@ class hashtable_listentry {
     hashtable_listentry<C> *next;
 
     //the key that was used to insert the item into the table.
-    int key;
+    uintptr_t key;
 
     //pointer to the item itself.
     C *item;
@@ -34,17 +35,17 @@ class hashtable {
     hashtable_listentry<C> **hasharray;
 
     //hash function.
-    int Hash(unsigned int key);
+    int Hash(uintptr_t key);
 
   public:
     //adds an item to the hash table.
-    void Add(C *item, unsigned int key);
+    void Add(C *item, uintptr_t key);
 
     //removes an item from the table.
-    void Delete(C *item, unsigned int key);
+    void Delete(C *item, uintptr_t key);
 
     //removes the first item that is found that was inserted with the given key.
-    C *Delete(unsigned int key);
+    C *Delete(uintptr_t key);
 };
 
 
@@ -92,7 +93,7 @@ void hashtable<C>::Reset() {
 
 //hash function.
 template <class C>
-int hashtable<C>::Hash(unsigned int key) {
+int hashtable<C>::Hash(uintptr_t key) {
     //multiply the key by our magic number and get the fractional part.
     double product = MAGIC_NUMBER * (key & 0x000fffff);
     double fraction = product - floor(product);
@@ -108,7 +109,7 @@ int hashtable<C>::Hash(unsigned int key) {
 
 //adds an item to the hash table.
 template <class C>
-void hashtable<C>::Add(C *item, unsigned int key) {
+void hashtable<C>::Add(C *item, uintptr_t key) {
     if (item == NULL) return;
 
     //get the index we will put this item given its key.
@@ -128,7 +129,7 @@ void hashtable<C>::Add(C *item, unsigned int key) {
 
 //removes an item from the table.
 template <class C>
-void hashtable<C>::Delete(C *item, unsigned int key) {
+void hashtable<C>::Delete(C *item, uintptr_t key) {
     if (item == NULL) return;
 
     //get the index that this item hashes to.
@@ -159,7 +160,7 @@ void hashtable<C>::Delete(C *item, unsigned int key) {
 
 //removes the first item that is found that was inserted with the given key.
 template <class C>
-C *hashtable<C>::Delete(unsigned int key) {
+C *hashtable<C>::Delete(uintptr_t key) {
     //get the index that this key hashes to.
     int index = Hash(key);
 

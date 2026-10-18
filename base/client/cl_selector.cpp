@@ -20,6 +20,9 @@
 extern cvar_t *sv_episode;
 qboolean CL_ValidateSelectorPos(int selection)
 {
+	if (cl.refdef.rdflags & RDF_DEATHMATCH)
+		return TRUE;
+
 	int episode = atoi( CM_KeyValue (map_epairs, "episode"));//floor(sv_episode->value + 0.5);				// make sure its good!
 
 	unsigned long val = 0;
@@ -33,18 +36,7 @@ qboolean CL_ValidateSelectorPos(int selection)
 	default: return FALSE;
 	}
 
-	if (cl.refdef.rdflags & RDF_DEATHMATCH)
-	{
-		return (val >= 5) ? FALSE : TRUE;
-	}
-	else
-	{
-		int max = episode + 1;
-		if (max > 5) max = 5;
-		return ( val >= max ) ? FALSE : TRUE;
-
-	}
-
+	return (val >= (episode + 1)) ? FALSE : TRUE;
 }
 
 void CL_ParseSelectorCommand(void)

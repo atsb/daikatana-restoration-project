@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include "world.h"
 
 DllExport	void func_event_generator( userEntity_t *self );
@@ -26,7 +27,7 @@ typedef struct event_generator_hook_s
 	int		sound;
 } event_generator_hook_t;
 
-#define	EVENT_GENERATOR_HOOK(x) (int)&(((event_generator_hook_t *)0)->x)
+#define	EVENT_GENERATOR_HOOK(x) (int)offsetof(event_generator_hook_t,x)
 field_t event_generator_hook_fields[] = 
 {
 	{"total_events",	EVENT_GENERATOR_HOOK(total_events),		F_INT},
@@ -37,7 +38,7 @@ field_t event_generator_hook_fields[] =
 	{NULL, 0, F_INT}
 };
 
-#define	EVENT_GENERATOR_EVENT(x) (int)&(((event_t *)0)->x)
+#define	EVENT_GENERATOR_EVENT(x) (int)offsetof(event_t,x)
 field_t event_generator_event_fields[] = 
 {
 	{"target_name",	EVENT_GENERATOR_EVENT(target_name),	F_LSTRING},

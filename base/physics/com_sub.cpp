@@ -46,7 +46,7 @@ userTrace_t		trace;
 common_export_t	com;
 common_export_t *memory_com = &com;
 
-static int			ID_seed = 0;
+static int		ID_seed = 0;
 
 ////////////////////////////////////////
 //	vtos
@@ -1073,8 +1073,7 @@ void com_SpawnBlood ( CVector &origin, CVector &normal, int damage, float health
 	if (damage > 64)
 		damage = 64;
 
-// SCG[6/5/00]: #ifdef TONGUE_GERMAN
-#ifdef NO_VIOLENCE
+#ifdef TONGUE_GERMAN
 //Actung!  No Blood!
 	if(sv_violence->value > 0)
 		return;
@@ -1717,11 +1716,7 @@ void com_Damage ( userEntity_t *target,
 				target->client->pers.fAntidotePoints -= damage;
 				if (target->client->pers.fAntidotePoints <= 0.0f)
 				{
-					//serverState.centerprint(target,2.0,tongue[T_ANTIDOTE_EMPTY]);
-					serverState.cs.BeginSendString();
-					serverState.cs.SendSpecifierID(RESOURCE_ID_FOR_STRING(tongue, T_ANTIDOTE_EMPTY),0);
-					serverState.cs.Unicast(target,CS_print_center,2.0);
-					serverState.cs.EndSendString();
+					serverState.centerprint(target,2.0,tongue[T_ANTIDOTE_EMPTY]);
 					hook->items &= ~IT_ANTIDOTE;
 					target->client->pers.fAntidotePoints = 0.0f;
 					serverState.InventoryDeleteItem(target,target->inventory,antidote);
@@ -1773,14 +1768,10 @@ void com_Damage ( userEntity_t *target,
 			damage = damage * 3;
 	}
 
-	// check for instagib stuff here
 	if (deathmatch->value && dm_instagib->value)
 	{
-		// doesn't apply to shooting yourself and only applies to clients
-		if ( (attacker != target) && (attacker->flags & FL_CLIENT) && (target->flags & FL_CLIENT) )
-		{
-			damage = 2000;	// this otta be plenty...no armor...
-		}
+		if ((attacker != target) && (attacker->flags & FL_CLIENT) && (target->flags & FL_CLIENT))
+			damage = 2000;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -1986,8 +1977,7 @@ void com_Damage ( userEntity_t *target,
 	//	FIXME:	spawn correct blood type based on entity type
 	if (!(damage_flags & DAMAGE_NO_BLOOD))
 	{
-// SCG[6/5/00]: #ifdef TONGUE_GERMAN
-#ifdef NO_VIOLENCE
+#ifdef TONGUE_GERMAN
 		com_SpawnBlood (point_of_impact, dir, damage, target->health, TE_SPARKLES);
 #else
         if (damage_flags & DAMAGE_SPARKLES)
@@ -3777,8 +3767,8 @@ void	com_Poison (userEntity_t *target, float damage, float time, float interval)
 	{
 		if (!(hook->items & IT_POISON))
 		{
-			hook->poison_time = time;
-			hook->poison_next_damage_time = interval;
+			hook->poison_time = level.time + time;
+			hook->poison_next_damage_time = level.time + interval;
 			hook->poison_interval = interval;
 		}
 		if(hook->poison_damage <= 0.0f)
@@ -4284,8 +4274,7 @@ void	com_FrameUpdate (userEntity_t *self)
 
 void	com_BloodSplat (userEntity_t *impactedEnt, CVector &impactPos, cplane_t *plane)
 {
-// SCG[6/5/00]: #ifdef TONGUE_GERMAN
-#ifdef NO_VIOLENCE
+#ifdef TONGUE_GERMAN
 	return;
 #endif
 	CVector vZero(0,0,0);

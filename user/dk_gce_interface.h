@@ -91,7 +91,7 @@ class cin_gce_export_t {
 
 	beam_t		*(*beam_AllocBeam) (void);
 	beamSeg_t	*(*beam_AllocSeg) (void);
-	int			(*beam_AddGCESplines) (entity_t *entList, int numEnts, int selectedSeg, float r=1.0f, float g=1.0f, float b=1.0f);
+	int			(*beam_AddGCESplines) (entity_t *entList, int numEnts, int selectedSeg, float r, float g, float b);
 
 	// SCG[4/8/99]: Added for cine scriptor functionality
 	int *(*Key_KeybindingToKeynum) (char *);

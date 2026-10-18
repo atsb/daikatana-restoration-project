@@ -757,7 +757,7 @@ void BOT_CheckPowerUps( userEntity_t *self )
 		//	poison expire
 		if (hook->poison_time < gstate->time)
 		{
-			hook->items &= ~IT_POISON;
+			hook->items -= (hook->items & IT_POISON);
 		}
 	}
 

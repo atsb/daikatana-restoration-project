@@ -8,14 +8,14 @@
 
 SHELL = /bin/sh
 
-# Check OSTYPE, assume GNU/Linux if undefined.
+# Check OSTYPE, assume solaris if undefined.
 ifndef OSTYPE
-OSTYPE = Linux
+OSTYPE = solaris
 endif
 
 # Check MACHTYPE, assume intel if undefined.
 ifndef MACHTYPE
-MACHTYPE = x86_64
+MACHTYPE = i386
 endif
 
 #-----------------------------------------------------------------------------
@@ -42,7 +42,7 @@ endif
 BASE_DIR			= $(DK_DIR)/base
 BIN_DIR				= $(DK_DIR)/bin
 DLLS_DIR			= $(DK_DIR)/dlls
-IONCOMMON_DIR		= $(DK_DIR)/IonCommon
+IONCOMMON_DIR		= $(DK_DIR)/ioncommon
 LIBENT_DIR			= $(DK_DIR)/libent
 LIBS_DIR			= $(DK_DIR)/libs
 SHARED_DIR			= $(DK_DIR)/shared
@@ -98,14 +98,13 @@ WORLD_SONAME		= world.so
 ifeq ($(MACHTYPE),sparc)
 PLATFORM_CXXFLAGS = -D__BIG_ENDIAN__
 else
-PLATFORM_CXXFLAGS =
+PLATFORM_CXXFLAGS = -D__i386__
 endif
 
-UNAME_S := $(shell uname -s)
-ifeq ($(UNAME_S),Solaris)
-RPATH	= -Wl,-rpath,
-SHARED	= -shared
-SONAME	= -Wl,-soname,
+ifeq ($(OS),solaris)
+RPATH	= -R
+SHARED	= -G
+SONAME	= -h 
 LSOCKET	= -lsocket
 else
 RPATH	= -Wl,-rpath,
@@ -115,7 +114,8 @@ LSOCKET	=
 endif
 
 STD_CXX			= g++
-STD_CXXFLAGS	= $(PLATFORM_CXXFLAGS) $(BUILD_CXXFLAGS) -fno-for-scope -DDEDICATED_ONLY=FALSE -Duse_t=_use_t 
+STD_CXXFLAGS	= $(PLATFORM_CXXFLAGS) $(BUILD_CXXFLAGS) -fno-for-scope \
+				-DDEDICATED_ONLY=1 -Duse_t=_use_t 
 STD_LDFLAGS		= $(RPATH).
 STD_LIBS		= -lm -ldl -lnsl $(LSOCKET)
 

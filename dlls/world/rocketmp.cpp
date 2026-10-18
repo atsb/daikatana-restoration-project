@@ -40,6 +40,7 @@ void rocketmp_start_pain( userEntity_t *self, userEntity_t *attacker, float kick
 //void rocketmp_start_die( userEntity_t *self, userEntity_t *inflictor, userEntity_t *attacker, 
 //                        int damage, CVector &destPoint );// SCG[1/23/00]: not used
 int rocketmp_check_range( userEntity_t *self, float dist, userEntity_t *enemy );
+int AI_HasTaskInQue( userEntity_t *self, TASKTYPE SearchTask );
 
 /* **************************** Global Variables *************************** */
 /* **************************** Global Functions *************************** */
@@ -272,7 +273,6 @@ void rocketmp_do_run_seq( userEntity_t *self )
 // Note:
 //
 // ----------------------------------------------------------------------------
-int AI_HasTaskInQue( userEntity_t *self, TASKTYPE SearchTask );
 int rocketmp_chasing_attack( userEntity_t *self )
 {
 	playerHook_t *hook = AI_GetPlayerHook( self );

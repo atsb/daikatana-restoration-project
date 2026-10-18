@@ -4,7 +4,7 @@
 
 # TARGTYPE "Win32 (x86) Static Library" 0x0104
 
-CFG=IonCommon - Win32 Release
+CFG=IonCommon - Win32 FrenchDebug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
@@ -13,12 +13,19 @@ CFG=IonCommon - Win32 Release
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "IonCommon.mak" CFG="IonCommon - Win32 Release"
+!MESSAGE NMAKE /f "IonCommon.mak" CFG="IonCommon - Win32 FrenchDebug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
 !MESSAGE "IonCommon - Win32 Release" (based on "Win32 (x86) Static Library")
 !MESSAGE "IonCommon - Win32 Debug" (based on "Win32 (x86) Static Library")
+!MESSAGE "IonCommon - Win32 French" (based on "Win32 (x86) Static Library")
+!MESSAGE "IonCommon - Win32 German" (based on "Win32 (x86) Static Library")
+!MESSAGE "IonCommon - Win32 Italian" (based on "Win32 (x86) Static Library")
+!MESSAGE "IonCommon - Win32 Spanish" (based on "Win32 (x86) Static Library")
+!MESSAGE "IonCommon - Win32 Japanese" (based on "Win32 (x86) Static Library")
+!MESSAGE "IonCommon - Win32 FrenchDebug" (based on "Win32 (x86) Static Library")
+!MESSAGE "IonCommon - Win32 German Debug" (based on "Win32 (x86) Static Library")
 !MESSAGE 
 
 # Begin Project
@@ -41,7 +48,7 @@ RSC=rc.exe
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /G5 /MT /W3 /GX /O2 /D "DAIKATANA_OEM" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
+# ADD CPP /nologo /G6 /MT /W3 /GX /O2 /D "TONGUE_ENGLISH" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
 # SUBTRACT CPP /Fr
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409
@@ -65,7 +72,7 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /Z7 /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /G5 /MTd /W3 /Gm /Gi /GX /ZI /Od /I "..\user" /D "DAIKATANA_OEM" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FR /YX /FD /c
+# ADD CPP /nologo /G6 /MTd /W3 /GX /ZI /Od /I "..\user" /D "TONGUE_ENGLISH" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FR /YX /FD /c
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409
 BSC32=bscmake.exe
@@ -75,12 +82,180 @@ LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo /out:"..\libs\IonCommonDebug.lib"
 
+!ELSEIF  "$(CFG)" == "IonCommon - Win32 French"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "IonCommon___Win32_French"
+# PROP BASE Intermediate_Dir "IonCommon___Win32_French"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir "French"
+# PROP Intermediate_Dir "French"
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /G5 /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
+# ADD CPP /nologo /G5 /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "TONGUE_FRENCH" /YX /FD /c
+# ADD BASE RSC /l 0x409
+# ADD RSC /l 0x409
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LIB32=link.exe -lib
+# ADD BASE LIB32 /nologo /out:"..\libs\IonCommonRelease.lib"
+# ADD LIB32 /nologo /out:"..\libs\IonCommonFrench.lib"
+
+!ELSEIF  "$(CFG)" == "IonCommon - Win32 German"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "IonCommon___Win32_German"
+# PROP BASE Intermediate_Dir "IonCommon___Win32_German"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir "German"
+# PROP Intermediate_Dir "German"
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /G5 /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
+# ADD CPP /nologo /G5 /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "TONGUE_GERMAN" /YX /FD /c
+# ADD BASE RSC /l 0x409
+# ADD RSC /l 0x409
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LIB32=link.exe -lib
+# ADD BASE LIB32 /nologo /out:"..\libs\IonCommonRelease.lib"
+# ADD LIB32 /nologo /out:"..\libs\IonCommonGerman.lib"
+
+!ELSEIF  "$(CFG)" == "IonCommon - Win32 Italian"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "IonCommon___Win32_Italian"
+# PROP BASE Intermediate_Dir "IonCommon___Win32_Italian"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir "Italian"
+# PROP Intermediate_Dir "Italian"
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /G5 /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
+# ADD CPP /nologo /G5 /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "TONGUE_ITALIAN" /YX /FD /c
+# ADD BASE RSC /l 0x409
+# ADD RSC /l 0x409
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LIB32=link.exe -lib
+# ADD BASE LIB32 /nologo /out:"..\libs\IonCommonRelease.lib"
+# ADD LIB32 /nologo /out:"..\libs\IonCommonItalian.lib"
+
+!ELSEIF  "$(CFG)" == "IonCommon - Win32 Spanish"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "IonCommon___Win32_Spanish"
+# PROP BASE Intermediate_Dir "IonCommon___Win32_Spanish"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir "Spanish"
+# PROP Intermediate_Dir "Spanish"
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /G5 /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
+# ADD CPP /nologo /G5 /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "TONGUE_SPANISH" /YX /FD /c
+# ADD BASE RSC /l 0x409
+# ADD RSC /l 0x409
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LIB32=link.exe -lib
+# ADD BASE LIB32 /nologo /out:"..\libs\IonCommonRelease.lib"
+# ADD LIB32 /nologo /out:"..\libs\IonCommonSpanish.lib"
+
+!ELSEIF  "$(CFG)" == "IonCommon - Win32 Japanese"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "IonCommon___Win32_Japanese"
+# PROP BASE Intermediate_Dir "IonCommon___Win32_Japanese"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir "Japanese"
+# PROP Intermediate_Dir "Japanese"
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /G5 /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
+# ADD CPP /nologo /G5 /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "TONGUE_JAPANESE" /YX /FD /c
+# ADD BASE RSC /l 0x409
+# ADD RSC /l 0x409
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LIB32=link.exe -lib
+# ADD BASE LIB32 /nologo /out:"..\libs\IonCommonRelease.lib"
+# ADD LIB32 /nologo /out:"..\libs\IonCommonJapanese.lib"
+
+!ELSEIF  "$(CFG)" == "IonCommon - Win32 FrenchDebug"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 1
+# PROP BASE Output_Dir "IonCommon___Win32_FrenchDebug"
+# PROP BASE Intermediate_Dir "IonCommon___Win32_FrenchDebug"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 1
+# PROP Output_Dir "FrenchDebug"
+# PROP Intermediate_Dir "FrenchDebug"
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /G5 /MTd /W3 /GX /ZI /Od /I "..\user" /D "TONGUE_ENGLISH" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FR /YX /FD /c
+# ADD CPP /nologo /G5 /MTd /W3 /GX /ZI /Od /I "..\user" /D "TONGUE_ENGLISH" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FR /YX /FD /c
+# ADD BASE RSC /l 0x409
+# ADD RSC /l 0x409
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LIB32=link.exe -lib
+# ADD BASE LIB32 /nologo /out:"..\libs\IonCommonDebug.lib"
+# ADD LIB32 /nologo /out:"..\libs\IonCommonFrenchDebug.lib"
+
+!ELSEIF  "$(CFG)" == "IonCommon - Win32 German Debug"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "IonCommon___Win32_German_Debug"
+# PROP BASE Intermediate_Dir "IonCommon___Win32_German_Debug"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir "German_Debug"
+# PROP Intermediate_Dir "German_Debug"
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /G5 /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "TONGUE_GERMAN" /YX /FD /c
+# ADD CPP /nologo /G5 /MTd /W3 /GX /ZI /Od /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "TONGUE_GERMAN" /FAs /FR /YX /FD /c
+# ADD BASE RSC /l 0x409
+# ADD RSC /l 0x409
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LIB32=link.exe -lib
+# ADD BASE LIB32 /nologo /out:"..\libs\IonCommonGerman.lib"
+# ADD LIB32 /nologo /out:"..\libs\IonCommonGermanDebug.lib "
+
 !ENDIF 
 
 # Begin Target
 
 # Name "IonCommon - Win32 Release"
 # Name "IonCommon - Win32 Debug"
+# Name "IonCommon - Win32 French"
+# Name "IonCommon - Win32 German"
+# Name "IonCommon - Win32 Italian"
+# Name "IonCommon - Win32 Spanish"
+# Name "IonCommon - Win32 Japanese"
+# Name "IonCommon - Win32 FrenchDebug"
+# Name "IonCommon - Win32 German Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "*.c**"

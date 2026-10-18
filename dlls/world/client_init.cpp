@@ -43,6 +43,7 @@ void	Client_InitUserEntity (userEntity_t *self)
 	self->flags				|= ( FL_CLIENT | FL_PUSHABLE );
 	self->elasticity		= 1.0;
 	self->mass				= 300.0;
+	self->max_speed			= ATTR_RUNSPEED;
 	self->svflags			|= SVF_MONSTER;
 	self->svflags			&= ~SVF_DEADMONSTER;
 	self->s.effects			= EF_GIB;				// this makes server send client info to the clients //???
@@ -57,11 +58,6 @@ void	Client_InitUserEntity (userEntity_t *self)
 	self->s.frame			= 0;
 							
 	self->viewheight		= 22.0;
-
-	// cek[5-16-00]: effectively resets max_speed after dying
-//	self->max_speed			= ATTR_RUNSPEED;
-	self->max_speed			= ATTR_RUNSPEED + (ATTR_RUNSPEED / ATTR_MAX_LEVELS) * (float) hook->speed_boost;
-
 	if (deathmatch->value || coop->value)
 		self->health			= (hook && (hook->base_health > 0)) ? hook->base_health : ATTR_HEALTH;
 	else
@@ -322,7 +318,6 @@ void Client_InitDefaultWeapon(userEntity_t* self)
 	if (deathmatch->value || coop->value)
 	{
 		self->client->pers.fGasHandsTime = 0;
-
 		// in coop mode, first refill all of the weapons that the player is carrying...
 		if (coop->value && self->inventory)
 		{
@@ -349,70 +344,33 @@ void Client_InitDefaultWeapon(userEntity_t* self)
 				}
 			}
 		}
-		else if (dm_instagib->value)
-		{
-			char *weap = NULL;
-			int r = rand() % 2;
-
-			switch(gstate->episode)
-			{
-			case 1:
-				switch(r)
-				{
-				default:
-				case 0: weap = "weapon_sidewinder"; break;
-				case 1: weap = "weapon_ionblaster"; break;
-				}
-				break;
-				
-			case 2:
-				switch(r)
-				{
-				default:
-				case 0: weap = "weapon_trident"; break;
-				case 1: weap = "weapon_venomous"; break;
-				}
-				break;
-				
-			case 3:
-				switch(r)
-				{
-				default:
-				case 0: weap = "weapon_bolter"; break;
-				case 1: weap = "weapon_ballista"; break;
-				}
-				break;
-				
-			case 4:
-				switch(r)
-				{
-				default:
-				case 0: weap = "weapon_slugger"; break;
-				case 1: weap = "weapon_kineticore"; break;
-				}
-				break;			
-			};
-
-			if (weap)
-			{
-				// find
-				winfo = com->FindRegisteredWeapon( weap );
-				if (winfo)
-				{
-					// give
-					winfo->give_func (self, winfo->initialAmmo);
-
-					// select the weapon
-					if (!self->curWeapon)
-						winfo->select_func(self);
-				}
-			}
-
-			return;
-		}
 
 		// see if the spawnflags indicates that weapons should be given to the player...
-		if (self->spawnflags & PLAYER_SF_OVERRIDE_WEAPONS)
+			else if (dm_instagib->value)
+	{
+		char *weap = NULL;
+		int r = rand() % 2;
+		switch(gstate->episode)
+		{
+		case 1: weap = (r == 0) ? "weapon_sidewinder" : "weapon_ionblaster"; break;
+		case 2: weap = (r == 0) ? "weapon_trident" : "weapon_venomous"; break;
+		case 3: weap = (r == 0) ? "weapon_bolter" : "weapon_ballista"; break;
+		case 4: weap = (r == 0) ? "weapon_slugger" : "weapon_kineticore"; break;
+		}
+		if (weap)
+		{
+			winfo = com->FindRegisteredWeapon(weap);
+			if (winfo)
+			{
+				winfo->give_func(self, winfo->initialAmmo);
+				if (!self->curWeapon)
+					winfo->select_func(self);
+			}
+		}
+		return;
+	}
+
+if (self->spawnflags & PLAYER_SF_OVERRIDE_WEAPONS)
 		{
 			int episode = (int)sv_episode->value;
 			if ((episode < 1) || (episode > 4))
@@ -814,8 +772,6 @@ void	Client_InitGClient (userEntity_t *self, CVector &origin, CVector &angles)
 
 
 	self->takedamage = DAMAGE_YES;
-
-	client->endIntermission = FALSE;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

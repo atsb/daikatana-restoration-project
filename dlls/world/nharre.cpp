@@ -495,7 +495,6 @@ void monster_nharre( userEntity_t *self )
 	// NSS[6/7/00]:Mark this monster as a boss
 	hook->dflags |= DFL_ISBOSS;
 
-
 }
 
 // ----------------------------------------------------------------------------

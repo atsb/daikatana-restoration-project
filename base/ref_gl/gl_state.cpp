@@ -2,6 +2,42 @@
 
 extern cvar_t *gl_drawfog;
 
+static int gl_lightmap_overbright_state = -1;
+static int gl_cull_face_state = -1;
+
+void GL_SetCullFace(GLenum face)
+{
+	if (gl_cull_face_state == (int)face)
+		return;
+
+	qglCullFace(face);
+	gl_cull_face_state = (int)face;
+}
+
+static void GL_ApplyLightmapOverbright(void)
+{
+	qglTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+
+	if (gl_lightmap_overbright_state != 1)
+	{
+		qglTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
+		qglTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PREVIOUS);
+		qglTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
+		qglTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB, GL_TEXTURE);
+		qglTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR);
+		qglTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 2.0f);
+
+		qglTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_MODULATE);
+		qglTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_PREVIOUS);
+		qglTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
+		qglTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA, GL_TEXTURE);
+		qglTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA, GL_SRC_ALPHA);
+
+		gl_lightmap_overbright_state = 1;
+	}
+	gl_state.nTexEnv[1] = GL_COMBINE;
+}
+
 /*
 ===============
 GL_EnableMultitexture
@@ -88,6 +124,17 @@ GL_TexEnv
 */
 void GL_MTexEnv( GLenum target, GLenum mode )
 {
+	if (target == GL_TEXTURE1_SGIS && mode == GL_MODULATE &&
+		gl_overbrightbits != NULL && gl_overbrightbits->value >= 2.0f)
+	{
+		GL_SelectTexture(target);
+		GL_ApplyLightmapOverbright();
+	#ifdef	_DEBUG
+		RImp_CheckError();
+	#endif
+		return;
+	}
+
 	GL_SelectTexture( target );
 	if ( target == GL_TEXTURE0_SGIS )
 	{
@@ -162,6 +209,7 @@ GL_InitState
 */
 void GL_InitState()
 {
+	gl_lightmap_overbright_state = -1;
 	gl_state.nStateFlags = 0;
 	gl_state.eAlphaFunc = -1;
 	gl_state.eDepthFunc = -1;
@@ -170,6 +218,7 @@ void GL_InitState()
 	gl_state.nTexEnv[1] = -1;
 	gl_state.nTexnum[0] = -1;
 	gl_state.nTexnum[1] = -1;
+	gl_cull_face_state = -1;
 }
 
 /*
@@ -194,13 +243,21 @@ void GL_SetState( unsigned int nStateFlags )
 	if( nStateFlags == 0 )
 	{
 		GL_EnableMultitexture( false );
-		qglDepthMask( GL_FALSE );
-		qglDisable( GL_DEPTH_TEST );
-		qglDisable( GL_ALPHA_TEST );
-		qglDisable( GL_BLEND );
+
+		if ( gl_state.nStateFlags & GLSTATE_DEPTH_MASK )
+			qglDepthMask( GL_FALSE );
+		if ( gl_state.nStateFlags & GLSTATE_DEPTH_TEST )
+			qglDisable( GL_DEPTH_TEST );
+		if ( gl_state.nStateFlags & GLSTATE_ALPHA_TEST )
+			qglDisable( GL_ALPHA_TEST );
+		if ( gl_state.nStateFlags & GLSTATE_BLEND )
+			qglDisable( GL_BLEND );
 		qglDisable( GL_CULL_FACE );
-		qglDisable( GL_FOG );
-		qglDisable( GL_TEXTURE_2D );
+		if ( gl_state.nStateFlags & GLSTATE_FOG )
+			qglDisable( GL_FOG );
+		if ( gl_state.nStateFlags & GLSTATE_TEXTURE_2D )
+			qglDisable( GL_TEXTURE_2D );
+
 		gl_state.nStateFlags = 0;
 		return;
 	}
@@ -219,13 +276,9 @@ void GL_SetState( unsigned int nStateFlags )
 		GL_EnableMultitexture( false );
 	}
 
-	if( nStateFlags & GLSTATE_CULL_FACE_FRONT )
 	{
-		qglCullFace( GL_FRONT );
-	}
-	else
-	{
-		qglCullFace( GL_BACK );
+		int desiredCullFace = (nStateFlags & GLSTATE_CULL_FACE_FRONT) ? GL_FRONT : GL_BACK;
+		GL_SetCullFace((GLenum)desiredCullFace);
 	}
 
 	if( nStateFlags & GLSTATE_DEPTH_MASK )
@@ -276,14 +329,11 @@ void GL_SetState( unsigned int nStateFlags )
 		qglDisable( GL_BLEND );
 	}
 
-	if( nStateFlags & GLSTATE_CULL_FACE && ( gl_cull->value ) )
+	if ( nStateFlags & GLSTATE_CULL_FACE && gl_cull->value )
 	{
-//		if( !( gl_state.nStateFlags & GLSTATE_CULL_FACE ) )
-		{
-			qglEnable( GL_CULL_FACE );
-		}
+		qglEnable( GL_CULL_FACE );
 	}
-	else // if( gl_state.nStateFlags & GLSTATE_CULL_FACE )
+	else
 	{
 		qglDisable( GL_CULL_FACE );
 	}
@@ -389,7 +439,7 @@ void GL_SetFunc( unsigned int nStateFlags, GLenum eUser, float fUser )
 	}
 	else if( nStateFlags & GLSTATE_ALPHA_FUNC )
 	{
-//		if( ( gl_state.fAlphaFunc != fUser ) || ( gl_state.eAlphaFunc != eUser ) )
+		if( ( gl_state.fAlphaFunc != fUser ) || ( gl_state.eAlphaFunc != eUser ) )
 		{
 			qglAlphaFunc( eUser, fUser );
 			gl_state.fAlphaFunc = fUser;

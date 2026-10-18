@@ -118,6 +118,7 @@ void GL_EndRendering (void);
 
 void GL_SetDefaultState( void );
 void GL_UpdateSwapInterval( void );
+qboolean RImp_SetSwapInterval( int interval );
 
 extern	float	gldepthmin, gldepthmax;
 
@@ -240,6 +241,10 @@ extern	cvar_t	*gl_polyblend;
 extern	cvar_t	*gl_flashblend;
 extern	cvar_t	*gl_lightmaptype;
 extern	cvar_t	*gl_modulate;
+extern	cvar_t	*gl_overbrightbits;
+extern	cvar_t	*gl_anisotropic;
+extern	cvar_t	*gl_texture_filter;
+extern	cvar_t	*r_msaa_samples;
 extern	cvar_t	*gl_playermip;
 extern	cvar_t	*gl_drawbuffer;
 extern	cvar_t	*gl_3dlabs_broken;
@@ -379,6 +384,8 @@ void	GL_FreeImage (image_t *image);
 //void R_PurgeResources(resource_t resource);	// moved to dk_ref_local - SCG: 3-10-99
 
 bool R_LightPoint (CVector &p, CVector &color, CVector *pDLoc=NULL, msurface_t *pPointSurf = NULL );
+bool R_LightPointThreadSafe (CVector &p, CVector &color, CVector *pDLoc, msurface_t *pPointSurf, CVector *pLightSpot);
+void R_DynamicLightPoint (CVector &p, CVector &color);
 void R_PushDlights (void);
 
 //====================================================================
@@ -449,6 +456,21 @@ void	Text_DrawEntities (void);
 void	Text_AddEntity (CVector &origin, CVector &normal, char *str, float scale, int flags);
 
 void	BeginFrame( float camera_separation );
+void	R_BloomSetCvars( cvar_t *bloom, cvar_t *intensity, cvar_t *threshold, cvar_t *saturation );
+void	R_BloomSetDebugCvar( cvar_t *debug );
+void	R_BloomInit( void );
+void	R_BloomShutdown( void );
+void	R_TextureFilterInit( void );
+void	R_TextureFilterShutdown( void );
+void	R_TextureFilterSetMode( void );
+qboolean R_TextureFilterUsesGradient( void );
+void	R_TextureFilterBeginBase( const image_t *image );
+void	R_TextureFilterBeginLightmapped( const image_t *image, float lightmap_width, float lightmap_height );
+void	R_TextureFilterBeginEnvmap( const image_t *image, const image_t *envmap, float env_color );
+void	R_TextureFilterBeginSingle( int texnum, float width, float height );
+void	R_TextureFilterEnd( void );
+void	GL_TextureModeUI( const image_t *image );
+void	R_BloomFrame( void );
 void	R_SwapBuffers( int );
 void	R_SetPalette ( const unsigned char *palette);
 void	R_SetPaletteDir (const char *name);
@@ -492,6 +514,17 @@ void R_DumpImage (image_t *image);
 // SCG[6/18/99]: 
 void GL_DrawParticles( int n, const particle_t particles[] );
 void R_DrawSurfaceSprites();
+void R_ParticleWorkerInit(void);
+void R_ParticleWorkerShutdown(void);
+void R_ParticleWorkerBegin(void);
+void R_ParticleWorkerWait(void);
+void R_RenderPrepWorkerInit(void);
+void R_RenderPrepWorkerShutdown(void);
+void R_RenderPrepWorkerBeginFrame(void);
+void R_RenderPrepWorkerQueueAlphaSurfaces(void);
+void R_RenderPrepWorkerWaitAll(void);
+qboolean R_RenderPrepDrawSpotlight(entity_t *ent);
+qboolean R_RenderPrepDrawAlphaSurface(msurface_t *surf);
 void R_DrawParticles ();
 void R_DrawComplexParticles ();
 void GL_GenerateRainVectors (const CVector &p_origin, int type);
@@ -615,6 +648,7 @@ IMPLEMENTATION SPECIFIC FUNCTIONS
 void		RImp_BeginFrame( float camera_separation );
 void		RImp_EndFrame( void );
 void		RImp_CheckError( void );
+qboolean	RImp_InitGL( void );
 int 		RImp_Init( void *hinstance, void *hWnd );
 void		RImp_Shutdown( void );
 int     	RImp_SetMode( int *pwidth, int *pheight, int mode, qboolean fullscreen );
@@ -814,4 +848,5 @@ void GL_InitState();
 void GL_SetState( unsigned int nStateFlags );
 unsigned int GL_GetState();
 void GL_SetFunc( unsigned int nStateFlags, GLenum nUser, float fUser );
+void GL_SetCullFace( GLenum face );
 void GL_BindTexture( int nTMU, int nTexNum, GLenum nMode );

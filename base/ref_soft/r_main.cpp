@@ -1,3 +1,5 @@
+#include <stddef.h>
+#include <stdint.h>
 // r_main.c
 
 #include <io.h>
@@ -374,8 +376,6 @@ fixed16_t	sadjust, tadjust, bbextents, bbextentt;
 uint16			*cacheblock;
 int				cachewidth;
 pixel_t			*d_viewbuffer;
-
-pixel_t			*d_viewbuffer;
 short			*d_pzbuffer;
 unsigned int	d_zrowbytes;
 unsigned int	d_zwidth;
@@ -558,7 +558,7 @@ qboolean R_Init( void *hInstance, void *wndProc )
 	CreateBlendMask();
 	R_BuildFogTable();
 
-	ri.Con_Printf (PRINT_ALL, "ref_soft version: "REF_VERSION"\n");
+	ri.Con_Printf (PRINT_ALL, "ref_soft version: %s\n", REF_VERSION);
 
 	R_InitImages ();
 	Mod_Init ();
@@ -581,8 +581,8 @@ qboolean R_Init( void *hInstance, void *wndProc )
 
 // TODO: collect 386-specific code in one place
 #if	id386
-	Sys_MakeCodeWriteable ((long)R_EdgeCodeStart,
-					     (long)R_EdgeCodeEnd - (long)R_EdgeCodeStart);
+	Sys_MakeCodeWriteable ((uintptr_t)R_EdgeCodeStart,
+					     (uintptr_t)R_EdgeCodeEnd - (uintptr_t)R_EdgeCodeStart);
 	Sys_SetFPCW ();		// get bit masks for FPCW	(FIXME: is this id386?)
 #endif	// id386
 
@@ -1112,7 +1112,7 @@ void R_DrawBEntitiesOnList (void)
 		{
 /*	//&&& amw: this should no longer be called here
 			// if a particle volume, remove it
-			ri.CL_RemoveParticleVolume ((int) currententity);
+			ri.CL_RemoveParticleVolume ((uintptr_t) currententity);
 */
 			continue;	// off the edge of the screen
 		}
@@ -1128,7 +1128,7 @@ void R_DrawBEntitiesOnList (void)
 /*	//&&& amw: this should no longer be called here
 		if (currententity->flags & (RF_RAIN | RF_SNOW | RF_DRIP))
 		{	
-			ri.CL_GenerateVolumeParticles ((int) currententity, currententity->flags, currententity->mins, currententity->maxs);
+			ri.CL_GenerateVolumeParticles ((uintptr_t) currententity, currententity->flags, currententity->mins, currententity->maxs);
 			return;
 		}
 */
@@ -1204,7 +1204,7 @@ void R_SetupParticleVolumes( void )
 				if (clipflags != BMODEL_FULLY_CLIPPED)
 				{
 					// generate volume particles (pVolume acts as the unique 'key')
-					ri.CL_GenerateVolumeParticles ((int) pVolume, pVolume->type, pVolume->mins, pVolume->maxs, pVolume->dist, pVolume->effects);
+					ri.CL_GenerateVolumeParticles ((uintptr_t) pVolume, pVolume->type, pVolume->mins, pVolume->maxs, pVolume->dist, pVolume->effects);
 //					g_PVDrawCount++;  // not defined in ref_soft????
 				}
 				else
@@ -1212,7 +1212,7 @@ void R_SetupParticleVolumes( void )
 					//	remove any particle volumes from the active list that are not visible anymore
 					//  NOTE: this should rarely get called since most instances are caught before
 					//        the renderer is called in CL_AddParticleVolumes()
-					ri.CL_RemoveParticleVolume ((int) pVolume);
+					ri.CL_RemoveParticleVolume ((uintptr_t) pVolume);
 //					g_PVCullCount++;  // not defined in ref_soft????
 				}
 			}
@@ -1243,13 +1243,13 @@ void R_EdgeDrawing (void)
 	else
 	{
 		r_edges =  (edge_t *)
-				(((long)&ledges[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
+				((edge_t*)(((uintptr_t)&ledges[0] + CACHE_SIZE - 1) & ~(uintptr_t)(CACHE_SIZE - 1)));
 	}
 
 	if (r_surfsonstack)
 	{
 		surfaces =  (surf_t *)
-				(((long)&lsurfs[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
+				((surf_t*)(((uintptr_t)&lsurfs[0] + CACHE_SIZE - 1) & ~(uintptr_t)(CACHE_SIZE - 1)));
 		surf_max = &surfaces[r_cnumsurfs];
 	// surface 0 doesn't really exist; it's just a dummy because index 0
 	// is used to indicate no edge attached to surface
@@ -1708,14 +1708,27 @@ SetSky
 char	*suf[6] = {"rt", "bk", "lf", "ft", "up", "dn"};
 int	r_skysideimage[6] = {5, 2, 4, 1, 0, 3};
 extern	mtexinfo_t		r_skytexinfo[6];
-void SetSky (const char *name, float rotate, CVector &axis)
+void SetSky (const char *name, const char *cloudname, int skynum)
 {
 	int		i;
 	char	pathname[MAX_QPATH];
 
+	// The software renderer has no cloud-layer implementation and its
+	// historical sky code does not consume the rotate/axis parameters.
+	// Keep the renderer-independent API used by the game and simply load
+	// the six named environment-map faces.
+	(void)cloudname;
+	(void)skynum;
+
+	if (!name)
+		return;
+
 	strncpy (skyname, name, sizeof(skyname)-1);
-	skyrotate = rotate;
-	skyaxis = axis;
+	skyname[sizeof(skyname)-1] = '\0';
+	skyrotate = 0.0f;
+	skyaxis.x = 0.0f;
+	skyaxis.y = 0.0f;
+	skyaxis.z = 0.0f;
 
 	for (i=0 ; i<6 ; i++)
 	{

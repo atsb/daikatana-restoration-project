@@ -31,8 +31,6 @@ enum
 // weapon info def
 weaponInfo_t shockwaveWeaponInfo = 
 {
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_SHOCKWAVE),
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_SHOCKWAVE_AMMO),
 	// names, net names, icon
 	"weapon_shockwave",
 	tongue_weapons[T_WEAPON_SHOCKWAVE],
@@ -118,16 +116,11 @@ weaponInfo_t shockwaveWeaponInfo =
 	0.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 0.0f,
 
-/*	{
+	{
 		tongue_deathmsg_weapon1[T_DEATHMSGWEAPON_SHOCKWAVE],
 		NULL,
 		ATTACKER_VICTIM
-	},*/
-
-	RESOURCE_ID_FOR_STRING(tongue_deathmsg_weapon1,T_DEATHMSGWEAPON_SHOCKWAVE),
-	ATTACKER_VICTIM,
-
-
+	},
 	WEAPON_SHOCKWAVE,
 	0,
 	NULL

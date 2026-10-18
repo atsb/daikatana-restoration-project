@@ -1,6 +1,10 @@
 
 // draw.c
 
+#ifndef GL_CLAMP_TO_EDGE
+#define GL_CLAMP_TO_EDGE 0x812F
+#endif
+
 #include "gl_local.h"
 
 #include "dk_misc.h"
@@ -9,82 +13,6 @@
 
 #include "dk_ref_common.h"
 #include "dk_ref_font.h"
-
-// Encompass MarkMa 032499
-#ifdef	JPN	//
-#include "l__language.h"
-
-#define BITCOUNT	8				// 8 bits per pixel
-#define BMPHEIGHT	0x10
-#define BMPWIDTH	0x10
-#define MAX_CHARNUM		512	//1024
-#define WIDTHBYTES(i)       ((i+31)/32*4)
-
-typedef struct tagTTF {
-	byte	CharData[2];
-	byte	nCharWidth;
-	byte	nCharHeight;
-} MYTTF;
-
-MYTTF	TTFont[3][MAX_CHARNUM+1];
-
-//extern qboolean GL_Upload8 (byte *data, int width, int height,  qboolean mipmap, qboolean is_sky, byte *palette);
-extern qboolean GL_Upload32 (unsigned *data, int width, int height,  qboolean mipmap);
-
-// Recreate this structure in order to fix crash bug.
-typedef struct tagMYBITMAPINFO {
-	BITMAPINFOHEADER bmiHeader; 
-    RGBQUAD          bmiColors[256];
-} MYBITMAPINFO; 
-
-// This is the palette same as int_font.font.bmp
-const byte palette[] = {
-0x00, 0x00, 0x00, 0x00, 0x08, 0x08, 0x08, 0x00, 0x18, 0x18, 0x18, 0x00, 0x21, 0x21, 0x21, 0x00, 0xCE, 0xCE, 0xCE, 0x00, 0xB5, 0xB5, 0xBD, 0x00,
-0xE7, 0xE7, 0xF7, 0x00, 0x4A, 0x4A, 0x52, 0x00, 0x8C, 0x8C, 0x9C, 0x00, 0x7B, 0x7B, 0x8C, 0x00, 0xAD, 0xAD, 0xC6, 0x00, 0x39, 0x39, 0x42, 0x00,
-0xC6, 0xC6, 0xE7, 0x00, 0x84, 0x84, 0x9C, 0x00, 0x29, 0x29, 0x31, 0x00, 0xA5, 0xA5, 0xC6, 0x00, 0x52, 0x52, 0x63, 0x00, 0x7B, 0x7B, 0x94, 0x00,
-0x73, 0x73, 0x8C, 0x00, 0x94, 0x94, 0xB5, 0x00, 0x6B, 0x6B, 0x84, 0x00, 0x63, 0x63, 0x7B, 0x00, 0xAD, 0xAD, 0xD6, 0x00, 0x84, 0x84, 0xA5, 0x00,
-0x73, 0x73, 0x94, 0x00, 0x39, 0x39, 0x4A, 0x00, 0x52, 0x52, 0x6B, 0x00, 0x4A, 0x4A, 0x63, 0x00, 0x42, 0x42, 0x5A, 0x00, 0x18, 0x18, 0x21, 0x00,
-0x84, 0x84, 0xB5, 0x00, 0x73, 0x73, 0xA5, 0x00, 0x5A, 0x5A, 0x84, 0x00, 0x21, 0x21, 0x31, 0x00, 0x10, 0x10, 0x18, 0x00, 0x52, 0x52, 0x7B, 0x00,
-0x5A, 0x5A, 0x8C, 0x00, 0x39, 0x39, 0x5A, 0x00, 0x18, 0x18, 0x29, 0x00, 0x08, 0x08, 0x10, 0x00, 0x21, 0x21, 0x42, 0x00, 0x21, 0x21, 0x63, 0x00, 
-0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x18, 0x00, 0x00, 0x00, 0x29, 0x00, 0x00, 0x00, 0x4A, 0x00, 0x00, 0x00, 0x52, 0x00, 0x00, 0x00, 0x8C, 0x00, 
-0x00, 0x00, 0x94, 0x00, 0x00, 0x00, 0xAD, 0x00, 0x00, 0x00, 0xBD, 0x00, 0x00, 0x00, 0xCE, 0x00, 0x00, 0x00, 0xDE, 0x00, 0x00, 0x00, 0xE7, 0x00,
-0x00, 0x00, 0xFF, 0x00, 0x00, 0x08, 0x84, 0x00, 0x08, 0x10, 0x63, 0x00, 0x00, 0x08, 0x5A, 0x00, 0x00, 0x08, 0x6B, 0x00, 0x52, 0x5A, 0x9C, 0x00, 
-0x52, 0x5A, 0xA5, 0x00, 0x31, 0x39, 0x7B, 0x00, 0x42, 0x52, 0xCE, 0x00, 0x10, 0x21, 0xA5, 0x00, 0x08, 0x18, 0x94, 0x00, 0x00, 0x08, 0x52, 0x00, 
-0x00, 0x10, 0x94, 0x00, 0x8C, 0x94, 0xC6, 0x00, 0x84, 0x8C, 0xC6, 0x00, 0x52, 0x5A, 0x8C, 0x00, 0x52, 0x5A, 0x94, 0x00, 0x42, 0x4A, 0x7B, 0x00, 
-0x42, 0x4A, 0x84, 0x00, 0xAD, 0xB5, 0xDE, 0x00, 0x84, 0x8C, 0xB5, 0x00, 0x52, 0x5A, 0x84, 0x00, 0x4A, 0x52, 0x7B, 0x00, 0x31, 0x39, 0x63, 0x00, 
-0x5A, 0x6B, 0xCE, 0x00, 0x08, 0x18, 0x6B, 0x00, 0x39, 0x42, 0x6B, 0x00, 0x42, 0x52, 0x9C, 0x00, 0x18, 0x21, 0x4A, 0x00, 0x29, 0x39, 0x84, 0x00, 
-0x21, 0x31, 0x7B, 0x00, 0x18, 0x29, 0x73, 0x00, 0x21, 0x39, 0xAD, 0x00, 0x18, 0x31, 0xA5, 0x00, 0xC6, 0xCE, 0xEF, 0x00, 0x94, 0x9C, 0xBD, 0x00, 
-0x8C, 0x94, 0xB5, 0x00, 0x6B, 0x73, 0x94, 0x00, 0x63, 0x6B, 0x8C, 0x00, 0x52, 0x5A, 0x7B, 0x00, 0xFF, 0xFF, 0xFF, 0x00, 0x42, 0x52, 0x94, 0x00, 
-0x39, 0x52, 0xB5, 0x00, 0x21, 0x39, 0x94, 0x00, 0x10, 0x21, 0x63, 0x00, 0x73, 0x84, 0xBD, 0x00, 0x6B, 0x7B, 0xB5, 0x00, 0x5A, 0x6B, 0xA5, 0x00, 
-0x52, 0x63, 0x9C, 0x00, 0x52, 0x6B, 0xBD, 0x00, 0x29, 0x39, 0x73, 0x00, 0xAD, 0xB5, 0xCE, 0x00, 0x52, 0x5A, 0x73, 0x00, 0x42, 0x4A, 0x63, 0x00,
-0x63, 0x73, 0xA5, 0x00, 0x5A, 0x6B, 0x9C, 0x00, 0x29, 0x31, 0x4A, 0x00, 0x42, 0x5A, 0xA5, 0x00, 0x29, 0x4A, 0xAD, 0x00, 0x08, 0x10, 0x29, 0x00, 
-0xBD, 0xC6, 0xDE, 0x00, 0x9C, 0xA5, 0xBD, 0x00, 0x7B, 0x84, 0x9C, 0x00, 0x39, 0x42, 0x5A, 0x00, 0x4A, 0x5A, 0x84, 0x00, 0x52, 0x6B, 0xAD, 0x00, 
-0x4A, 0x63, 0xA5, 0x00, 0x21, 0x31, 0x5A, 0x00, 0x31, 0x4A, 0x8C, 0x00, 0x31, 0x52, 0xAD, 0x00, 0x29, 0x52, 0xC6, 0x00, 0x08, 0x21, 0x63, 0x00, 
-0x94, 0xA5, 0xCE, 0x00, 0x52, 0x63, 0x8C, 0x00, 0x31, 0x42, 0x6B, 0x00, 0x42, 0x63, 0xB5, 0x00, 0x42, 0x73, 0xE7, 0x00, 0xD6, 0xDE, 0xEF, 0x00, 
-0xCE, 0xD6, 0xE7, 0x00, 0x6B, 0x73, 0x84, 0x00, 0xAD, 0xBD, 0xDE, 0x00, 0x63, 0x73, 0x94, 0x00, 0x31, 0x39, 0x4A, 0x00, 0x8C, 0xA5, 0xDE, 0x00, 
-0x29, 0x31, 0x42, 0x00, 0x42, 0x5A, 0x8C, 0x00, 0x10, 0x18, 0x29, 0x00, 0x29, 0x42, 0x7B, 0x00, 0x08, 0x29, 0x73, 0x00, 0x73, 0x84, 0xA5, 0x00, 
-0x52, 0x63, 0x84, 0x00, 0x21, 0x29, 0x39, 0x00, 0x5A, 0x73, 0xA5, 0x00, 0x73, 0x94, 0xD6, 0x00, 0x5A, 0x7B, 0xBD, 0x00, 0x31, 0x4A, 0x7B, 0x00, 
-0x4A, 0x7B, 0xD6, 0x00, 0x18, 0x29, 0x4A, 0x00, 0x10, 0x21, 0x42, 0x00, 0x10, 0x29, 0x5A, 0x00, 0x00, 0x08, 0x18, 0x00, 0xDE, 0xE7, 0xF7, 0x00, 
-0x5A, 0x63, 0x73, 0x00, 0x39, 0x42, 0x52, 0x00, 0x7B, 0x9C, 0xD6, 0x00, 0x63, 0x84, 0xBD, 0x00, 0x5A, 0x7B, 0xB5, 0x00, 0x18, 0x21, 0x31, 0x00,
-0x21, 0x39, 0x63, 0x00, 0x08, 0x31, 0x7B, 0x00, 0x00, 0x18, 0x42, 0x00, 0x84, 0x94, 0xAD, 0x00, 0x6B, 0x7B, 0x94, 0x00, 0x7B, 0x94, 0xBD, 0x00, 
-0x42, 0x52, 0x6B, 0x00, 0x4A, 0x63, 0x8C, 0x00, 0x21, 0x31, 0x4A, 0x00, 0x4A, 0x73, 0xB5, 0x00, 0x29, 0x42, 0x6B, 0x00, 0x31, 0x52, 0x84, 0x00, 
-0x4A, 0x84, 0xDE, 0x00, 0x18, 0x31, 0x5A, 0x00, 0x10, 0x29, 0x52, 0x00, 0x10, 0x31, 0x63, 0x00, 0xBD, 0xCE, 0xE7, 0x00, 0x9C, 0xAD, 0xC6, 0x00,
-0x63, 0x7B, 0x9C, 0x00, 0x8C, 0xAD, 0xDE, 0x00, 0x31, 0x42, 0x5A, 0x00, 0x63, 0x8C, 0xC6, 0x00, 0x63, 0x9C, 0xEF, 0x00, 0x10, 0x42, 0x8C, 0x00, 
-0x9C, 0xB5, 0xD6, 0x00, 0x5A, 0x73, 0x94, 0x00, 0x31, 0x4A, 0x6B, 0x00, 0x4A, 0x84, 0xCE, 0x00, 0x31, 0x6B, 0xB5, 0x00, 0x52, 0x7B, 0xAD, 0x00, 
-0x42, 0x6B, 0x9C, 0x00, 0x21, 0x42, 0x6B, 0x00, 0x29, 0x5A, 0x94, 0x00, 0x10, 0x42, 0x7B, 0x00, 0x18, 0x63, 0xBD, 0x00, 0x73, 0x7B, 0x84, 0x00, 
-0x31, 0x39, 0x42, 0x00, 0x10, 0x18, 0x21, 0x00, 0x21, 0x39, 0x52, 0x00, 0x31, 0x7B, 0xCE, 0x00, 0x10, 0x52, 0x9C, 0x00, 0x00, 0x52, 0xAD, 0x00, 
-0x6B, 0x73, 0x7B, 0x00, 0x63, 0x6B, 0x73, 0x00, 0x52, 0x63, 0x73, 0x00, 0x8C, 0xAD, 0xCE, 0x00, 0x21, 0x29, 0x31, 0x00, 0x94, 0xBD, 0xE7, 0x00, 
-0x31, 0x42, 0x52, 0x00, 0x52, 0x73, 0x94, 0x00, 0x7B, 0xAD, 0xDE, 0x00, 0x18, 0x29, 0x39, 0x00, 0x18, 0x4A, 0x7B, 0x00, 0x00, 0x73, 0xE7, 0x00,
-0x39, 0x42, 0x4A, 0x00, 0x63, 0x9C, 0xCE, 0x00, 0x63, 0x8C, 0xAD, 0x00, 0x52, 0x7B, 0x9C, 0x00, 0x73, 0x94, 0xAD, 0x00, 0x31, 0x52, 0x6B, 0x00, 
-0x4A, 0x63, 0x73, 0x00, 0x6B, 0xB5, 0xDE, 0x00, 0x39, 0xAD, 0xE7, 0x00, 0x18, 0x29, 0x31, 0x00, 0x5A, 0xBD, 0xE7, 0x00, 0xAD, 0xD6, 0xE7, 0x00, 
-0x63, 0xD6, 0xF7, 0x00, 0x31, 0xD6, 0xFF, 0x00, 0x39, 0x42, 0x42, 0x00, 0x31, 0x39, 0x39, 0x00, 0x18, 0x21, 0x21, 0x00, 0x94, 0xCE, 0xCE, 0x00, 
-0x08, 0x10, 0x10, 0x00, 0x00, 0x08, 0x08, 0x00, 0x18, 0x21, 0x18, 0x00, 0x21, 0x21, 0x18, 0x00, 0x21, 0x21, 0x10, 0x00, 0x29, 0x21, 0x18, 0x00, 
-0x18, 0x10, 0x10, 0x00, 0x21, 0x10, 0x10, 0x00, 0x39, 0x31, 0x39, 0x00, 0x21, 0x18, 0x21, 0x00, 0x10, 0x08, 0x10, 0x00, 0x42, 0x39, 0x4A, 0x00, 
-0x73, 0x6B, 0x7B, 0x00, 0x6B, 0x63, 0x73, 0x00, 0x29, 0x21, 0x31, 0x00, 0x4A, 0x42, 0x5A, 0x00, 0x5A, 0x52, 0x6B, 0x00, 0xA5, 0x9C, 0xBD, 0x00, 
-0x00, 0xff, 0x00, 0x00, 0xff, 0x8B, 0x3e, 0x00, 0x5d, 0x5d, 0x5d, 0x00, 0xFF, 0x00, 0xFF, 0x00
-};
-#endif	// JPN
-// Encompass MarkMa 032499
 
 image_t     *draw_chars;
 void *default_chars_image;
@@ -184,7 +112,18 @@ void Draw_InitLocal (void)
 	LoadFont("mainnumsred" );
 	LoadFont("con_font" );
 	LoadFont("int_font_bright" );
-	LoadFont("int_buttons" );
+	void *button_font = LoadFont("int_buttons" );
+	if (button_font != NULL)
+	{
+		dk_font *button_font_data = (dk_font *)button_font;
+		if (button_font_data->image != NULL)
+		{
+			image_t *button_image = (image_t *)button_font_data->image;
+			GL_Bind(button_image->texnum);
+			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		}
+	}
 
 	R_GetPicData("pics/loadscreens/con_0.bmp", NULL, NULL, RESOURCE_GLOBAL );
 	R_GetPicData("pics/loadscreens/con_1.bmp", NULL, NULL, RESOURCE_GLOBAL );
@@ -193,97 +132,6 @@ void Draw_InitLocal (void)
 	R_GetPicData("pics/loadscreens/con_4.bmp", NULL, NULL, RESOURCE_GLOBAL );
 	R_GetPicData("pics/loadscreens/con_5.bmp", NULL, NULL, RESOURCE_GLOBAL );
 }
-
-// Encompass MarkMa 032499
-#ifdef	JPN	// JPN
-void GetStringSize( HDC *hMyDC, HFONT *hFont, HFONT *hOldFont,
-				   LPCTSTR lpStr, UINT *nStrWidth, UINT *nStrHeight, UINT len )
-{
-	LOGFONT			lf;
-    SIZE			size;
-
-	*hMyDC = CreateCompatibleDC( NULL );
-
-	// Create FONT
-	memset(&lf, 0, sizeof(lf));
-	SystemParametersInfo(SPI_GETICONTITLELOGFONT, sizeof(lf), (PVOID) &lf, FALSE);
-	*hFont = CreateFontIndirect(&lf);
-	// added by yokoyama
-/*
-	*hFont = CreateFont(12,					// logical height of font
-									  0,							// logical average character width
-									  0,							// angle of escapement
-									  0,							// base-line orientation angle
-									  FW_BOLD,					// font weight
-//									  sJfont.iJweightMedium,			// font weight
-									  FALSE,						// italic attribute flag
-									  FALSE,						// underline attribute flag
-									  FALSE,						// strikeout attribute flag
-// added for Japanese version
-//									  DEFAULT_CHARSET,		// character set identifier - Original Code
-									  SHIFTJIS_CHARSET,		// character set identifier
-									  OUT_DEFAULT_PRECIS,	// output precision
-									  CLIP_DEFAULT_PRECIS,	// clipping precision
-									  PROOF_QUALITY,			// output quality
-									  DEFAULT_PITCH |
-									  FF_DONTCARE,				// pitch and family
-									  "\82l\82r\81@\83S\83V\83b\83N"				// pointer to typeface name string
-									);
-*/
-	*hOldFont = (HFONT ) SelectObject(*hMyDC, *hFont);
-
-	// Get my string size
-	GetTextExtentPoint32(*hMyDC, lpStr, len, &size);
-
-	// Count the number of double byte characeter
-	for(int i =0; i < len; i++)
-		if(IsDBCSLeadByte(lpStr[i]))	{
-			size.cx--;	i++;
-		}
-
-	*nStrWidth = size.cx + len * 2;
-	*nStrHeight = size.cy;
-}
-
-
-
-// This code's protype is GL_Upload8 in gl_image.cpp. In order to resolve palette problem
-qboolean GL_MyUpload8 (byte *data, int width, int height,  qboolean mipmap, qboolean is_sky, byte *palette1)
-{
-	unsigned	trans[2*256];
-	int			i, s, p;
-
-	// s is the byte count for the image
-	// data is the image
-	s = width*height;
-	for (i=0 ; i<s ; i++) 	{
-        p = data[i];
-
-		// if the color is the transparent color...
-		if (p == 255) 	{	
-            // transparent, so scan around for another color
-			// to avoid alpha fringes
-			// FIXME: do a full flood fill so mips work...
-			if (i > width && data[i-width] != 255)
-				p = data[i-width];
-			else if (i < s-width && data[i+width] != 255)
-				p = data[i+width];
-			else if (i > 0 && data[i-1] != 255)
-				p = data[i-1];
-			else if (i < s-1 && data[i+1] != 255)
-				p = data[i+1];
-			else
-				p = 0;
-
-			trans[i] = (palette[p*4+2]<<0) + (palette[p*4+1]<<8) + (palette[p*4+0]<<16);
-		}
-		else
-			trans[i] = 0xff000000 + (palette[p*4+2]) + (palette[p*4+1]<<8) + (palette[p*4+0]<<16);
-	}
-	return GL_Upload32 (trans, width, height, mipmap);
-}
-#endif	// JPN
-// Encompass MarkMa 032499
 
 typedef struct  drawFont_s
 {
@@ -406,232 +254,31 @@ int R_DrawStringFlare( DRAWSTRUCT& drawStruct )
 
 	qglColor4fv( color );
 
-	float x_frac = drawStruct.nXPos;
-// Encompass MarkMa 032499
-#ifdef	JPN	// JPN
-	HFONT			hOldFont, hFont;
-	HBITMAP			hbm = NULL;				// Pointer to my BMP
-    MYBITMAPINFO    lpbmi;					// Pointer to BMP's information structure
-	LPSTR	 	    lpBmpBits = NULL;       // Pointer to DIB bits
-	HDC				hMyDC, hdc;
-	UINT			nStrHeight, len;
-	int				i, n;
-	UINT			nCharWidth, nCharLen;
-	BOOL			bArrowDone;
-	unsigned char   cc = pString[0];
-
-	
-
-	len = strlen((const char *)pString);
-	if( lstrcmp((LPCTSTR) font->name, (LPCTSTR) "int_buttons")
-			&& lstrcmp((LPCTSTR) font->name, (LPCTSTR) "mainnums")
-			&& lstrcmp((LPCTSTR) font->name, (LPCTSTR) "mainred")
-			&& ( !(len==1 && ( (126<cc && cc<130) || (140<cc && cc<145) 
-			   || (156<cc && cc<159) || cc==176 || cc==183)) )
-			   ) {	// Draw string on screen
-
-				
-		// Output string
-		int nHalfW = image->width / 2;
-		int nHalfH = image->height / 2;
-		bArrowDone = false;
-
-		for( ;pString[ 0 ] != '\0'; pString +=nCharLen )	{
-
-			float fCenterX = x_frac + nHalfW;
-			float fCenterY = drawStruct.nYPos + nHalfH;
-
-			// Check arrow bitmap and cursor in console
-			if((!bArrowDone && (!lstrcmp((const char *)pString, tongue_menu[T_MENU_ARROWS_UP]) ||
-				   !lstrcmp((const char *)pString, tongue_menu[T_MENU_ARROWS_DOWN]) ||
-				   !lstrcmp((const char *)pString, tongue_menu[T_MENU_ARROWS_LEFT]) ||
-				   !lstrcmp((const char *)pString, tongue_menu[T_MENU_ARROWS_RIGHT]))) 
-				|| (pString[0] == 0x0a) || pString[0] == 0x0b) {
-
-				cc = pString[0];
-				if (cc == 0x0b)	cc = cc + 21;
-				GL_Bind( image->texnum );
-
-				x1 = ( int ) fCenterX - nHalfW * fScaleX;
-				x2 = ( int ) fCenterX + nHalfW * fScaleX;
-				y1 = ( int ) fCenterY - nHalfH * fScaleY;
-				y2 = ( int ) fCenterY + nHalfH * fScaleY;
-
-				sl = image->sl;
-				tl = image->tl;
-				sh = image->sh;
-				th = image->sh;
-
-				nCharWidth = font->char_width[cc];
-				nCharLen = 1;		
-				goto DrawArrow;
-			}
-
-			if(!lstrcmp((LPCTSTR) font->name, (LPCTSTR) "scorefont"))
-				n = 2;
-			else if(!lstrcmp((LPCTSTR) font->name, (LPCTSTR) "int_font_bright"))
-				n = 0;
-			else
-				n = 1;
-
-			if(IsDBCSLeadByte(pString[0]))	{
-				nCharLen = 2;
-				for(i=0x0E0; i<MAX_CHARNUM; i++)	{
-					if(pString[0] == TTFont[n][i].CharData[0]
-						&& (pString[1]) == TTFont[n][i].CharData[1])	{
-						GL_Bind(TEXNUM_IMAGES + MAX_GLTEXTURES + i + n*MAX_CHARNUM);
-						nCharWidth = TTFont[n][i].nCharWidth;
-						nStrHeight = TTFont[n][i].nCharHeight;
-						goto DrawChar;
-					}
-					else if(0 == TTFont[n][i].CharData[0] && 0 == TTFont[n][i].CharData[1])
-						break;
-				}
-			}
-			else	{
-				nCharLen = 1;
-				i = (pString[0]);
-				if(i == TTFont[n][i].CharData[0])	{
-					GL_Bind(TEXNUM_IMAGES + MAX_GLTEXTURES + i + n*MAX_CHARNUM);
-					nCharWidth = TTFont[n][i].nCharWidth;
-					nStrHeight = TTFont[n][i].nCharHeight;
-					goto DrawChar;
-				}
-			}
-
-			// Set bitmap information in order to create a temporary BMP 
-			lpbmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-			lpbmi.bmiHeader.biWidth = BMPWIDTH;
-			lpbmi.bmiHeader.biHeight = -1 * BMPHEIGHT;	  // Negative height = top-down
-			lpbmi.bmiHeader.biPlanes = 1;
-			lpbmi.bmiHeader.biBitCount = BITCOUNT;		  // 8bpp 
-
-			lpbmi.bmiHeader.biCompression = BI_RGB;
-			lpbmi.bmiHeader.biXPelsPerMeter = 2834;
-			lpbmi.bmiHeader.biYPelsPerMeter = 2834;
-			lpbmi.bmiHeader.biClrUsed = 0x100;
-			lpbmi.bmiHeader.biClrImportant = 0;
-			lpbmi.bmiHeader.biSizeImage = WIDTHBYTES(BMPWIDTH * BITCOUNT) * BMPHEIGHT;
-
-			// Set palette to the BMP
-			memcpy(lpbmi.bmiColors, palette, 256 * 4);
-
-			// Create a DIB section
-			hdc = GetDC(NULL);
-			hbm = CreateDIBSection(hdc,
-								   (LPBITMAPINFO) &lpbmi,
-								   DIB_RGB_COLORS,
-								   (void **) &lpBmpBits,
-								   NULL,
-								   0);
-			ReleaseDC(NULL, hdc);
-			if (hbm == NULL)	{
-				ri.Con_Printf (PRINT_ALL, "Can't create a temporary BMP.");
-				return ( int ) x_frac;
-			}
-
-			// Get DC and Font
-			GetStringSize( &hMyDC, &hFont, &hOldFont, (const char *)pString, &nCharWidth, &nStrHeight, nCharLen);
-			SelectObject(hMyDC, hbm);
-			SetBkColor(hMyDC, RGB(255,0,255));	// Set DC's background color to Pink
-			memset(lpBmpBits, 0x0ff, lpbmi.bmiHeader.biSizeImage);
-
-			// Create mimic-3D text
-			if (n == 2)	{	
-				SetTextColor(hMyDC, RGB(0,0,0));
-				TextOut(hMyDC, 1, 1, (const char *) pString, nCharLen);
-
-				SetBkMode(hMyDC, TRANSPARENT);		// Set DC transpatent
-				SetTextColor(hMyDC, RGB(0,255,0));
-				TextOut(hMyDC, 0, 0, (const char *) pString, nCharLen);
-			}
-			else if(n == 0)	{
-#ifdef JPN // added by yokoyama : BUGFIX:NO.8
-				SetTextColor(hMyDC, RGB(0,0,0));
-#else
-			    SetTextColor(hMyDC, RGB(240,40,40));
-#endif
-				TextOut(hMyDC, 1, 1, (const char *) pString, nCharLen);
-
-				SetBkMode(hMyDC, TRANSPARENT);		// Set DC transpatent
-#ifdef JPN // added by yokoyama : BUGFIX:NO.8
-				SetTextColor(hMyDC, RGB(255,40,40));
-#else
-				SetTextColor(hMyDC, RGB(255,255,255));
-#endif
-				TextOut(hMyDC, 0, 0, (const char *) pString, nCharLen);
-			}
-			else	{
-				SetTextColor(hMyDC, RGB(3,3,3));
-				TextOut(hMyDC, 1, 1, (const char *) pString, nCharLen);
-
-				SetBkMode(hMyDC, TRANSPARENT);		// Set DC transpatent
-#ifdef JPN // added by yokoyama : BUGFIX:NO.8
-				SetTextColor(hMyDC, RGB(255,90,40));
-#else
-				SetTextColor(hMyDC, RGB(255,139,62));
-#endif
-				TextOut(hMyDC, 0, 0, (const char *) pString, nCharLen);
-			}
-
-			// Free memory
-			SelectObject(hMyDC, hOldFont);
-			DeleteObject(hFont);
-			DeleteDC(hMyDC);
-
-			// Save the new created font's data
-			if(nCharLen == 2)
-				TTFont[n][i].CharData[1] = pString[1];
-			TTFont[n][i].CharData[0] = pString[0];
-			TTFont[n][i].nCharWidth = nCharWidth;
-			TTFont[n][i].nCharHeight = nStrHeight;
-
-			GL_Bind(TEXNUM_IMAGES + MAX_GLTEXTURES + i + n*MAX_CHARNUM);
-			GL_MyUpload8 ((byte *)lpBmpBits, BMPWIDTH, BMPHEIGHT, 0, 0, NULL);
-
-DrawChar:
-			//draw the correct portion of the image.
-			x1 = ( int ) fCenterX - nHalfW * fScaleX;
-			x2 = ( int ) fCenterX + nHalfW * fScaleX;
-			y1 = ( int ) fCenterY - nHalfH * fScaleY;
-			y2 = ( int ) fCenterY + nHalfH * fScaleY;
-
-			// Set my image parameters
-			sl =0;	tl =0;
-			sh = nCharWidth;		th = nStrHeight;
-			sh /= BMPWIDTH;			th /= BMPHEIGHT;
-
-DrawArrow:
-			qglBegin( GL_QUADS );
-			qglTexCoord2f( sl, tl );
-			qglVertex2f( x1, y1 );
-			qglTexCoord2f( sh, tl );
-			qglVertex2f( x2, y1 );
-			qglTexCoord2f( sh, th );
-			qglVertex2f( x2, y2 );
-			qglTexCoord2f( sl, th );
-			qglVertex2f( x1, y2 );
-			qglEnd();
-
-			x_frac += 1 + nCharWidth;
-			bArrowDone = true;
-			if(hbm)		{
-				DeleteObject (hbm);
-				hbm = NULL;
-			}
-		}
-	}
-	else	// Draw Button BMP 
-#endif	// JPN
-	{	// Encompass MarkMa 032499
-
 	GL_Bind( image->texnum );
+	if( !( drawStruct.nFlags & DSFLAG_NO_N64FILTER ) )
+		R_TextureFilterBeginBase( image );
+
+	if( !( drawStruct.nFlags & DSFLAG_NOMIP ) )
+		GL_TextureModeUI(image);
 
 	if( drawStruct.nFlags & DSFLAG_NOMIP )
 	{
-		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
-		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+		if( ( drawStruct.nFlags & DSFLAG_NO_N64FILTER ) &&
+			gl_texture_filter != NULL && gl_texture_filter->value == 2.0f )
+		{
+			/* N64 is bypassed for this draw (loading screen/HUD/UI), so use
+			   the same non-shader bilinear sampling as the Bilinear mode. */
+			qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+			qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+		}
+		else
+		{
+			qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+			qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+		}
 	}
+
+	float x_frac = drawStruct.nXPos;
 
 	int nHalfW = image->width / 2;
 	int nHalfH = image->height / 2;
@@ -722,7 +369,9 @@ DrawArrow:
 		}
 		qglEnd();
 	}
-	} //Encompass MarkMa 032499 JPN
+
+	if( !( drawStruct.nFlags & DSFLAG_NO_N64FILTER ) )
+		R_TextureFilterEnd();
 
 	GL_TexEnv (GL_REPLACE);
 
@@ -841,233 +490,32 @@ int R_DrawString( DRAWSTRUCT& drawStruct )
 
 	qglColor4fv( color );
 
-	float x_frac = drawStruct.nXPos;
-// Encompass MarkMa 032499
-#ifdef	JPN	// JPN
-	HFONT			hOldFont, hFont;
-	HBITMAP			hbm = NULL;				// Pointer to my BMP
-    MYBITMAPINFO    lpbmi;					// Pointer to BMP's information structure
-	LPSTR	 	    lpBmpBits = NULL;       // Pointer to DIB bits
-	HDC				hMyDC, hdc;
-	UINT			nStrHeight, len;
-	int				i, n;
-	UINT			nCharWidth, nCharLen;
-	BOOL			bArrowDone;
-	unsigned char   cc = pString[0];
-
-	len = strlen((const char *)pString);
-	if( lstrcmp((LPCTSTR) font->name, (LPCTSTR) "int_buttons")
-			&& lstrcmp((LPCTSTR) font->name, (LPCTSTR) "mainnums")
-			&& lstrcmp((LPCTSTR) font->name, (LPCTSTR) "mainnumsred") // added by yokoyama for RedNumber.
-			&& lstrcmp((LPCTSTR) font->name, (LPCTSTR) "mainred")
-			&& ( !(len==1 && ( (126<cc && cc<130) || (140<cc && cc<145) 
-			   || (156<cc && cc<159) || cc==176 || cc==183)) )
-			   ) {	// Draw string on screen
-
-		
-		
-		// Output string
-		bArrowDone = false;
-		for( ;pString[ 0 ] != '\0'; pString +=nCharLen )	{
-
-			// Check arrow bitmap and cursor in console
-			if((!bArrowDone && (!lstrcmp((const char *)pString, tongue_menu[T_MENU_ARROWS_UP]) ||
-				   !lstrcmp((const char *)pString, tongue_menu[T_MENU_ARROWS_DOWN]) ||
-				   !lstrcmp((const char *)pString, tongue_menu[T_MENU_ARROWS_LEFT]) ||
-				   !lstrcmp((const char *)pString, tongue_menu[T_MENU_ARROWS_RIGHT]))) 
-				|| (pString[0] == 0x0a) || pString[0] == 0x0b) {
-
-				cc = pString[0];
-				if (cc == 0x0b)	cc = cc + 21;
-				GL_Bind( image->texnum );
-
-				x1 = ( int ) x_frac;
-				x2 = x1 + font->char_width[cc] * fScaleX;
-				y1 = drawStruct.nYPos;
-				y2 = y1 + font->height * fScaleY;
-
-				sl = image->sl + font->char_pos_x[cc];
-				tl = image->tl + font->char_pos_y[cc];
-				sh = sl + font->char_width[cc];
-				th = tl + font->height;
-
-				sl /= image->width;
-				tl /= image->height;
-				sh /= image->width;
-				th /= image->height;
-
-				nCharWidth = font->char_width[cc];
-				nCharLen = 1;		
-				goto DrawArrow;
-			}
-
-			if(!lstrcmp((LPCTSTR) font->name, (LPCTSTR) "scorefont"))
-				n = 2;
-			else if(!lstrcmp((LPCTSTR) font->name, (LPCTSTR) "int_font_bright"))
-				n = 0;
-			else
-				n = 1;
-
-			if(IsDBCSLeadByte(pString[0]))	{
-				nCharLen = 2;
-				for(i=0x0E0; i<MAX_CHARNUM; i++)	{
-					if(pString[0] == TTFont[n][i].CharData[0]
-						&& (pString[1]) == TTFont[n][i].CharData[1])	{
-						GL_Bind(TEXNUM_IMAGES + MAX_GLTEXTURES + i + n*MAX_CHARNUM);
-						nCharWidth = TTFont[n][i].nCharWidth;
-						nStrHeight = TTFont[n][i].nCharHeight;
-						goto DrawChar;
-					}
-					else if(0 == TTFont[n][i].CharData[0] && 0 == TTFont[n][i].CharData[1])
-						break;
-				}
-			}
-			else	{
-				nCharLen = 1;
-				i = (pString[0]);
-				if(i == TTFont[n][i].CharData[0])	{
-					GL_Bind(TEXNUM_IMAGES + MAX_GLTEXTURES + i + n*MAX_CHARNUM);
-					nCharWidth = TTFont[n][i].nCharWidth;
-					nStrHeight = TTFont[n][i].nCharHeight;
-					goto DrawChar;
-				}
-			}
-
-			// Set bitmap information in order to create a temporary BMP 
-			lpbmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-			lpbmi.bmiHeader.biWidth = BMPWIDTH;
-			lpbmi.bmiHeader.biHeight = -1 * BMPHEIGHT;	  // Negative height = top-down
-			lpbmi.bmiHeader.biPlanes = 1;
-			lpbmi.bmiHeader.biBitCount = BITCOUNT;		  // 8bpp 
-
-			lpbmi.bmiHeader.biCompression = BI_RGB;
-			lpbmi.bmiHeader.biXPelsPerMeter = 2834;
-			lpbmi.bmiHeader.biYPelsPerMeter = 2834;
-			lpbmi.bmiHeader.biClrUsed = 0x100;
-			lpbmi.bmiHeader.biClrImportant = 0;
-			lpbmi.bmiHeader.biSizeImage = WIDTHBYTES(BMPWIDTH * BITCOUNT) * BMPHEIGHT;
-
-			// Set palette to the BMP
-			memcpy(lpbmi.bmiColors, palette, 256 * 4);
-
-			// Create a DIB section
-			hdc = GetDC(NULL);
-			hbm = CreateDIBSection(hdc,
-								   (LPBITMAPINFO) &lpbmi,
-								   DIB_RGB_COLORS,
-								   (void **) &lpBmpBits,
-								   NULL,
-								   0);
-			ReleaseDC(NULL, hdc);
-			if (hbm == NULL)	{
-				ri.Con_Printf (PRINT_ALL, "Can't create a temporary BMP.");
-				return ( int ) x_frac;
-			}
-
-			// Get DC and Font
-			GetStringSize( &hMyDC, &hFont, &hOldFont, (const char *)pString, &nCharWidth, &nStrHeight, nCharLen);
-			SelectObject(hMyDC, hbm);
-			SetBkColor(hMyDC, RGB(255,0,255));	// Set DC's background color to Pink
-			memset(lpBmpBits, 0x0ff, lpbmi.bmiHeader.biSizeImage);
-
-			// Create mimic-3D text
-			if (n == 2)	{	
-				SetTextColor(hMyDC, RGB(0,0,0));
-				TextOut(hMyDC, 1, 1, (const char *) pString, nCharLen);
-
-				SetBkMode(hMyDC, TRANSPARENT);		// Set DC transpatent
-				SetTextColor(hMyDC, RGB(0,255,0));
-				TextOut(hMyDC, 0, 0, (const char *) pString, nCharLen);
-			}
-			else if(n == 0)	{
-#ifdef JPN // added by yokoyama : BUGFIX:NO.8
-				SetTextColor(hMyDC, RGB(0,0,0));
-#else
-			    SetTextColor(hMyDC, RGB(240,40,40));
-#endif
-				TextOut(hMyDC, 1, 1, (const char *) pString, nCharLen);
-
-				SetBkMode(hMyDC, TRANSPARENT);		// Set DC transpatent
-#ifdef JPN // added by yokoyama : BUGFIX:NO.8
-				SetTextColor(hMyDC, RGB(255,40,40));
-#else
-				SetTextColor(hMyDC, RGB(255,255,255));
-#endif
-				TextOut(hMyDC, 0, 0, (const char *) pString, nCharLen);
-			}
-			else	{
-				SetTextColor(hMyDC, RGB(3,3,3));
-				TextOut(hMyDC, 1, 1, (const char *) pString, nCharLen);
-
-				SetBkMode(hMyDC, TRANSPARENT);		// Set DC transpatent
-#ifdef JPN // added by yokoyama : BUGFIX:NO.8
-				SetTextColor(hMyDC, RGB(255,90,40));
-#else
-				SetTextColor(hMyDC, RGB(255,139,62));
-#endif
-				TextOut(hMyDC, 0, 0, (const char *) pString, nCharLen);
-			}
-
-			// Free memory
-			SelectObject(hMyDC, hOldFont);
-			DeleteObject(hFont);
-			DeleteDC(hMyDC);
-
-			// Save the new created font's data
-			if(nCharLen == 2)
-				TTFont[n][i].CharData[1] = pString[1];
-			TTFont[n][i].CharData[0] = pString[0];
-			TTFont[n][i].nCharWidth = nCharWidth;
-			TTFont[n][i].nCharHeight = nStrHeight;
-
-			GL_Bind(TEXNUM_IMAGES + MAX_GLTEXTURES + i + n*MAX_CHARNUM);
-			GL_MyUpload8 ((byte *)lpBmpBits, BMPWIDTH, BMPHEIGHT, 0, 0, NULL);
-
-DrawChar:
-			//draw the correct portion of the image.
-			x1 = ( int ) x_frac;
-			x2 = x1 + nCharWidth * fScaleX;
-			y1 = drawStruct.nYPos + 3 ; // added by yokoyama [-3] 
-			y2 = y1 + nStrHeight * fScaleY;
-
-			// Set my image parameters
-			sl =0;	tl =0;
-			sh = nCharWidth;		th = nStrHeight;
-			sh /= BMPWIDTH;			th /= BMPHEIGHT;
-
-DrawArrow:
-			qglBegin( GL_QUADS );
-			qglTexCoord2f( sl, tl );
-			qglVertex2f( x1, y1 );
-			qglTexCoord2f( sh, tl );
-			qglVertex2f( x2, y1 );
-			qglTexCoord2f( sh, th );
-			qglVertex2f( x2, y2 );
-			qglTexCoord2f( sl, th );
-			qglVertex2f( x1, y2 );
-			qglEnd();
-
-			x_frac += nCharWidth * fScaleX;
-			bArrowDone = true;
-			if(hbm)		{
-				DeleteObject (hbm);
-				hbm = NULL;
-			}
-		}
-	}
-	else	// Draw Button BMP 
-#endif	// JPN
-	{	// Encompass MarkMa 032499
-
     GL_Bind( image->texnum );
+	if( !( drawStruct.nFlags & DSFLAG_NO_N64FILTER ) )
+		R_TextureFilterBeginBase( image );
+
+	if( !( drawStruct.nFlags & DSFLAG_NOMIP ) )
+		GL_TextureModeUI(image);
 
 	if( drawStruct.nFlags & DSFLAG_NOMIP )
 	{
-		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
-		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+		if( ( drawStruct.nFlags & DSFLAG_NO_N64FILTER ) &&
+			gl_texture_filter != NULL && gl_texture_filter->value == 2.0f )
+		{
+			/* N64 is bypassed for this draw (loading screen/HUD/UI), so use
+			   the same non-shader bilinear sampling as the Bilinear mode. */
+			qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+			qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+		}
+		else
+		{
+			qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+			qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+		}
 	}
 
-	
+	float x_frac = drawStruct.nXPos;
+
 	if( drawStruct.pImage != NULL )
 	{
 		qglBegin( GL_QUADS );
@@ -1155,7 +603,9 @@ DrawArrow:
 			x_frac += 9 * fScaleX;
 		}
 	}
-	}	// Encompass MarkMa 032499 JPN
+
+	if( !( drawStruct.nFlags & DSFLAG_NO_N64FILTER ) )
+		R_TextureFilterEnd();
 
 	GL_TexEnv (GL_REPLACE);
 
@@ -1194,6 +644,7 @@ void R_DrawChar( int x, int y, int num )
 	size = 0.0625;
 
 	GL_Bind (draw_chars->texnum);
+	R_TextureFilterBeginBase( draw_chars );
 
 	qglBegin (GL_QUADS);
 	qglTexCoord2f (fcol, frow);
@@ -1205,6 +656,7 @@ void R_DrawChar( int x, int y, int num )
 	qglTexCoord2f (fcol, frow + size);
 	qglVertex2f (x, y+8);
 	qglEnd ();
+	R_TextureFilterEnd();
 }
 
 /*
@@ -1350,6 +802,18 @@ void R_DrawPic( DRAWSTRUCT& drawStruct )
 
 		GL_Bind( image->texnum );
 
+		if( !( drawStruct.nFlags & DSFLAG_NO_N64FILTER ) )
+			R_TextureFilterBeginBase( image );
+
+		if( !( drawStruct.nFlags & DSFLAG_NOMIP ) )
+			GL_TextureModeUI(image);
+
+		if( drawStruct.nFlags & DSFLAG_CLAMP )
+		{
+			qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+			qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+		}
+
 		if( drawStruct.nFlags & DSFLAG_NOMIP )
 		{
 			qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
@@ -1366,6 +830,15 @@ void R_DrawPic( DRAWSTRUCT& drawStruct )
 		qglTexCoord2f( sl, th );
 		qglVertex2f( x1, y2 );
 		qglEnd();
+
+		if( !( drawStruct.nFlags & DSFLAG_NO_N64FILTER ) )
+			R_TextureFilterEnd();
+
+		if( drawStruct.nFlags & DSFLAG_CLAMP )
+		{
+			qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+			qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+		}
 	}
 
 	GL_TexEnv( GL_REPLACE );
@@ -1414,6 +887,7 @@ void Draw_CharOriented (const CVector &origin, const CVector &right, const CVect
     size = 0.0625;
 
     GL_Bind (draw_chars->texnum);
+	R_TextureFilterBeginBase( draw_chars );
 
     qglBegin (GL_QUADS);
 
@@ -1434,6 +908,7 @@ void Draw_CharOriented (const CVector &origin, const CVector &right, const CVect
     qglVertex3f (vertex.x, vertex.y, vertex.z);
 
     qglEnd ();
+	R_TextureFilterEnd();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1620,6 +1095,7 @@ void DrawTileClear (int x, int y, int w, int h, const char *pic)
 	float th = ( float ) ( y + h ) / ( float ) image->height;
 
     GL_Bind( image->texnum );
+    R_TextureFilterBeginBase(image);
 
     qglBegin( GL_QUADS );
     qglTexCoord2f( sl, tl );
@@ -1631,6 +1107,7 @@ void DrawTileClear (int x, int y, int w, int h, const char *pic)
     qglTexCoord2f( sl, th );
     qglVertex2f( x, y + h );
     qglEnd();
+    R_TextureFilterEnd();
 }
 
 

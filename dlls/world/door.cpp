@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include "world.h"
 #include "nodelist.h"
 #include "GrphPath.h"
@@ -60,7 +61,7 @@ void train_rotate_think (userEntity_t *self);
 
 
 // SCG[11/19/99]: Save game stuff
-#define	DOORHOOK(x) (int)&(((doorHook_t *)0)->x)
+#define	DOORHOOK(x) (int)offsetof(doorHook_t,x)
 field_t door_hook_fields[] = 
 {
 	{"state",				DOORHOOK(state),				F_INT},
@@ -154,8 +155,6 @@ void func_train_init_from_save( userEntity_t *self )
 		return;
 	}
 
-// SCG[6/23/00]: not needed anymore
-/*
 	if( pHook->state == TRAIN_STATE_MOVING )
 	{
 		// SCG[3/6/00]: We need to get the movedir and back the object off a bit
@@ -175,14 +174,6 @@ void func_train_init_from_save( userEntity_t *self )
 		gstate->LinkEntity( self );
 	}
 	else
-	{
-		self->think = NULL;
-		self->nextthink = -1;
-		return;
-	}
-*/
-// SCG[6/23/00]: use this instead
-	if( pHook->state != TRAIN_STATE_MOVING )
 	{
 		self->think = NULL;
 		self->nextthink = -1;
@@ -402,7 +393,7 @@ void door_hook_save( FILE *f, edict_t *ent )
 	AI_SaveHook( f, ent, door_hook_fields, sizeof( doorHook_t ) );
 }
 
-typedef	(*func_t)(edict_t *);
+typedef void (*func_t)(edict_t *);
 void door_hook_load( FILE *f, edict_t *ent )
 {
 	AI_LoadHook( f, ent, door_hook_fields, sizeof( doorHook_t ) );

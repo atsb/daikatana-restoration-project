@@ -121,10 +121,8 @@ cvar_t  *dm_footsteps;
 cvar_t  *dm_allow_hook;
 cvar_t  *dm_item_respawn;
 cvar_t  *dm_shotshells;
-cvar_t	*dm_instagib;
+cvar_t  *dm_instagib;
 cvar_t  *p_cheats;
-
-cvar_t	*dedicated;
 
 #ifdef _DEBUG
 cvar_t	*dk_level;
@@ -689,10 +687,8 @@ void    weapons_InitCVars (void)
     dm_allow_hook       = gstate->cvar ("dm_allow_hook", "1", CVAR_SERVERINFO | CVAR_LATCH);
     dm_item_respawn     = gstate->cvar ("dm_item_respawn", "1", CVAR_SERVERINFO|CVAR_LATCH);
     dm_shotshells       = gstate->cvar ("dm_shotshells", "1", CVAR_SERVERINFO|CVAR_LATCH);
-    dm_instagib		    = gstate->cvar ("dm_instagib", "0", CVAR_SERVERINFO|CVAR_LATCH);
+    dm_instagib        = gstate->cvar ("dm_instagib", "0", CVAR_SERVERINFO|CVAR_LATCH);
     p_cheats            = gstate->cvar ("cheats", "0", CVAR_SERVERINFO|CVAR_LATCH);
-
-	dedicated			= gstate->cvar ("dedicated", "0", CVAR_NOSET);
 //    g_cvarLogServer = gstate->cvar("log_server", "", CVAR_ARCHIVE);
 
 #ifdef _DEBUG
@@ -764,7 +760,6 @@ void weapon_give_gashands_f(userEntity_t *self)
 		gashandsGive(self,0);
 }
 
-void ManualNextWeapon(userEntity_t *self, int dir);
 void    dll_ServerLoad (serverState_t *state)
 {
 //
@@ -800,8 +795,6 @@ void    dll_ServerLoad (serverState_t *state)
         winfo++;
     }
 
-	// set up the serverstate function to allow control of weapon selection from world.
-	gstate->WeaponSwitch = ManualNextWeapon;
 
 #ifndef _DEBUG    
 	if( gstate->GetCvar( "cheats" ) )

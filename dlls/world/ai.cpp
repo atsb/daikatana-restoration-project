@@ -102,9 +102,7 @@ char *GOALTYPE_STR [] =
 // ----------------------------------------------------------------------------
 TASK_PTR TASK_Allocate()
 {
-//	TASK_PTR pTask = (TASK_PTR)gstate->X_Malloc(sizeof(TASK),MEM_TAG_AI);
-	TASK_PTR pTask = (TASK_PTR)malloc(sizeof(TASK));
-	memset(pTask,0,sizeof(TASK));
+	TASK_PTR pTask = (TASK_PTR)gstate->X_Malloc(sizeof(TASK),MEM_TAG_AI);
 //	TASK_PTR pTask = new TASK;
 //	if ( !pTask )
 //	{
@@ -131,9 +129,7 @@ TASK_PTR TASK_Allocate()
 // ----------------------------------------------------------------------------
 TASK_PTR TASK_Allocate( TASKTYPE nNewTaskType )
 {
-//	TASK_PTR pTask = (TASK_PTR)gstate->X_Malloc(sizeof(TASK),MEM_TAG_AI);
-	TASK_PTR pTask = (TASK_PTR)malloc(sizeof(TASK));
-	memset(pTask,0,sizeof(TASK));
+	TASK_PTR pTask = (TASK_PTR)gstate->X_Malloc(sizeof(TASK),MEM_TAG_AI);
 //	if ( !pTask )
 //	{
 //		return NULL;
@@ -156,9 +152,7 @@ TASK_PTR TASK_Allocate( TASKTYPE nNewTaskType, AIDATA_PTR aiData)
 	}
 
     //allocate a new task.
-//	TASK_PTR pTask = (TASK_PTR)gstate->X_Malloc(sizeof(TASK),MEM_TAG_AI);
-	TASK_PTR pTask = (TASK_PTR)malloc(sizeof(TASK));
-	memset(pTask,0,sizeof(TASK));
+	TASK_PTR pTask = (TASK_PTR)gstate->X_Malloc(sizeof(TASK),MEM_TAG_AI);
 //    if ( !pTask )
 //    {
 //        return NULL;
@@ -186,9 +180,7 @@ TASK_PTR TASK_Allocate( TASKTYPE nNewTaskType, AIDATA_PTR aiData)
 // ----------------------------------------------------------------------------
 TASK_PTR TASK_Allocate( TASKTYPE nNewTaskType, userEntity_t *pEntity )
 {
-//	TASK_PTR pTask = (TASK_PTR)gstate->X_Malloc(sizeof(TASK),MEM_TAG_AI);
-	TASK_PTR pTask = (TASK_PTR)malloc(sizeof(TASK));
-	memset(pTask,0,sizeof(TASK));
+	TASK_PTR pTask = (TASK_PTR)gstate->X_Malloc(sizeof(TASK),MEM_TAG_AI);
 //	if ( !pTask )
 //	{
 //		return NULL;
@@ -216,9 +208,7 @@ TASK_PTR TASK_Allocate( TASKTYPE nNewTaskType, userEntity_t *pEntity )
 // ----------------------------------------------------------------------------
 TASK_PTR TASK_Allocate( TASKTYPE nNewTaskType, CAction *pAction )
 {
-//	TASK_PTR pTask = (TASK_PTR)gstate->X_Malloc(sizeof(TASK),MEM_TAG_AI);
-	TASK_PTR pTask = (TASK_PTR)malloc(sizeof(TASK));
-	memset(pTask,0,sizeof(TASK));
+	TASK_PTR pTask = (TASK_PTR)gstate->X_Malloc(sizeof(TASK),MEM_TAG_AI);
 //	if ( !pTask )
 //	{
 //		return NULL;
@@ -246,9 +236,7 @@ TASK_PTR TASK_Allocate( TASKTYPE nNewTaskType, CAction *pAction )
 // ----------------------------------------------------------------------------
 TASK_PTR TASK_Allocate( TASKTYPE nNewTaskType, const int nValue )
 {
-//	TASK_PTR pTask = (TASK_PTR)gstate->X_Malloc(sizeof(TASK),MEM_TAG_AI);
-	TASK_PTR pTask = (TASK_PTR)malloc(sizeof(TASK));
-	memset(pTask,0,sizeof(TASK));
+	TASK_PTR pTask = (TASK_PTR)gstate->X_Malloc(sizeof(TASK),MEM_TAG_AI);
 //	if ( !pTask )
 //	{
 //		return NULL;
@@ -275,21 +263,18 @@ TASK_PTR TASK_Allocate( TASKTYPE nNewTaskType, const int nValue )
 // ----------------------------------------------------------------------------
 TASK_PTR TASK_Allocate( TASKTYPE nNewTaskType, const CVector &position )
 {
-//	TASK_PTR pTask = (TASK_PTR)gstate->X_Malloc(sizeof(TASK),MEM_TAG_AI);
-	TASK_PTR pTask = (TASK_PTR)malloc(sizeof(TASK));
-	memset(pTask,0,sizeof(TASK));
+	TASK_PTR pTask = (TASK_PTR)gstate->X_Malloc(sizeof(TASK),MEM_TAG_AI);
 //	if ( !pTask )
 //	{
 //		return NULL;
 //	}
 
-	pTask->nTaskType			= nNewTaskType;
+	pTask->nTaskType			 = nNewTaskType;
 	
 //	memset( &pTask->taskData, 0, sizeof(AIDATA) );
 	pTask->taskData.pString		= NULL;
 	pTask->taskData.destPoint	= position;
 	pTask->pNext				= NULL;
-	pTask->taskData.pEntity		= NULL;
 
 	return pTask;
 }
@@ -305,9 +290,7 @@ TASK_PTR TASK_Allocate( TASKTYPE nNewTaskType, const CVector &position )
 // ----------------------------------------------------------------------------
 TASK_PTR TASK_Allocate( TASKTYPE nNewTaskType, const float fValue )
 {
-//	TASK_PTR pTask = (TASK_PTR)gstate->X_Malloc(sizeof(TASK),MEM_TAG_AI);
-	TASK_PTR pTask = (TASK_PTR)malloc(sizeof(TASK));
-	memset(pTask,0,sizeof(TASK));
+	TASK_PTR pTask = (TASK_PTR)gstate->X_Malloc(sizeof(TASK),MEM_TAG_AI);
 //	if ( !pTask )
 //	{
 //		return NULL;
@@ -334,9 +317,7 @@ TASK_PTR TASK_Allocate( TASKTYPE nNewTaskType, const float fValue )
 // ----------------------------------------------------------------------------
 TASK_PTR TASK_Allocate( TASKTYPE nNewTaskType, frameData_t *pNewSequence )
 {
-//	TASK_PTR pTask = (TASK_PTR)gstate->X_Malloc(sizeof(TASK),MEM_TAG_AI);
-	TASK_PTR pTask = (TASK_PTR)malloc(sizeof(TASK));
-	memset(pTask,0,sizeof(TASK));
+	TASK_PTR pTask = (TASK_PTR)gstate->X_Malloc(sizeof(TASK),MEM_TAG_AI);
 //	if ( !pTask )
 //	{
 //		return NULL;
@@ -363,9 +344,7 @@ TASK_PTR TASK_Allocate( TASKTYPE nNewTaskType, frameData_t *pNewSequence )
 // ----------------------------------------------------------------------------
 TASK_PTR TASK_Allocate( TASKTYPE nNewTaskType, char *szString )
 {
-//	TASK_PTR pTask = (TASK_PTR)gstate->X_Malloc(sizeof(TASK),MEM_TAG_AI);
-	TASK_PTR pTask = (TASK_PTR)malloc(sizeof(TASK));
-	memset(pTask,0,sizeof(TASK));
+	TASK_PTR pTask = (TASK_PTR)gstate->X_Malloc(sizeof(TASK),MEM_TAG_AI);
 //	if ( !pTask )
 //	{
 //		return NULL;
@@ -391,9 +370,7 @@ TASK_PTR TASK_Allocate( TASKTYPE nNewTaskType, char *szString )
 // ----------------------------------------------------------------------------
 TASK_PTR TASK_Allocate( TASKTYPE nNewTaskType, void *pVoid )
 {
-//	TASK_PTR pTask = (TASK_PTR)gstate->X_Malloc(sizeof(TASK),MEM_TAG_AI);
-	TASK_PTR pTask = (TASK_PTR)malloc(sizeof(TASK));
-	memset(pTask,0,sizeof(TASK));
+	TASK_PTR pTask = (TASK_PTR)gstate->X_Malloc(sizeof(TASK),MEM_TAG_AI);
 //	if ( !pTask )
 //	{
 //		return NULL;
@@ -411,9 +388,7 @@ TASK_PTR TASK_Allocate( TASKTYPE nNewTaskType, void *pVoid )
 
 TASK_PTR TASK_Allocate( TASKTYPE nNewTaskType, char *szString, const float fValue )
 {
-//	TASK_PTR pTask = (TASK_PTR)gstate->X_Malloc(sizeof(TASK),MEM_TAG_AI);
-	TASK_PTR pTask = (TASK_PTR)malloc(sizeof(TASK));
-	memset(pTask,0,sizeof(TASK));
+	TASK_PTR pTask = (TASK_PTR)gstate->X_Malloc(sizeof(TASK),MEM_TAG_AI);
 //	if ( !pTask )
 //	{
 //		return NULL;
@@ -431,9 +406,7 @@ TASK_PTR TASK_Allocate( TASKTYPE nNewTaskType, char *szString, const float fValu
 
 TASK_PTR TASK_Allocate( TASKTYPE nNewTaskType, char *szString, const float fValue1, const float fValue2 )
 {
-//	TASK_PTR pTask = (TASK_PTR)gstate->X_Malloc(sizeof(TASK),MEM_TAG_AI);
-	TASK_PTR pTask = (TASK_PTR)malloc(sizeof(TASK));
-	memset(pTask,0,sizeof(TASK));
+	TASK_PTR pTask = (TASK_PTR)gstate->X_Malloc(sizeof(TASK),MEM_TAG_AI);
 //	if ( !pTask )
 //	{
 //		return NULL;
@@ -462,8 +435,7 @@ TASK_PTR TASK_Allocate( TASKTYPE nNewTaskType, char *szString, const float fValu
 TASK_PTR TASK_Delete( TASK_PTR pTask )
 {
 	//delete pTask;
-//	gstate->X_Free(pTask);
-	free(pTask);
+	gstate->X_Free(pTask);
 
 	return NULL;
 }
@@ -730,8 +702,7 @@ AIDATA_PTR TASK_GetData( TASK_PTR pTask )
 // ----------------------------------------------------------------------------
 TASKQUEUE_PTR TASKQUEUE_Allocate()
 {
-//	TASKQUEUE_PTR pTaskQueue = (TASKQUEUE_PTR)gstate->X_Malloc(sizeof(TASKQUEUE),MEM_TAG_AI);
-	TASKQUEUE_PTR pTaskQueue = (TASKQUEUE_PTR)malloc(sizeof(TASKQUEUE));
+	TASKQUEUE_PTR pTaskQueue = (TASKQUEUE_PTR)gstate->X_Malloc(sizeof(TASKQUEUE),MEM_TAG_AI);
 //	TASKQUEUE_PTR pTaskQueue = new TASKQUEUE;
 //	if ( !pTaskQueue )
 //	{
@@ -770,8 +741,7 @@ TASKQUEUE_PTR TASKQUEUE_Delete( TASKQUEUE_PTR pTaskQueue )
 	pTaskQueue->pEndList = NULL;
 
 	//delete pTaskQueue;
-//	gstate->X_Free(pTaskQueue);
-	free(pTaskQueue);
+	gstate->X_Free(pTaskQueue);
 
 	return NULL;
 }
@@ -860,8 +830,7 @@ void TASKQUEUE_RemoveCurrentTask( TASKQUEUE_PTR	pTaskQueue )
 		TASK_PTR pNextTask = pTaskQueue->pStartList->pNext;
 
 		//delete pTaskQueue->pStartList;
-//		gstate->X_Free(pTaskQueue->pStartList);
-		free(pTaskQueue->pStartList);
+		gstate->X_Free(pTaskQueue->pStartList);
 		pTaskQueue->pStartList = NULL;
 
 		pTaskQueue->pStartList = pNextTask;
@@ -936,8 +905,7 @@ void TASKQUEUE_ClearTasks( TASKQUEUE_PTR pTaskQueue )
 // ----------------------------------------------------------------------------
 GOAL_PTR GOAL_Allocate()
 {
-//	GOAL_PTR pGoal = (GOAL_PTR)gstate->X_Malloc(sizeof(GOAL),MEM_TAG_AI);
-	GOAL_PTR pGoal = (GOAL_PTR)malloc(sizeof(GOAL));
+	GOAL_PTR pGoal = (GOAL_PTR)gstate->X_Malloc(sizeof(GOAL),MEM_TAG_AI);
 //	GOAL_PTR pGoal = new GOAL;
 //	if ( !pGoal )
 //	{
@@ -974,8 +942,7 @@ GOAL_PTR GOAL_Allocate()
 // ----------------------------------------------------------------------------
 GOAL_PTR GOAL_Allocate( GOALTYPE nNewGoalType )
 {
-//	GOAL_PTR pGoal = (GOAL_PTR)gstate->X_Malloc(sizeof(GOAL),MEM_TAG_AI);
-	GOAL_PTR pGoal = (GOAL_PTR)malloc(sizeof(GOAL));
+	GOAL_PTR pGoal = (GOAL_PTR)gstate->X_Malloc(sizeof(GOAL),MEM_TAG_AI);
 //	if ( !pGoal )
 //	{
 //		return NULL;
@@ -1006,8 +973,7 @@ GOAL_PTR GOAL_Allocate( GOALTYPE nNewGoalType )
 // ----------------------------------------------------------------------------
 GOAL_PTR GOAL_Allocate( GOALTYPE nNewGoalType, AIDATA_PTR aiData ) 
 {
-//	GOAL_PTR pGoal = (GOAL_PTR)gstate->X_Malloc(sizeof(GOAL),MEM_TAG_AI);
-	GOAL_PTR pGoal = (GOAL_PTR)malloc(sizeof(GOAL));
+	GOAL_PTR pGoal = (GOAL_PTR)gstate->X_Malloc(sizeof(GOAL),MEM_TAG_AI);
 //	if ( !pGoal )
 //	{
 //		return NULL;
@@ -1031,8 +997,7 @@ GOAL_PTR GOAL_Allocate( GOALTYPE nNewGoalType, AIDATA_PTR aiData )
 
 GOAL_PTR GOAL_Allocate( GOALTYPE nNewGoalType, userEntity_t *pEntity )
 {
-//	GOAL_PTR pGoal = (GOAL_PTR)gstate->X_Malloc(sizeof(GOAL),MEM_TAG_AI);
-	GOAL_PTR pGoal = (GOAL_PTR)malloc(sizeof(GOAL));
+	GOAL_PTR pGoal = (GOAL_PTR)gstate->X_Malloc(sizeof(GOAL),MEM_TAG_AI);
 //	if ( !pGoal )
 //	{
 //		return NULL;
@@ -1055,8 +1020,7 @@ GOAL_PTR GOAL_Allocate( GOALTYPE nNewGoalType, userEntity_t *pEntity )
 
 GOAL_PTR GOAL_Allocate( GOALTYPE nNewGoalType, CAction *pAction )
 {
-//	GOAL_PTR pGoal = (GOAL_PTR)gstate->X_Malloc(sizeof(GOAL),MEM_TAG_AI);
-	GOAL_PTR pGoal = (GOAL_PTR)malloc(sizeof(GOAL));
+	GOAL_PTR pGoal = (GOAL_PTR)gstate->X_Malloc(sizeof(GOAL),MEM_TAG_AI);
 //	if ( !pGoal )
 //	{
 //		return NULL;
@@ -1088,8 +1052,7 @@ GOAL_PTR GOAL_Allocate( GOALTYPE nNewGoalType, CAction *pAction )
 // ----------------------------------------------------------------------------
 GOAL_PTR GOAL_Allocate( GOALTYPE nNewGoalType, const int nValue )
 {
-//	GOAL_PTR pGoal = (GOAL_PTR)gstate->X_Malloc(sizeof(GOAL),MEM_TAG_AI);
-	GOAL_PTR pGoal = (GOAL_PTR)malloc(sizeof(GOAL));
+	GOAL_PTR pGoal = (GOAL_PTR)gstate->X_Malloc(sizeof(GOAL),MEM_TAG_AI);
 //	if ( !pGoal )
 //	{
 //		return NULL;
@@ -1121,8 +1084,7 @@ GOAL_PTR GOAL_Allocate( GOALTYPE nNewGoalType, const int nValue )
 // ----------------------------------------------------------------------------
 GOAL_PTR GOAL_Allocate( GOALTYPE nNewGoalType, const CVector &position )
 {
-//	GOAL_PTR pGoal = (GOAL_PTR)gstate->X_Malloc(sizeof(GOAL),MEM_TAG_AI);
-	GOAL_PTR pGoal = (GOAL_PTR)malloc(sizeof(GOAL));
+	GOAL_PTR pGoal = (GOAL_PTR)gstate->X_Malloc(sizeof(GOAL),MEM_TAG_AI);
 //	if ( !pGoal )
 //	{
 //		return NULL;
@@ -1154,8 +1116,7 @@ GOAL_PTR GOAL_Allocate( GOALTYPE nNewGoalType, const CVector &position )
 // ----------------------------------------------------------------------------
 GOAL_PTR GOAL_Allocate( GOALTYPE nNewGoalType, const float fValue )
 {
-//	GOAL_PTR pGoal = (GOAL_PTR)gstate->X_Malloc(sizeof(GOAL),MEM_TAG_AI);
-	GOAL_PTR pGoal = (GOAL_PTR)malloc(sizeof(GOAL));
+	GOAL_PTR pGoal = (GOAL_PTR)gstate->X_Malloc(sizeof(GOAL),MEM_TAG_AI);
 //	if ( !pGoal )
 //	{
 //		return NULL;
@@ -1178,8 +1139,7 @@ GOAL_PTR GOAL_Allocate( GOALTYPE nNewGoalType, const float fValue )
 
 GOAL_PTR GOAL_Allocate( GOALTYPE nNewGoalType, frameData_t *pNewSequence )
 {
-//	GOAL_PTR pGoal = (GOAL_PTR)gstate->X_Malloc(sizeof(GOAL),MEM_TAG_AI);
-	GOAL_PTR pGoal = (GOAL_PTR)malloc(sizeof(GOAL));
+	GOAL_PTR pGoal = (GOAL_PTR)gstate->X_Malloc(sizeof(GOAL),MEM_TAG_AI);
 //	if ( !pGoal )
 //	{
 //		return NULL;
@@ -1200,8 +1160,7 @@ GOAL_PTR GOAL_Allocate( GOALTYPE nNewGoalType, frameData_t *pNewSequence )
 
 GOAL_PTR GOAL_Allocate( GOALTYPE nNewGoalType, char *szString )
 {
-//	GOAL_PTR pGoal = (GOAL_PTR)gstate->X_Malloc(sizeof(GOAL),MEM_TAG_AI);
-	GOAL_PTR pGoal = (GOAL_PTR)malloc(sizeof(GOAL));
+	GOAL_PTR pGoal = (GOAL_PTR)gstate->X_Malloc(sizeof(GOAL),MEM_TAG_AI);
 //	if ( !pGoal )
 //	{
 //		return NULL;
@@ -1234,8 +1193,7 @@ GOAL_PTR GOAL_Delete( GOAL_PTR pGoal )
 	TASKQUEUE_Delete( pGoal->pTasks );
 
 	pGoal->pTasks = NULL;
-//	gstate->X_Free(pGoal);
-	free(pGoal);
+	gstate->X_Free(pGoal);
 	//delete pGoal;
 
 	return NULL;
@@ -1643,8 +1601,7 @@ int GOAL_GetNumTasks( GOAL_PTR pGoal )
 // ----------------------------------------------------------------------------
 GOALSTACK_PTR GOALSTACK_Allocate()
 {
-//	GOALSTACK_PTR pGoalStack = (GOALSTACK_PTR)gstate->X_Malloc(sizeof(GOALSTACK),MEM_TAG_AI);
-	GOALSTACK_PTR pGoalStack = (GOALSTACK_PTR)malloc(sizeof(GOALSTACK));
+	GOALSTACK_PTR pGoalStack = (GOALSTACK_PTR)gstate->X_Malloc(sizeof(GOALSTACK),MEM_TAG_AI);
 //	GOALSTACK_PTR pGoalStack = new GOALSTACK;
 //	if ( !pGoalStack )
 //	{
@@ -1683,8 +1640,7 @@ GOALSTACK_PTR GOALSTACK_Delete( GOALSTACK_PTR pGoalStack )
 
 	pGoalStack->pTopOfStack = NULL;
 
-//	gstate->X_Free(pGoalStack);
-	free(pGoalStack);
+	gstate->X_Free(pGoalStack);
 	//delete pGoalStack;
 
 	return NULL;

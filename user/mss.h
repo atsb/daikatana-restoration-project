@@ -131,12 +131,6 @@
 #endif
 
 
-#ifdef _PUSHPOP_SUPPORTED
-  #pragma pack(push,1)
-#else
-  #pragma pack(1)
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -184,6 +178,12 @@ extern "C" {
 
 #include <windows.h>
 #include <mmsystem.h>
+
+#ifdef _PUSHPOP_SUPPORTED
+  #pragma pack(push,1)
+#else
+  #pragma pack(1)
+#endif
 
 #define MSS_MAIN_DEF __cdecl
 

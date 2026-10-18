@@ -32,8 +32,6 @@ typedef struct
 // weapon info def
 weaponInfo_t sunflareWeaponInfo = 
 {
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_SUNFLARE),
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_SUNFLARE_AMMO),
 	// names, net names, icon
 	"weapon_sunflare",
 	tongue_weapons[T_WEAPON_SUNFLARE],
@@ -111,15 +109,11 @@ weaponInfo_t sunflareWeaponInfo =
 	0.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 0.0f,
 
-/*	{
+	{
 		tongue_deathmsg_weapon2[T_DEATHMSGWEAPON_SUNFLARE],
 		NULL,
 		ATTACKER_VICTIM
-	},*/
-
-	RESOURCE_ID_FOR_STRING(tongue_deathmsg_weapon2,T_DEATHMSGWEAPON_SUNFLARE),
-	ATTACKER_VICTIM,
-
+	},
 	WEAPON_SUNFLARE,
 	0,
 	weapThink

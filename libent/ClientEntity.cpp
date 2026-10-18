@@ -17,7 +17,7 @@
 
 #include <string.h>
 #if _MSC_VER
-#include <typeinfo.h>
+#include <typeinfo>
 #endif
 #include "ClientEntity.h"
 #include "ClientEntityManager.h"

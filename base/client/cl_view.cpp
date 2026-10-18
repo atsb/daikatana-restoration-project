@@ -45,33 +45,6 @@ autoAim_t autoAim={0,0,NULL,0};
 //hr_EntList_t	hr_EntList	[MAX_HR_ENTITIES];
 //static	int		hr_EntCount;
 
-
-// NSS[10/2/00]:Added for level delay OEM and DEMO
-typedef struct Level_Delay_s
-{
-	float	delay;				//How long... in mili-seconds	
-	int		type;				//What kind of Level Delay (Demo/OEM/Etc)
-	bool	explored;			//True/False no delay if True
-	char	level_name[32];		//map name
-}Level_Delay_t;
-
-#define No_Level_Delay		0
-#define Demo_Level_Delay	1
-#define OEM_Level_Delay		2
-
-Level_Delay_t Level_Delay[]=
-{
-	{20000,Demo_Level_Delay,FALSE,"e1m1a"},
-	{20000,Demo_Level_Delay,FALSE,"e2m2a"},
-	{20000,Demo_Level_Delay,FALSE,"e3m2a"},
-	{20000,OEM_Level_Delay,FALSE,"e1m2a"},
-	{20000,OEM_Level_Delay,FALSE,"e2m1a"},
-	{20000,OEM_Level_Delay,FALSE,"e3m1a"},
-	{20000,OEM_Level_Delay,FALSE,"e4m1a"},
-	{0,0,FALSE,"ENDITNOEL"}
-};
-
-
 ///////////////////////////////////////////////////////////////////////////////
 
 cvar_t      *cv_autoaim;
@@ -571,11 +544,10 @@ void CL_PrepRefresh (void)
 	Com_sprintf( mapname, MAPNAME_SIZE, "%s", pString );
 	mapname[strlen (mapname) - 4] = 0;		// cut off ".bsp"
 
-	//if (cl_episode_num == cl_last_episode_num && stricmp (cl_mapname, mapname))
+	if (cl_episode_num == cl_last_episode_num && stricmp (cl_mapname, mapname))
 		//	same episode, so only purge resources if the map has changed!
 		re.PurgeResources(RESOURCE_LEVEL);
-//	else 
-		if (cl_episode_num != cl_last_episode_num)
+	else if (cl_episode_num != cl_last_episode_num)
 		re.PurgeResources(RESOURCE_EPISODE);
    
 	Cvar_ForceSet( "cl_lastmapname", cl_mapname );
@@ -620,48 +592,10 @@ void CL_PrepRefresh (void)
 	bytes = FS_GetBytesRead();
 	bsptime = Sys_Milliseconds();	
 	CL_RegisterTEntModels ();
-
-// RE:[AJR]04/18/2000: Thanks Noel, except this happens every time you go from B back to A.  Thanks.
-// NSS[10/2/00]:No problem, just re-wrote the code to be a little more modular and also a little more efficient
-int Transition_Type = No_Level_Delay;
-
-#ifdef DAIKATANA_DEMO
-	Transition_Type = Demo_Level_Delay;
-#else
-	#ifdef DAIKATANA_OEM
-		Transition_Type = OEM_Level_Delay;
-	#endif	
-#endif	
 	
-if(Transition_Type > No_Level_Delay)
-{
-	int Delay_Scan = 0;
-	while(_stricmp("ENDITNOEL",Level_Delay[Delay_Scan].level_name))
-	{
-		if(Level_Delay[Delay_Scan].type == Transition_Type)
-		{
-			if(!_stricmp(mapname,Level_Delay[Delay_Scan].level_name) && !Level_Delay[Delay_Scan].explored )
-			{
-				int nStartReadTime = Sys_Milliseconds();
-				int nCurrentReadTime;
-				while( 1 )
-				{
-					nCurrentReadTime = Sys_Milliseconds();
-					if( ( nCurrentReadTime - nStartReadTime ) >= Level_Delay[Delay_Scan].delay )
-					{
-						break;
-					}
-				}	
-				Level_Delay[Delay_Scan].explored = TRUE;
-				break;
-			}
-		}
-		Delay_Scan++;
-	}
-}
-	
-/*
-// SCG[4/14/00]: Romero wants a delay
+
+//	Nelno:	register models from precached names
+	// SCG[4/14/00]: Romero wants a delay
 #ifdef DAIKATANA_DEMO
 	int nStartReadTime = Sys_Milliseconds();
 	int nCurrentReadTime;
@@ -695,9 +629,6 @@ if(Transition_Type > No_Level_Delay)
 		}
 	}
 #endif
-*/
-
-
 	progress_index = 0;
 	for (i = 1; i < MAX_MODELS; i++)
 	{
@@ -785,7 +716,7 @@ if(Transition_Type > No_Level_Delay)
 	// set sky textures and speed
 	Com_Printf ("sky\r", i); 
 	SCR_UpdateScreen ();
-	re.SetSky (cl.configstrings[CS_SKY], cl.configstrings[CS_CLOUDNAME]);
+	re.SetSky (cl.configstrings[CS_SKY], cl.configstrings[CS_CLOUDNAME], 0);
 	Com_Printf ("                                     \r");
 
 	// the renderer can now free unneeded stuff
@@ -859,6 +790,31 @@ float CalcFov (float fov_x, float width, float height)
 	a = a*360/M_PI;
 
 	return a;
+}
+
+static float CalcHorizontalFovForAspect(float fov_x, float width, float height)
+{
+	const float base_aspect = 4.0f / 3.0f;
+	float aspect;
+	float base_fov_y;
+	float horizontal_fov;
+
+	if (width <= 0.0f || height <= 0.0f)
+		return fov_x;
+
+	aspect = width / height;
+	if (aspect <= base_aspect)
+		return fov_x;
+
+	base_fov_y = CalcFov(fov_x, 4.0f, 3.0f);
+	horizontal_fov = (float)(atan(tan(base_fov_y * M_PI / 360.0f) * aspect) * 360.0f / M_PI);
+
+	if (horizontal_fov < 1.0f)
+		return 1.0f;
+	if (horizontal_fov > 179.0f)
+		return 179.0f;
+
+	return horizontal_fov;
 }
 
 //============================================================================
@@ -1074,7 +1030,7 @@ void V_PlayerID()
 				display_name_x = (cl.refdef.width*0.5)-(strlen(cl.clientinfo[ent->number-1].name)*4);
 				display_name_y = (cl.refdef.height * 0.25);
 				
-				drawStruct.nFlags = DSFLAG_BLEND;
+				drawStruct.nFlags = DSFLAG_BLEND | DSFLAG_NO_N64FILTER;
 				drawStruct.szString = display_name;
 				drawStruct.nXPos = display_name_x;
 				drawStruct.nYPos = display_name_y;
@@ -1087,7 +1043,7 @@ void V_PlayerID()
 			display_name_frame_count++;
 			if( display_name_frame_count < 20 )
 			{
-				drawStruct.nFlags = DSFLAG_BLEND;
+				drawStruct.nFlags = DSFLAG_BLEND | DSFLAG_NO_N64FILTER;
 				drawStruct.szString = display_name;
 				drawStruct.nXPos = display_name_x;
 				drawStruct.nYPos = display_name_y;
@@ -1102,7 +1058,7 @@ void V_PlayerID()
 		display_name_frame_count++;
 		if( display_name_frame_count < 20 )
 		{
-			drawStruct.nFlags = DSFLAG_BLEND;
+			drawStruct.nFlags = DSFLAG_BLEND | DSFLAG_NO_N64FILTER;
 			drawStruct.szString = display_name;
 			drawStruct.nXPos = display_name_x;
 			drawStruct.nYPos = display_name_y;
@@ -1180,7 +1136,7 @@ void SCR_DrawCrosshair (void)
 //==================================
 // consolidation change: SCG 3-11-99
 		DRAWSTRUCT drawStruct;
-		drawStruct.nFlags = DSFLAG_BLEND;
+		drawStruct.nFlags = DSFLAG_BLEND | DSFLAG_NO_N64FILTER;
 		drawStruct.pImage = re.RegisterPic( ch1->pic, NULL, NULL, RESOURCE_GLOBAL );
 		drawStruct.nXPos = scr_vrect.x + ( ( scr_vrect.width - ch1->width ) >> 1 ) + xofs;
 		drawStruct.nYPos = scr_vrect.y + ( ( scr_vrect.height - ch1->height ) >> 1 ) + yofs;
@@ -1338,6 +1294,7 @@ void V_RenderView( float stereo_separation )
 
 		cl.refdef.beamList				= &beamList;
 
+		CL_RefreshWeaponIconModels();
 		cl.refdef.inventoryIcons		= inventoryIcons;
 		cl.refdef.numInventoryIcons		= numInventoryIcons;
 		cl.refdef.inventory_mode		= inventory_mode;
@@ -1372,7 +1329,10 @@ void V_RenderView( float stereo_separation )
 	cl.refdef.y = scr_vrect.y;
 	cl.refdef.width = scr_vrect.width;
 	cl.refdef.height = scr_vrect.height;
-	cl.refdef.fov_y = CalcFov (cl.refdef.fov_x, cl.refdef.width, cl.refdef.height);
+	/* Do not reapply the aspect correction while the loading plaque pauses the client. */
+	if (!(cl.refdef.rdflags & RDF_LETTERBOX) && !cl_paused->value)
+		cl.refdef.fov_x = CalcHorizontalFovForAspect(cl.refdef.fov_x, cl.refdef.width, cl.refdef.height);
+	cl.refdef.fov_y = CalcFov(cl.refdef.fov_x, cl.refdef.width, cl.refdef.height);
 
 	// SCG[11/17/99]: Stop flowing surfaces, skies, etc.. from moving
 	if( !cl_paused->value )

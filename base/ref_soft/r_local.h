@@ -1,3 +1,5 @@
+#include <stdint.h>
+#include <stddef.h>
   
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,6 +8,7 @@
 #include <stdarg.h>
 
 #include "ref.h"
+#include "dk_shared.h"
 
 #define REF_VERSION     "SOFT 0.01"
 
@@ -865,7 +868,7 @@ extern "C" uint16	d_8to16table[256]; // base
 extern unsigned d_8to24table[256]; // base
 extern uint16	d_fogtable[256];
 
-void    Sys_MakeCodeWriteable (unsigned long startaddr, unsigned long length);
+void    Sys_MakeCodeWriteable (uintptr_t startaddr, size_t length);
 void    Sys_SetFPCW (void);
 
 void    R_InitImages (void);

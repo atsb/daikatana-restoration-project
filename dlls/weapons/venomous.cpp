@@ -28,8 +28,6 @@ enum
 // weapon info def
 weaponInfo_t venomousWeaponInfo = 
 {
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_VENOMOUS),
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_VENOMOUS_AMMO),
 	// names, net names, icon
 	"weapon_venomous",
 	tongue_weapons[T_WEAPON_VENOMOUS],
@@ -116,16 +114,11 @@ weaponInfo_t venomousWeaponInfo =
 	0.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 0.0f,
 
-/*	{
+	{
 		tongue_deathmsg_weapon2[T_DEATHMSGWEAPON_VENOMOUS],
 		NULL,
 		ATTACKER_VICTIM
-	},*/
-
-	RESOURCE_ID_FOR_STRING(tongue_deathmsg_weapon2,T_DEATHMSGWEAPON_VENOMOUS),
-	ATTACKER_VICTIM,
-
-
+	},
 	WEAPON_VENEMOUS,
 	0,
 	NULL
@@ -461,7 +454,7 @@ void poisonTouch(userEntity_t *self, userEntity_t *other,cplane_t *plane, csurfa
 		WEAPON_HIT(hook->owner,1);
         e2_com_Damage(other,self,hook->owner,other->s.origin,zero_vector,winfo->damage,DAMAGE_INERTIAL);
 
-        if	(ohook && (ohook->poison_time <= 0 ) && (other->deadflag == DEAD_NO))
+        if	(ohook && (gstate->time > ohook->poison_time) && (other->deadflag == DEAD_NO))
         {
 			// no damage?  no poison!
 			if (gstate->damage_inflicted > 0)

@@ -1,3 +1,4 @@
+#include <stddef.h>
 // r_surf.c: surface-related refresh code
 
 #include "r_local.h"
@@ -205,7 +206,7 @@ void R_DrawSurfaceBlock8_mip0 (void)
 	unsigned char	pix, *psource, *prowdest;
 
 	psource = pbasesource;
-	prowdest = prowdestbase;
+	prowdest = (unsigned char *)prowdestbase;
 
 	for (v=0 ; v<r_numvblocks ; v++)
 	{
@@ -255,7 +256,7 @@ void R_DrawSurfaceBlock8_mip1 (void)
 	unsigned char	pix, *psource, *prowdest;
 
 	psource = pbasesource;
-	prowdest = prowdestbase;
+	prowdest = (unsigned char *)prowdestbase;
 
 	for (v=0 ; v<r_numvblocks ; v++)
 	{
@@ -305,7 +306,7 @@ void R_DrawSurfaceBlock8_mip2 (void)
 	unsigned char	pix, *psource, *prowdest;
 
 	psource = pbasesource;
-	prowdest = prowdestbase;
+	prowdest = (unsigned char *)prowdestbase;
 
 	for (v=0 ; v<r_numvblocks ; v++)
 	{
@@ -355,7 +356,7 @@ void R_DrawSurfaceBlock8_mip3 (void)
 	unsigned char	pix, *psource, *prowdest;
 
 	psource = pbasesource;
-	prowdest = prowdestbase;
+	prowdest = (unsigned char *)prowdestbase;
 
 	for (v=0 ; v<r_numvblocks ; v++)
 	{
@@ -817,7 +818,7 @@ surfcache_t     *D_SCAlloc (int width, int size)
 	if ((size <= 0) || (size > 0x10000))
 		ri.Sys_Error (ERR_FATAL,"D_SCAlloc: bad cache size %d\n", size);
 	
-	size = (int)&((surfcache_t *)0)->data[size];
+	size = (int)offsetof(surfcache_t, data) + size;
 	size *= BYTES_PER_PIXEL;
 	size = (size + 3) & ~3;
 	if (size > sc_size)

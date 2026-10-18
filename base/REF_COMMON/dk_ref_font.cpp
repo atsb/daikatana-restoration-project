@@ -7,14 +7,6 @@
 #include "dk_ref_common.h"
 #include "dk_ref_font.h"
 
-// Encompass MarkMa 032499
-//#ifdef	JPN
-#include <windows.h>
-extern void GetStringSize( HDC *hMyDC, HFONT *hFont, HFONT *hOldFont,
-				   LPCTSTR lpStr, UINT *nCharWidth, UINT *nCharHeight, UINT len );
-//#endif	// JPN
-// Encompass MarkMa 032499
-
 //fill in the refexport_t function pointers that are implemented in this file.
 FILE_INIT(dk_ref_font_cpp) {
     re.LoadFont = LoadFont;
@@ -168,16 +160,7 @@ int FontHeight(void *vfont) {
 }
 
 int StringWidth(const char *string, void *vfont, int max_chars_counted) {
-// Encompass MarkMa 032499
-#ifdef	JPN
-	HFONT			hOldFont;
-	HDC				hMyDC;
-	HFONT			hFont;
-	UINT			nWidth, nHeight, nLen;
-#endif	// JPN
-// Encompass MarkMa 032499
-    
-	if (string == NULL) return 1;
+    if (string == NULL) return 1;
     if (vfont == NULL) return 1;
 
     //cast our point to a font.
@@ -191,24 +174,6 @@ int StringWidth(const char *string, void *vfont, int max_chars_counted) {
     //if max_chars_counted is -1, we count all characters in the string.
     if (max_chars_counted == -1) max_chars_counted = 9999;
 
-// Encompass MarkMa 032499
-#ifdef	JPN	// JPN
-	unsigned char cc = string[0];
-	nLen = strlen(string);
-	if( max_chars_counted > 0 && lstrcmp((LPCTSTR) font->name, (LPCTSTR) "int_buttons")
-			&& ( !(nLen==1 && ( (126<cc && cc<130) || (140<cc && cc<145) 
-			   || (156<cc && cc<159) || cc==176 || cc==183)) )
-			   )  {	// Draw string on screen
-		if(max_chars_counted != 9999)	 nLen = max_chars_counted;
-		GetStringSize( &hMyDC, &hFont, &hOldFont, (LPCTSTR) string, &nWidth, &nHeight, nLen);
-		total_width = nWidth;
-		SelectObject(hMyDC, hOldFont);
-		if (hFont)	DeleteObject(hFont);
-		DeleteDC(hMyDC);
-	}
-	else
-#endif	// JPN
-    { // Encompass MarkMa 032499 JPN
     //loop until we reach the end of the string, or have counted all the characters we are supposed to
     for (; string[0] != '\0' && max_chars_counted > 0; string++, max_chars_counted--) {
         //get the character.
@@ -229,7 +194,6 @@ int StringWidth(const char *string, void *vfont, int max_chars_counted) {
         //add the width of this character, plus a 1 pixel gap after it.
         total_width += font->char_width[c] + 1;
     }
-	} // Encompass MarkMa 032499 JPN
 
     return total_width;
 }
@@ -258,29 +222,6 @@ int FontNumCharsInWidth(const char *string, void *vfont, int allowed_pixel_width
         //get the character.
         unsigned char c = string[pos];
 
-#ifdef JPN // Frank 3/29/99
-		if (IsDBCSLeadByte(c)) {
-            current_width += StringWidth(string+pos, vfont, 2);
-			pos++;
-			//check if we have exceeded our allowed width.
-	        if (current_width > allowed_pixel_width) {
-		        //stop.
-			    return num_chars;
-	        }
-			num_chars += 2;
-		}
-		else {
-            current_width += StringWidth(string+pos, vfont, 1);
-			//check if we have exceeded our allowed width.
-	        if (current_width > allowed_pixel_width) {
-		        //stop.
-			    return num_chars;
-	        }
-
-			//increment our character count.
-			num_chars++;
-        }
-#else // JPN
         //check for space.
         if (c == ' ') {
             current_width += font->height >> 1;
@@ -303,7 +244,6 @@ int FontNumCharsInWidth(const char *string, void *vfont, int allowed_pixel_width
 
         //increment our character count.
         num_chars++;
-#endif // JPN
     }
 
     //return the number of characters we counted.

@@ -130,6 +130,17 @@ enum tongue_artifacts_enum
 };
 
 
+enum tongue_save_error_enums
+{
+	TONGUE_SAVE_ERR_LOCAL,
+	TONGUE_SAVE_ERR_INGAME,
+	TONGUE_SAVE_ERR_DM,
+	TONGUE_SAVE_ERR_CINE,
+	TONGUE_SAVE_ERR_DEAD,
+	TONGUE_SAVE_ERR_INTERMISSION,
+	TONGUE_SAVE_ERR_HERE
+};
+
 enum tongue_menu_enum
 {
 	// menu-related

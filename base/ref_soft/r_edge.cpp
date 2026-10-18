@@ -1,12 +1,9 @@
+#include <stdint.h>
 // r_edge.c
 
 #include "r_local.h"
 
-#ifndef id386
-void R_SurfacePatch (void)
-{
-}
-
+#if !id386
 void R_EdgeCodeStart (void)
 {
 }
@@ -627,7 +624,7 @@ void R_ScanEdges (void)
 	surf_t	*s;
 
 	basespan_p = (espan_t *)
-			((long)(basespans + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
+			((uintptr_t)(basespans + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
 	max_span_p = &basespan_p[MAXSPANS - r_refdef.vrect.width];
 
 	span_p = basespan_p;

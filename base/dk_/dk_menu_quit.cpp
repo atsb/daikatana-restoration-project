@@ -62,22 +62,6 @@ void CMenuSubQuit::PlaceEntities()
 
 char* regular_messages[] =
 {
-	// added for Japanese version
-#ifdef JPN
-	"終了しますか？",
-	"終了しますか？",
-	"終了しますか？",
-	"終了しますか？",
-	"終了しますか？",
-	"終了しますか？",
-	"終了しますか？",
-	"終了しますか？",
-	"終了しますか？",
-	"終了しますか？",
-	"終了しますか？",
-	"終了しますか？",
-	"終了しますか？"
-#else
 	"Ya thought you were a big boy, but you're|really just a baby boy, aren't you?",
 	"Are you gonna quit this game just like|you quit everything else in life?",
 	"Does the pretty harp music and the scary|crickets make you cry and quit?",
@@ -91,22 +75,15 @@ char* regular_messages[] =
 	"Are you broken?",
 	"Hey, watch out for the Dark Troopers in the|San Francisco episode, ok?",
 	"You're not much of a Kraken, are you?"
-#endif
+
 };
 
 char* rare_messages[] = 
 {
-#ifdef JPN
-	"終了しますか？",
-	"終了しますか？",
-	"終了しますか？",
-	"終了しますか？"
-#else 
 	"While you're away I think I'll link into some internet|sites and surf for a while.  Is that okay with you?",
 	"Get out of me?",
 	"Suck it down(tm)?",
 	"Has the monkey landed yet?"
-#endif
 };
 
 void SplitString(char *src, buffer128 &left, buffer128 &right, char splitchar)
@@ -184,20 +161,29 @@ void CMenuSubQuit::DrawBackground()
     no.DrawBackground();
 }
 
-void DoQuit(qboolean bQuit);
 
 bool CMenuSubQuit::Keydown(int32 key)
 {
     switch (key)
     {
         case 'y' : // confirm quit of game.
-			DoQuit(true);
+            //PlayInterfaceSound(DKM_sounds[DKMS_QUIT]);//NSS[11/5/99]: Commented out because KRH commented out the sound and it caused all sorts of bs problems everywhere.
+            //menu.ShutdownString("quit\n");
+            //menu.Shutdown();
+            DKM_ShutdownString("quit\n");
+            DKM_Shutdown();
+
             return true;
             break;
 
         case 'n' :
         case K_ESCAPE : // deconfirm quit of game.
-			DoQuit(false);
+            PlayInterfaceSound(DKM_sounds[DKMS_NO]);
+            DKM_ToggleEnterSound(false); // don't play entry sound next time
+
+            //menu.Enter()
+            DKM_EnterMain();
+
             return true;
             break;
     }
@@ -230,18 +216,33 @@ bool CMenuSubQuit::MouseUp(int32 norm_x, int32 norm_y)
 {
   if (yes.MouseUp(norm_x, norm_y) == true)
   {
-	DoQuit(true);
-	return true;
+     //they clicked yes to QUIT
+     //PlayInterfaceSound(DKM_sounds[DKMS_QUIT]);//NSS[11/5/99]:Same Deal... 
+
+     //menu.ShutdownString("quit\n");
+     //menu.Shutdown();
+
+     DKM_ShutdownString("quit\n");
+     DKM_Shutdown();
+
+     return true;
   }
 
   if (no.MouseUp(norm_x, norm_y) == true)
   {
-	  DoQuit(false);
+      //they clicked no to QUIT
+      PlayInterfaceSound(DKM_sounds[DKMS_NO]);
+      DKM_ToggleEnterSound(false); // don't play entry sound next time
+
+      //menu.Enter();
+      DKM_EnterMain();
+
       return true;
   }
 
   return false;
 }
+
 
 
 CMenuSubResume::CMenuSubResume()
@@ -254,4 +255,5 @@ void CMenuSubResume::Enter()
 {
   DKM_Shutdown();
 }
+
 

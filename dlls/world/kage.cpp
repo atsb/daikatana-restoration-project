@@ -480,7 +480,6 @@ void kage_begin_attack( userEntity_t *self )
 	kage_set_attack_seq (self);
 }
 
-int Kage_First_Encounter;
 
 // ----------------------------------------------------------------------------
 // NSS[1/9/00]:
@@ -490,6 +489,8 @@ int Kage_First_Encounter;
 // Output:NA
 // Note:
 // ----------------------------------------------------------------------------
+int Kage_First_Encounter;
+
 void KAGE_Think(userEntity_t *self)
 {
 	playerHook_t *hook = AI_GetPlayerHook( self );
@@ -499,15 +500,14 @@ void KAGE_Think(userEntity_t *self)
 		// NSS[5/9/00]:If all of these settings are true and we do not have this goal then we need to reset ourself
 		if(!AI_HasGoalInQueue(self,GOALTYPE_KAGE_YINYANG))
 		{
-			self->s.renderfx	&= ~SPR_ALPHACHANNEL;
-			self->svflags		&= ~SVF_DEADMONSTER;
-			hook->ai_flags		&= ~AI_IGNORE_PLAYER;
-			self->takedamage	= DAMAGE_YES;
-			self->solid			= SOLID_BBOX;
+			self->s.renderfx &= ~SPR_ALPHACHANNEL;
+			self->svflags &= ~SVF_DEADMONSTER;
+			hook->ai_flags &= ~AI_IGNORE_PLAYER;
+			self->takedamage = DAMAGE_YES;
+			self->solid = SOLID_BBOX;
 			AI_SetOkToAttackFlag( hook, TRUE );
 		}
 	}
-
 	if(self->enemy )
 	{
 		//Handle those nasty sidekicks
@@ -516,7 +516,7 @@ void KAGE_Think(userEntity_t *self)
 			Kage_First_Encounter = 1;
 			SIDEKICK_EndGameHandler();
 		}
-		
+
 		if(AI_IsVisible(self,self->enemy) && hook->fatigue==0)
 		{
 			//Attach the Sprite Light&Glow and fire stuff 
@@ -578,8 +578,6 @@ void KAGE_Think(userEntity_t *self)
 // ----------------------------------------------------------------------------
 void KAGE_ParseEpairs(userEntity_t *self)
 {
-	playerHook_t *hook = AI_GetPlayerHook( self );
-
 	AI_ParseEpairs(self);
 	self->think = KAGE_Think;
 	self->nextthink = gstate->time + 0.1f;
@@ -695,7 +693,6 @@ void KAGE_Die(userEntity_t *self,userEntity_t *inflictor,userEntity_t *attacker,
 {
 	playerHook_t *hook = AI_GetPlayerHook( self );
 	
-	
 	//special hack.. for when he is charging...
 	if(AI_HasGoalInQueue( self,GOALTYPE_KAGE_SPARKUP ))
 	{
@@ -747,22 +744,18 @@ void KAGE_Die(userEntity_t *self,userEntity_t *inflictor,userEntity_t *attacker,
 			if (weap && !stricmp(weap->name,"weapon_daikatana"))
 			{
 				gstate->WeaponSwitch(head,1);
-
-				// check head->winfo and see if it is a new weapon...(this verifies the switch worked)
+				// check head->winfo and see if it is a new weapon (this verifies the switch worked)
 				if (!stricmp( ((weaponInfo_t *)head->winfo)->weaponName,"weapon_daikatana"))
 				{
-					// the switch failed...give them a glock and select it...
+					// the switch failed -- give them a glock and select it.
 					weaponInfo_t *winfo = com->FindRegisteredWeapon( "weapon_glock" );
 					if (winfo)
 					{
 						winfo->give_func (head, winfo->initialAmmo);
 						winfo->select_func(head);
 					}
-
 				}
 			}
-
-			// now pull the dk out of the player's inventory.
 			userInventory_t *inv = gstate->InventoryFindItem(head->inventory, "weapon_daikatana");
 			if(inv)
 			{
@@ -894,11 +887,8 @@ void monster_kage( userEntity_t *self )
 
 	// NSS[5/9/00]:Hack in this first encounter thang... this is a quick hack to determine if we have seen the player yet..
 	Kage_First_Encounter = 0;
-
 	// NSS[6/7/00]:Mark this monster as a boss
 	hook->dflags |= DFL_ISBOSS;
-
-
 }
 
 

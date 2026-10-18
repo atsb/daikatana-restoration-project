@@ -19,12 +19,16 @@ Inv_DrawString
 */
 void Inv_DrawString (int x, int y, char *string)
 {
-	while (*string)
-	{
-		re.DrawChar (x, y, *string);
-		x+=8;
-		string++;
-	}
+	DRAWSTRUCT drawStruct;
+
+	drawStruct.nFlags = DSFLAG_NO_N64FILTER;
+	drawStruct.nXPos = x;
+	drawStruct.nYPos = y;
+	drawStruct.pImage = NULL;
+	drawStruct.szString = string;
+	drawStruct.fAlpha = 1.0f;
+
+	re.DrawString( drawStruct );
 }
 void SetStringHighBit (char *s)
 {
@@ -79,7 +83,7 @@ void CL_DrawInventory (void)
 // consolidation change: SCG 3-11-99
 	DRAWSTRUCT drawStruct;
 	drawStruct.pImage = re.RegisterPic( "inventory", NULL, NULL, RESOURCE_LEVEL );
-	drawStruct.nFlags = DSFLAG_BLEND;
+	drawStruct.nFlags = DSFLAG_BLEND | DSFLAG_NO_N64FILTER;
 	drawStruct.nXPos = x;
 	drawStruct.nYPos = y + 8;
 	re.DrawPic( drawStruct );
@@ -110,7 +114,19 @@ void CL_DrawInventory (void)
 		else	// draw a blinky cursor by the selected item
 		{
 			if ( (int)(cls.realtime*10) & 1)
-				re.DrawChar (x-8, y, 15);
+			{
+				DRAWSTRUCT cursorDraw;
+				char cursorString[2];
+				cursorString[0] = 15;
+				cursorString[1] = '\0';
+				cursorDraw.nFlags = DSFLAG_NO_N64FILTER;
+				cursorDraw.nXPos = x-8;
+				cursorDraw.nYPos = y;
+				cursorDraw.pImage = NULL;
+				cursorDraw.szString = cursorString;
+				cursorDraw.fAlpha = 1.0f;
+				re.DrawString( cursorDraw );
+			}
 		}
 		Inv_DrawString (x, y, string);
 		y += 8;

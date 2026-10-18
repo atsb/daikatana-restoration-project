@@ -1,10 +1,6 @@
-// added for Japanese version
-#ifdef JPN
-#include<windows.h>
-#endif // JPN
-
 #include	<io.h>
 #include "client.h"
+#include <ctype.h>
 
 #include "dk_menu.h"
 #include "dk_gce_main.h"
@@ -18,12 +14,6 @@ key up events are sent even if in console mode
 
 
 #define		MAXCMDLINE	256
-
-#ifdef JPN
-void ImeSetMode2(BOOL mode);
-extern HWND        cl_hwnd;
-#endif // JPN
-
 char	key_lines[32][MAXCMDLINE];
 int		key_linepos;
 int		shift_down=false;
@@ -75,30 +65,6 @@ void CompleteCommand (void)
 		return;
 	}
 }
-
-#ifdef JPN
-//#ifdef CONSOLE
-// Japanese console
-void ImeKey_Console (int leadbyte, int trailbyte)
-{
-	if (leadbyte && key_linepos < MAXCMDLINE-2) // Kanji
-	{
-			key_lines[edit_line][key_linepos] = leadbyte;
-			key_linepos++;
-			key_lines[edit_line][key_linepos] = trailbyte;
-			key_linepos++;
-			key_lines[edit_line][key_linepos] = 0;
-	}
-	else if (key_linepos < MAXCMDLINE-1) // Hankaku
-	{
-		key_lines[edit_line][key_linepos] = trailbyte;
-		key_linepos++;
-		key_lines[edit_line][key_linepos] = 0;
-	}
-}
-
-//#endif
-#endif // JPN
 
 /*
 ====================
@@ -229,31 +195,6 @@ void Key_Console (int key)
 	
 	if ( ( key == K_BACKSPACE ) || ( key == K_LEFTARROW ) || ( key == K_KP_LEFTARROW ) || ( ( key == 'h' ) && ( keydown[K_CTRL] ) ) )
 	{
-#ifdef JPN
-//#ifdef CONSOLE
-		char *text;
-		text = key_lines[edit_line];
-		if (key_linepos > 1)
-		{
-			int j,prv;
-			prv=j=1;
-			while ( j < key_linepos)
-			{
-				prv = j;
-				if (IsDBCSLeadByte(text[j]))
-					j++;
-				j++;
-			}
-			if (IsDBCSLeadByte(text[prv]))
-			{
-				//delete the lead-byte
-				key_linepos--;
-				text[key_linepos] = ' '; // Fixed bug 1498
-			}
-			// delete the trail-byte
-		}
-//#endif
-#endif // JPN
 		if (key_linepos > 1)
 			key_linepos--;
 		return;
@@ -348,10 +289,6 @@ void Key_Message (int key)
 		Cbuf_AddText(chat_buffer);
 		Cbuf_AddText("\"\n");
 
-#ifdef JPN
-		ImeSetMode2(FALSE);
-#endif
-
 		cls.key_dest = key_game;
 		chat_bufferlen = 0;
 		chat_buffer[0] = 0;
@@ -360,9 +297,6 @@ void Key_Message (int key)
 
 	if (key == K_ESCAPE)
 	{
-#ifdef JPN
-		ImeSetMode2(FALSE);
-#endif
 		cls.key_dest = key_game;
 		chat_bufferlen = 0;
 		chat_buffer[0] = 0;
@@ -374,29 +308,11 @@ void Key_Message (int key)
 
 	if (key == K_BACKSPACE)
 	{
-#ifdef JPN
-		if (chat_bufferlen)
-		{
-			if(IsDBCSLeadByte(chat_buffer[chat_bufferlen -2]) && (chat_bufferlen >= 2))
-			{
-				chat_bufferlen--;
-				chat_buffer[chat_bufferlen] = 0;
-				chat_bufferlen--;
-				chat_buffer[chat_bufferlen] = 0;
-			}
-			else
-			{
-				chat_bufferlen--;
-				chat_buffer[chat_bufferlen] = 0;
-			}
-		}
-#else
 		if (chat_bufferlen)
 		{
 			chat_bufferlen--;
 			chat_buffer[chat_bufferlen] = 0;
 		}
-#endif
 		return;
 	}
 
@@ -766,11 +682,6 @@ void Key_Event (int key, bool down, unsigned time)
 	char	*kb;
 	char	cmd[1024];
 
-#ifdef JPN
-	if (!key)
-		return;
-#endif // JPN
-
 	if( CIN_Running() == 1 )
 	{
 		if( cls.key_dest != key_console )
@@ -889,11 +800,6 @@ void Key_Event (int key, bool down, unsigned time)
 	{
 		if (!down)
 			return;
-
-		if( Cvar_VariableValue( "console" ) == 0 )
-		{
-			return;
-		}
 
 		//	Nelno:	disable console if in demo mode
 #ifdef	LOCKED_DEMO
@@ -1152,17 +1058,3 @@ char Key_MatchCommand(char * command)
 
 	return (0); // no match found
 }
-
-#ifdef JPN
-void ImeSetMode2(BOOL mode)
-{
-	HIMC hIMC;
-
-    if ( !( hIMC = ImmGetContext( cl_hwnd ) ) )
-        return;
-
-	ImmSetOpenStatus(hIMC, mode);
-
-	ImmReleaseContext(cl_hwnd, hIMC);
-}
-#endif

@@ -1,3 +1,4 @@
+#include <stddef.h>
 // ==========================================================================
 //
 //  File:
@@ -32,7 +33,7 @@ typedef	struct	gibHook_s
 	weapon_t	*weapon;		//	pointer to the nightmare weapon when user first runs over a gib
 } gibHook_t;
 
-#define	GIBHOOK(x) (int)&(((gibHook_t *)0)->x)
+#define	GIBHOOK(x) (int)offsetof(gibHook_t,x)
 field_t gib_hook_fields[] = 
 {
 	{"target_z",	GIBHOOK(target_z),		F_FLOAT},
@@ -63,7 +64,7 @@ typedef struct
 	CVector Target;								// Target Direction
 } func_gib_hook_t;
 
-#define	FUNC_GIB_HOOK(x) (int)&(((func_gib_hook_t *)0)->x)
+#define	FUNC_GIB_HOOK(x) (int)offsetof(func_gib_hook_t,x)
 field_t func_gib_hook_fields[] = 
 {
 	{"onoff",			FUNC_GIB_HOOK(onoff),			F_INT},
@@ -770,23 +771,18 @@ userEntity_t *ai_throw_gib( userEntity_t *self, char *model, CVector &offset,CVe
 	gib->svflags		|= SVF_NOPUSHCOLLIDE;
 	gib->s.effects2		= EF2_BLOODY_GIB;
 	gib->flags			|= FL_NOSAVE;
+
 	
 	gstate->SetSize(gib, mins.x, mins.y, mins.z, maxs.x, maxs.y, maxs.z);
 
 ////////////////////////////////German Regulated Human Gibs Starts Here///////////////////////////////////
 
-// SCG[6/5/00]: #ifdef TONGUE_GERMAN																					//Don't spill a damn drop of blood
-#ifdef NO_VIOLENCE
-	//gib->s.skinnum = gstate->GetModelSkinIndex (self->s.modelindex);
-	gib->s.skinnum = gstate->ImageIndex(gstate->GetModelSkinName(self->s.modelindex));
-	gib->s.effects2	|= EF2_IMAGESKIN;
+#ifdef TONGUE_GERMAN																					//Don't spill a damn drop of blood
+	gib->s.skinnum = gstate->GetModelSkinIndex (self->s.modelindex);
 #else
     if ((self->fragtype & FRAGTYPE_ROBOTIC))															// use the skin from the entity we blew up, if the monster is non-fleshy 
 	{
-		// NSS[7/12/00]:Oh My Fucking God!  What a cluster fucko'
-		gib->s.skinnum = gstate->ImageIndex(gstate->GetModelSkinName(self->s.modelindex));
-		//gstate->GetModelSkinIndex (self->s.modelindex);
-		gib->s.effects2	|= EF2_IMAGESKIN;
+		gib->s.skinnum = gstate->GetModelSkinIndex (self->s.modelindex);
 	}
     if (!(self->fragtype & FRAGTYPE_NOBLOOD))															// 5.9  don't show blood trail on mechs
       gib->s.effects = EF_GIB;
@@ -1131,8 +1127,7 @@ void AI_SetDeathBoundingBox(userEntity_t *self);
 // ----------------------------------------------------------------------------
 void AI_StartGibFest(userEntity_t *self, userEntity_t *attacker)
 {
-// SCG[6/5/00]: #ifdef TONGUE_GERMAN
-#ifdef NO_VIOLENCE
+#ifdef TONGUE_GERMAN
 	AI_SetDeathBoundingBox(self);
 	gstate->LinkEntity( self );
 	self->think		= AI_ThinkFade;
@@ -1277,8 +1272,7 @@ userEntity_t *fGib_ThrowGib( userEntity_t *self, char *model)
 	gib						= gstate->SpawnEntity ();
 	gib->movetype			= MOVETYPE_BOUNCE;
 
-// SCG[6/5/00]: #ifdef TONGUE_GERMAN
-#ifdef NO_VIOLENCE
+#ifdef TONGUE_GERMAN
 	//NSS[11/19/99]:
 	//We can only use robotic gibs for the German type folk.
 	//Wow... big brother or what??

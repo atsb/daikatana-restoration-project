@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include "world.h"
 
 /////////////////////////////////////////////////////////////////////
@@ -45,7 +46,7 @@ void	door_parse_sounds (userEntity_t *self);
 void	com_FindParent (userEntity_t *self);
 
 // SCG[11/19/99]: Save game stuff
-#define	TIMERHOOK(x) (int)&(((timerHook_t *)0)->x)
+#define	TIMERHOOK(x) (int)offsetof(timerHook_t,x)
 field_t timer_hook_fields[] = 
 {
 	{"wait",		TIMERHOOK(wait),		F_FLOAT},
@@ -306,7 +307,7 @@ typedef struct dynalightHook_s
 	float	rotation_speed;
 } dynalightHook_t;
 
-#define	DYNALIGHTHOOK(x) (int)&(((dynalightHook_t *)0)->x)
+#define	DYNALIGHTHOOK(x) (int)offsetof(dynalightHook_t,x)
 field_t dynalight_hook_fields[] = 
 {
 	{"brightness",		DYNALIGHTHOOK(brightness),		F_FLOAT},

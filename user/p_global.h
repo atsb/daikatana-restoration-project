@@ -8,7 +8,7 @@
 #include	"dk_shared.h"
 #include	"p_user.h"
 // Logic[8/17/99]: this was directly pathed, major no-no!
-#include	"../base/dk_/dk_log.h"
+#include	"dk_log.h"
 
 #include	"common.h"
 
@@ -105,6 +105,8 @@ extern	cvar_t	*dm_teamplay;
 extern	cvar_t	*dm_friendly_fire;
 extern  cvar_t  *dm_footsteps;
 extern  cvar_t  *dm_allow_hook;
+extern  cvar_t  *dm_instagib;
+extern  cvar_t  *unlimited_saves;
 
 extern serverState_t serverState;
 

@@ -147,6 +147,12 @@ cvar_t  *dm_allow_hook;
 cvar_t	*dm_use_skill_system;
 cvar_t	*dm_instagib;
 cvar_t	*unlimited_saves;
+cvar_t	*maps_dm;
+cvar_t	*maps_ctf;
+cvar_t	*maps_deathtag;
+
+static char mapList[64][16];
+static int mapCount;
 
 cvar_t  *cvarBuildPathTable;
 
@@ -154,11 +160,55 @@ cvar_t	*ctf_limit;	// WAW[12/9/99]:
 cvar_t	*ctf;
 cvar_t	*deathtag;
 
-cvar_t	*maps_dm;
-cvar_t	*maps_ctf;
-cvar_t	*maps_deathtag;
-
 void SpawnEntities (char *mapname, char *entities, char *spawnpoint, qboolean bLoadgame);
+
+bool P_CanSave (userEntity_t *ent, bool msg)
+{
+	if (!ent || !(ent->flags & FL_CLIENT) )
+	{
+		if (msg)
+			Com_Printf("Non-client sent to CanSave()\n");
+		return false;
+	}
+
+	if (ent->health <= 0)
+	{
+		if (msg)
+			Com_Printf (tongue_save_error[TONGUE_SAVE_ERR_DEAD]);
+		return false;
+	}
+
+	if (serverState.level->intermissiontime > 0)
+	{
+		if (msg)
+			Com_Printf (tongue_save_error[TONGUE_SAVE_ERR_INTERMISSION]);
+		return false;
+	}
+
+	if ((unlimited_saves->value == 0.0) && serverState.InventoryItemCount(ent->inventory,"item_savegem") < 1)
+	{
+		if (msg)
+			serverState.centerprint(ent, 2.0, tongue[T_NO_SAVEGEMS]);
+		return false;
+	}
+
+	if ( !ent->groundEntity )
+	{
+		if (ent->watertype & CONTENTS_WATER)
+			return true;
+		if (msg)
+			serverState.centerprint(ent, 2.0, tongue_save_error[TONGUE_SAVE_ERR_HERE]);
+		return false;
+	}
+	else if (ent->groundEntity->velocity.Length() > 0)
+	{
+		if (msg)
+			serverState.centerprint(ent, 2.0, tongue_save_error[TONGUE_SAVE_ERR_HERE]);
+		return false;
+	}
+
+	return true;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //	SetServerTime
@@ -203,8 +253,8 @@ void	P_InitPerLevelCvars (void)
 
 	// change anytime vars
 	dmflags = gi.cvar ("dmflags", "0", CVAR_SERVERINFO);
-	fraglimit = gi.cvar ("fraglimit", "0", CVAR_SERVERINFO|CVAR_LATCH|CVAR_ARCHIVE);
-	timelimit = gi.cvar ("timelimit", "0", CVAR_SERVERINFO|CVAR_LATCH|CVAR_ARCHIVE);
+	fraglimit = gi.cvar ("fraglimit", "0", CVAR_SERVERINFO);
+	timelimit = gi.cvar ("timelimit", "0", CVAR_SERVERINFO);
 	samelevel = gi.cvar ("samelevel", "0", CVAR_SERVERINFO);
 	g_select_empty = gi.cvar ("g_select_empty", "0", CVAR_ARCHIVE);
 	g_unlimited_ammo = gi.cvar ("g_unlimited_ammo", "0", CVAR_SERVERINFO);
@@ -258,21 +308,21 @@ void	P_InitPerLevelCvars (void)
     dm_footsteps        = gi.cvar ("dm_footsteps", "1", CVAR_SERVERINFO|CVAR_LATCH);
     dm_allow_hook       = gi.cvar ("dm_allow_hook", "1", CVAR_SERVERINFO|CVAR_LATCH);
     dm_use_skill_system = gi.cvar ("dm_use_skill_system", "1", CVAR_SERVERINFO|CVAR_LATCH);
-	dm_instagib			= gi.cvar ("dm_instagib", "0", CVAR_SERVERINFO|CVAR_LATCH);
-	unlimited_saves		= gi.cvar ("unlimited_saves", "0", CVAR_ARCHIVE);
+    dm_instagib = gi.cvar ("dm_instagib", "0", CVAR_SERVERINFO|CVAR_LATCH);
+    unlimited_saves = gi.cvar ("unlimited_saves", "0", CVAR_ARCHIVE);
 
 
     allow_friendly_fire = gi.cvar( "allow_friendly_fire", "1", CVAR_ARCHIVE );
+
+	maps_dm = gi.cvar( "maps_dm", "", CVAR_SERVERINFO|CVAR_ARCHIVE );
+	maps_deathtag = gi.cvar( "maps_deathtag", "", CVAR_SERVERINFO|CVAR_ARCHIVE );
+	maps_ctf = gi.cvar( "maps_ctf", "", CVAR_SERVERINFO|CVAR_ARCHIVE );
 
 	deathtag			= gi.cvar("deathtag","0", CVAR_SERVERINFO|CVAR_LATCH);
 	ctf					= gi.cvar("ctf", "0", CVAR_SERVERINFO|CVAR_LATCH);
 	ctf_limit			= gi.cvar("ctf_limit","0", CVAR_SERVERINFO|CVAR_LATCH|CVAR_ARCHIVE);
 
-    cvarBuildPathTable = gi.cvar( "BuildPathTable", "", 0 ); 
-	
-	maps_dm				= gi.cvar("maps_dm","",CVAR_SERVERINFO|CVAR_ARCHIVE);
-	maps_deathtag		= gi.cvar("maps_deathtag","",CVAR_SERVERINFO|CVAR_ARCHIVE);
-	maps_ctf			= gi.cvar("maps_ctf","",CVAR_SERVERINFO|CVAR_ARCHIVE);
+    cvarBuildPathTable = gi.cvar( "BuildPathTable", "", 0 );    
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -462,114 +512,6 @@ int P_ClientConnect( userEntity_t *self, char *userinfo, int loadgame )
 	return dll_ClientConnect( self, userinfo, loadgame );
 }
 
-// need this to find out the monster type below....
-class p_playerHook_t 
-{ 
-public:
-   	//unix - fixed inline constructor
-	//__inline playerHook_t();
-	p_playerHook_t() 
-	{
-//		nFollowing	= FOLLOWING_NONE;
-		//memset(this,0,sizeof(playerHook_t));
-	}
-
-	userEntity_t		*owner;
-
-	//////////////////////////////////////////////
-	//	stats
-	//////////////////////////////////////////////
-
-	float		base_health;
-	char		pain_chance;
-	int			intQuota;			// how smart this monster/bot is 
-
-	int			active_distance;	// distance from a client before
-									// becoming inactive;
-	short		back_away_dist;		// distance from goal when entity will back away
-	char		type;				// what monster is this?  For avoiding stricmps
-};
-
-bool P_CanSave (userEntity_t *ent, bool msg)
-{
-	if (!ent || !(ent->flags & FL_CLIENT) )
-	{
-		if (msg)
-			Com_Printf("Non-client sent to CanSave()\n");
-		return false;
-	}
-
-	if (ent->health <= 0)
-	{
-		if (msg)
-			Com_Printf (TONGUE_SAVE_ERR_DEAD);
-		return false;
-	}
-
-	if (serverState.level->intermissiontime > 0)
-	{
-		if (msg)
-			Com_Printf (TONGUE_SAVE_ERR_INTERMISSION);
-		return false;
-	}
-
-	if ((unlimited_saves->value == 0.0) && serverState.InventoryItemCount(ent->inventory,"item_savegem") < 1)
-	{
-		if (msg)
-			serverState.centerprint(ent, 2.0, tongue[T_NO_SAVEGEMS]);
-		return false;
-	}
-
-	// if we have no ground entity, we're in air or in water.  only save if in water.
-	if ( !ent->groundEntity )
-	{
-		if (ent->watertype & CONTENTS_WATER)	// swimming
-		{
-			return true;
-		}
-		else
-		{
-			if (msg)
-				serverState.centerprint(ent, 2.0, TONGUE_SAVE_ERR_HERE);
-			return false;
-		}
-	}
-	else if (ent->groundEntity->velocity.Length() > 0)
-	{
-		if (msg)
-			serverState.centerprint(ent, 2.0, TONGUE_SAVE_ERR_HERE);
-		return false;
-	}
-/*
-	// special case hack.  no saving while kage is running around.
-	if (serverState.episode == 4)
-	{
-		p_playerHook_t *phook;
-		int i = 0;
-		userEntity_t *entity = g_edicts;
-		for (; i < globals.num_edicts; i++, entity++)
-		{
-			if (!entity->inuse)
-				continue;
-
-			if ( !(entity->flags & FL_MONSTER) || !entity->userHook || (entity->health <= 0) ) 
-				continue;
-		
-			phook = (p_playerHook_t *)entity->userHook;
-			if (phook->type == 90)
-			{
-				if (msg)
-					serverState.centerprint(ent, 2.0, "Cannot save here!\n");
-				return false;
-			}
-		}
-
-		return true;
-	}
-*/
-	return true;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 //	GetGameAPI
 //
@@ -650,8 +592,6 @@ DllExport game_export_t *GetGameAPI (game_import_t *import)
 	globals.RegisterWorldFuncs = dll_RegisterWorldFuncs;
 
 	globals.EntityLoadCleanup = dll_EntityLoadCleanup;
-
-	// cek[5-8-00]: determines whether a save can be completed.
 	globals.CanSave = P_CanSave;
 	//	Nelno:	add console commands for physics DLL here
 	//	this is because we're throwing out the ClientCommand crap
@@ -695,53 +635,6 @@ void Com_Printf (char *msg, ...)
 
 //======================================================================
 
-static char mapList[64][16];
-static int mapCount = 0;
-
-void ParseMapList(const char *type)
-{
-	cvar_t *cv = NULL;	
-	if (!stricmp(type,"deathmatch"))
-		cv = maps_dm;
-	else if (!stricmp(type,"ctf"))
-		cv = maps_ctf;
-	else if (!stricmp(type,"deathtag"))
-		cv = maps_deathtag;
-
-	if (!cv)
-		return;
-
-
-	char ml[1024];
-
-	Com_sprintf(ml,sizeof(ml),"%s",cv->string);
-	memset(mapList,0,sizeof(mapList));
-
-	char *token, *ptr = ml;
-
-	mapCount = 0;
-	while (mapCount < 16)
-	{
-		// skip whitespace
-		while (*ptr && *ptr <= ' ' && *ptr != '\n')
-		{
-			ptr++;
-		}
-
-		// at the end?
-		if ( !*ptr || (*ptr == '\n') )
-		{	
-			return;
-		}
-
-		token = COM_Parse ((char **)&ptr);
-		if (!ptr)
-			return;
-
-		strcpy (mapList[mapCount], token);
-		mapCount++;
-	}
-}
 /*
 =================
 ChooseNextMap
@@ -749,76 +642,118 @@ ChooseNextMap
 Choses the next level from the csv - places the name into mapname. 
 =================
 */
+static void ParseMapList(const char *type)
+{
+	cvar_t *cv = NULL;
+
+	if (!stricmp(type, "deathmatch"))
+		cv = maps_dm;
+	else if (!stricmp(type, "ctf"))
+		cv = maps_ctf;
+	else if (!stricmp(type, "deathtag"))
+		cv = maps_deathtag;
+
+	if (!cv)
+		return;
+
+	char ml[1024];
+	Com_sprintf(ml, sizeof(ml), "%s", cv->string);
+	memset(mapList, 0, sizeof(mapList));
+
+	char *token;
+	char *ptr = ml;
+	mapCount = 0;
+
+	while (mapCount < 16)
+	{
+		while (*ptr && *ptr <= ' ' && *ptr != '\n')
+			ptr++;
+
+		if (!*ptr || *ptr == '\n')
+			return;
+
+		token = COM_Parse(&ptr);
+		if (!ptr || !token || !*token)
+			return;
+
+		strncpy(mapList[mapCount], token, sizeof(mapList[mapCount]) - 1);
+		mapList[mapCount][sizeof(mapList[mapCount]) - 1] = 0;
+		mapCount++;
+	}
+}
+
+/*
+=================
+ChooseNextMap
+
+Chooses the next level from an explicit server map list when supplied,
+otherwise falls back to MultiplayerMaps.csv.
+=================
+*/
 bool ChooseNextMap( const char *type, char mapname[64] )
 {
 	bool bfound = false;
-	
+
 	ParseMapList(type);
 	if (mapCount)
 	{
-		int nextMap;
+		int nextMap = 0;
+
 		for (int i = 0; i < mapCount; i++)
 		{
-			if (!stricmp(level.mapname,mapList[i]))		// found the current map!
+			if (!_stricmp(level.mapname, mapList[i]))
 			{
 				bfound = true;
-				nextMap = i+1;
+				nextMap = i + 1;
 				break;
 			}
 		}
 
-		if ( bfound )
-		{
-			if (nextMap >= mapCount)
-				nextMap = 0;
-		}
-		else 
-			nextMap = 0;	// if current map not found, load the first map in the cycle.
+		if (bfound && nextMap >= mapCount)
+			nextMap = 0;
 
-		strcpy( mapname, mapList[nextMap] );
+		strcpy(mapname, mapList[nextMap]);
 		return true;
 	}
-	else
-	{
-		// if no maps in the list, use the CSV to find the next map
-		CCSVFile *pCsvFile = NULL;
-		char szLine[2048];
-		char szMapName[64];
-		char szType[64];
-		char szFirstMapName[64];
-		*szFirstMapName = '\0';
 
-		int nRetCode = CSV_OpenFile( "MultiplayerMaps.csv", &pCsvFile );
-		if ( nRetCode == DKIO_ERROR_NONE )
+	// No explicit list: retain the existing CSV-based cycle.
+	CCSVFile *pCsvFile = NULL;
+	char szLine[2048];
+	char szMapName[64];
+	char szType[64];
+	char szFirstMapName[64];
+	*szFirstMapName = '\0';
+
+	int nRetCode = CSV_OpenFile("MultiplayerMaps.csv", &pCsvFile);
+	if (nRetCode == DKIO_ERROR_NONE)
+	{
+		while (CSV_GetNextLine(pCsvFile, szLine) != EOF)
 		{
-			while (CSV_GetNextLine(pCsvFile,szLine) != EOF)
+			CSV_GetFirstElement(pCsvFile, szLine, szMapName);
+			CSV_GetNextElement(pCsvFile, szLine, szType);
+			if (!_stricmp(szType, type))
 			{
-				// get level name
-				CSV_GetFirstElement(pCsvFile, szLine, szMapName);
-				CSV_GetNextElement(pCsvFile, szLine, szType );
-				if (!_stricmp(szType, type ))
+				if (!*szFirstMapName)
+					strcpy(szFirstMapName, szMapName);
+
+				if (bfound)
 				{
-					if (!*szFirstMapName)
-						strcpy( szFirstMapName, szMapName );
-					if (bfound)
-					{
-						strcpy( mapname, szMapName );
-						CSV_CloseFile( pCsvFile );
-						return true;
-					}
-					else if (!_stricmp( szMapName, level.mapname ))
-						bfound = true;
+					strcpy(mapname, szMapName);
+					CSV_CloseFile(pCsvFile);
+					return true;
 				}
+				else if (!_stricmp(szMapName, level.mapname))
+					bfound = true;
 			}
-			CSV_CloseFile( pCsvFile );
-			if (bfound)		// Found but no next map... use the first one of that type found.
-				strcpy( mapname, szFirstMapName );
 		}
+
+		CSV_CloseFile(pCsvFile);
+		if (bfound)
+			strcpy(mapname, szFirstMapName);
 	}
 
 	return bfound;
 }
-
 
 
 //======================================================================
@@ -952,9 +887,9 @@ void P_ExitLevel (void)
 			continue;
 
 		ent->flags &= ~(FL_NOTARGET|FL_FREEZE);
-	    ent->client->showflags &= ~(SHOW_SCORES | SHOW_SCORES_NOW);	//	send update immediately
-		ent->client->ps.rdflags &= ~RDF_LETTERBOX;
-		ent->client->endIntermission = TRUE;
+		// WAW[11/3/99]: Turn off score board after intermission.
+//        if(deathmatch->value)
+		    ent->client->showflags &= ~(SHOW_SCORES | SHOW_SCORES_NOW);	//	send update immediately
 	}
 
 	Client_EndServerFrames ();

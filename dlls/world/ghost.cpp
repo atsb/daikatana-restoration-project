@@ -367,7 +367,7 @@ void Ghost_Pain( userEntity_t *self, userEntity_t *attacker, float kick, int dam
 void Ghost_Think(userEntity_t *self)
 {
 	AI_TaskThink(self);
-	
+
 	if((self->owner && (!AI_IsAlive(self->owner) || !AI_HasGoalInQueue(self->owner,GOALTYPE_KAGE_SPARKUP)) && !AI_HasTaskInQue(self,TASKTYPE_GHOST_DEATH)) || self->health < 0.0f)
 	{
 		AI_AddNewTaskAtFront(self,TASKTYPE_GHOST_DEATH);

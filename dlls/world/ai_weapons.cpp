@@ -1,3 +1,4 @@
+#include <stddef.h>
 // ==========================================================================
 //
 //  File:
@@ -58,7 +59,7 @@ typedef struct
 //	frictionHook_t  *fhook;
 } corditeHook_t;
 
-#define	CORDITEHOOK(x) (int)&(((corditeHook_t *)0)->x)
+#define	CORDITEHOOK(x) (int)offsetof(corditeHook_t,x)
 field_t cordite_hook_fields[] = 
 {
 	{"remove_time",		CORDITEHOOK(remove_time),		F_FLOAT},
@@ -74,7 +75,7 @@ typedef struct meteorHook_s
     short colorScale;
 } meteorHook_t;
 
-#define	METEORHOOK(x) (int)&(((meteorHook_t *)0)->x)
+#define	METEORHOOK(x) (int)offsetof(meteorHook_t,x)
 field_t meteor_hook_fields[] = 
 {
 	{"bounceCount",	METEORHOOK(bounceCount),	F_SHORT},
@@ -83,7 +84,7 @@ field_t meteor_hook_fields[] =
 	{NULL, 0, F_INT}
 };
 
-#define	WYNDRAXHOOK(x) (int)&(((wyndraxHook_t *)0)->x)
+#define	WYNDRAXHOOK(x) (int)offsetof(wyndraxHook_t,x)
 field_t wyndrax_hook_fields[] = 
 {
 	{"killtime",		WYNDRAXHOOK(killtime),			F_FLOAT},
@@ -99,7 +100,7 @@ field_t wyndrax_hook_fields[] =
 	{NULL, 0, F_INT}
 };
 
-#define	LIGHTNINGHOOK(x) (int)&(((lightningHook_t *)0)->x)
+#define	LIGHTNINGHOOK(x) (int)offsetof(lightningHook_t,x)
 field_t lightning_hook_fields[] = 
 {
 	{"killtime",	LIGHTNINGHOOK(killtime),	F_FLOAT},
@@ -110,7 +111,7 @@ field_t lightning_hook_fields[] =
 	{NULL, 0, F_INT}
 };
 
-#define	ROCKETHOOK(x) (int)&(((rocketHook_t *)0)->x)
+#define	ROCKETHOOK(x) (int)offsetof(rocketHook_t,x)
 field_t rocket_hook_fields[] = 
 {
 	{"time_to_live",	ROCKETHOOK(time_to_live),	F_FLOAT},
@@ -119,7 +120,7 @@ field_t rocket_hook_fields[] =
 	{NULL, 0, F_INT}
 };
 
-#define	STAVEHOOK(x) (int)&(((staveHook_t *)0)->x)
+#define	STAVEHOOK(x) (int)offsetof(staveHook_t,x)
 field_t stave_hook_fields[] = 
 {
 	{"time_to_live",	STAVEHOOK(time_to_live),	F_FLOAT},
@@ -133,7 +134,7 @@ field_t stave_hook_fields[] =
 	{NULL, 0, F_INT}
 };
 
-#define	PSYCLAWHOOK(x) (int)&(((psyclawHook_t *)0)->x)
+#define	PSYCLAWHOOK(x) (int)offsetof(psyclawHook_t,x)
 field_t psyclaw_hook_fields[] = 
 {
 	{"delta_angles",	PSYCLAWHOOK(delta_angles),	F_INT},
@@ -151,7 +152,7 @@ field_t psyclaw_hook_fields[] =
 	{NULL, 0, F_INT}
 };
 
-#define	THUNDERJIZHOOK(x) (int)&(((ThunderJizHook_t *)0)->x)
+#define	THUNDERJIZHOOK(x) (int)offsetof(ThunderJizHook_t,x)
 field_t thunder_jiz_hook_fields[] = 
 {
 	{"time_to_live",	THUNDERJIZHOOK(time_to_live),	F_FLOAT},
@@ -161,7 +162,7 @@ field_t thunder_jiz_hook_fields[] =
 	{NULL, 0, F_INT}
 };
 
-#define	CAMLIGHTHOOK(x) (int)&(((camlightHook_t *)0)->x)
+#define	CAMLIGHTHOOK(x) (int)offsetof(camlightHook_t,x)
 field_t camlight_hook_fields[] = 
 {
 	{"brightness",		CAMLIGHTHOOK(brightness),		F_FLOAT},
@@ -175,7 +176,7 @@ field_t camlight_hook_fields[] =
 	{NULL, 0, F_INT}
 };
 
-#define	ZAPFLARE(x) (int)&(((ZapFlare_t *)0)->x)
+#define	ZAPFLARE(x) (int)offsetof(ZapFlare_t,x)
 field_t zapflare_hook_fields[] = 
 {
 	{ "Delta_Angles",	ZAPFLARE(Delta_Angles),	F_VECTOR },
@@ -185,7 +186,7 @@ field_t zapflare_hook_fields[] =
 	{NULL, 0, F_INT}
 };
 
-#define	FLAMESWORD(x) (int)&(((FlameSword_t *)0)->x)
+#define	FLAMESWORD(x) (int)offsetof(FlameSword_t,x)
 field_t flamesword_hook_fields[] = 
 {
 	{ "Delta_Angles",	FLAMESWORD(Delta_Angles),	F_VECTOR },
@@ -3273,7 +3274,7 @@ void laserbeam_think( userEntity_t *self )
 		// this probably is invalid actually...
 		CVector vel = self->velocity;
 		com->Damage( tr.ent, self, self->owner, end, vel, 2.0f, DAMAGE_INERTIAL);
-		com->FlashClient( tr.ent, 0.10, 0.98, 0.98, 0.18 );
+		com->FlashClient( tr.ent, 0.10, 0.98, 0.98, 0.18, 0 );
 	}
 	
 	// the trace stops at the bounding box.. this ensures the beam hits the actual player model
@@ -7033,14 +7034,7 @@ void nharre_summon( userInventory_s *ptr, userEntity_t *self )
 			
 			if(self->epair)
 			{
-				if(!(_stricmp(self->epair[nEpairsCount].key,"spawnname")))
-				{
-					pNewEntity->epair[nEpairsCount].value = NULL;		
-				}
-			}
-			if(self->epair)
-			{
-				if(!(_stricmp(self->epair[nEpairsCount].key,"deathtarget")))
+				if(!(_stricmp(self->epair[nEpairsCount].key,"spawnname")) || !(_stricmp(self->epair[nEpairsCount].key,"deathtarget")))
 				{
 					pNewEntity->epair[nEpairsCount].value = NULL;		
 				}
@@ -8069,7 +8063,7 @@ void cordite_explode( userEntity_t *self)
 
 	spawn_sprite_explosion( self, self->s.origin, true );
 
-    com->FlashClient(self,0.8,0.8,0.5,0.3);
+    com->FlashClient(self,0.8,0.8,0.5,0.3,0);
 
 	//do radius damage
 	com->RadiusDamage( self, self->owner, self->owner, self->health, DAMAGE_EXPLOSION, 64.0 );
@@ -8201,7 +8195,7 @@ void BB_Explode(userEntity_t *self)
 
 	spawn_sprite_explosion( self, self->s.origin, true );
 
-    com->FlashClient(self,0.8,0.8,0.5,0.3);
+    com->FlashClient(self,0.8,0.8,0.5,0.3,0);
 
 	//do radius damage
 	com->RadiusDamage( self, self->owner, self->owner,hook->damage + (rnd()*hook->rnd_damage), DAMAGE_EXPLOSION, 64.0 );
@@ -8541,7 +8535,7 @@ void Kage_Bouncing_Blast( userInventory_s *ptr, userEntity_t *self )
 			
 			if(self->epair)
 			{
-				if(!(_stricmp(self->epair[nEpairsCount].key,"spawnname"))||!(_stricmp(self->epair[nEpairsCount].key,"deathtarget")))
+				if(!(_stricmp(self->epair[nEpairsCount].key,"spawnname")))
 				{
 					pNewEntity->epair[nEpairsCount].value = NULL;		
 				}
@@ -8555,7 +8549,6 @@ void Kage_Bouncing_Blast( userInventory_s *ptr, userEntity_t *self )
 		{
 			pNewEntity->deathtarget = NULL;
 		}
-
 		IncrementMonsterCount();		
 
 		CVector Scale, Rotate, Dir, Location;

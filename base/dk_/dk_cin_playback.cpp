@@ -22,6 +22,7 @@
 
 bool fLoopingASound = false;
 CScriptSound loopingSound;
+static bool cin_mp3_channels[8] = { false, false, false, false, false, false, false, false };
 void CinPlaybackSound(const CScriptSound *sound) {
 
     if (sound->Name() == NULL || sound->Name()[0] == '\0') return;
@@ -30,7 +31,15 @@ void CinPlaybackSound(const CScriptSound *sound) {
 
     buffer128 buffer;
 
-	buffer.Set("sounds/%s", sound->Name());
+	if( !strnicmp( sound->Name(), "sounds/", 7 ) ||
+	    !strnicmp( sound->Name(), "data/", 5 ) )
+	{
+		buffer.Set("%s", sound->Name());
+	}
+	else
+	{
+		buffer.Set("sounds/%s", sound->Name());
+	}
 
 	int channel = 0;
 
@@ -48,13 +57,29 @@ void CinPlaybackSound(const CScriptSound *sound) {
 	if( strstr( buffer, ".mp3" ) )
 	{
 		channel = sound->Channel();
-		S_StartMP3( buffer, channel, s_cine->value, ( fLoopingASound == true ) ? 0 : 1 );
+		if( channel >= 0 && channel < 8 )
+		{
+			cin_mp3_channels[channel] = true;
+		}
+		S_StartMP3( buffer, channel, s_cine->value, ( fLoopingASound == true ) ? 0 : 1, TRUE );
 	}
 	else
 	{
 		S_StartSoundQuake2(CVector(0,0,0), 1, channel,  S_RegisterSound(sound->Name()), 1.0f, ATTN_NORM, 0.0f);
 	}
         
+}
+
+void CinStopTrackedMP3()
+{
+	for( int i = 0; i < 8; i++ )
+	{
+		if( cin_mp3_channels[i] == true )
+		{
+			S_StopMP3( i );
+			cin_mp3_channels[i] = false;
+		}
+	}
 }
 
 void CinStopLoopingSound(CScriptSound *sound) {

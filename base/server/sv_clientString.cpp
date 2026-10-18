@@ -1,246 +1,161 @@
-#include    <windows.h>
-#include	"client.h"
-#include	"l__language.h"
-#include	"server.h"
+#include "client.h"
+#include "l__language.h"
+#include "server.h"
+#include "client_string.h"
 
-static sizebuf_t	client_string_buf;
-static byte			client_string_message_buf[MAX_MSGLEN-16];
-static bool			bNoContinueSent = false;
+static sizebuf_t client_string_buf;
+static byte client_string_message_buf[MAX_MSGLEN - 16];
+static qboolean bNoContinueSent = FALSE;
 
-void CS_WriteByte (int c)		{MSG_WriteByte(&client_string_buf,c);}
-void CS_WriteLong (int c)		{MSG_WriteLong(&client_string_buf,c);}
-void CS_WriteFloat (float f)	{MSG_WriteFloat (&client_string_buf, f);}
-void CS_WriteString (char *s)	{MSG_WriteString (&client_string_buf, s);}
+static void CS_WriteByte(int c) { MSG_WriteByte(&client_string_buf, c); }
+static void CS_WriteLong(int c) { MSG_WriteLong(&client_string_buf, c); }
+static void CS_WriteFloat(float f) { MSG_WriteFloat(&client_string_buf, f); }
+static void CS_WriteString(char *s) { MSG_WriteString(&client_string_buf, s); }
 
-char *CS_StringForResourceID(long str_list_index)
+static char *CS_StringForResourceID(long str_list_index)
 {
-	long str_list = (str_list_index & 0xffff0000) >> 16;
-	long str_index = str_list_index & 0x0000ffff;
+    unsigned long id = (unsigned long)str_list_index;
+    int list = (int)((id >> 16) & 0xffffUL);
+    int index = (int)(id & 0xffffUL);
 
-	switch(str_list)
-	{
-	case 1:
-		return tongue[str_index];
+#define CS_ARRAY_ITEM(array) \
+    ((index >= 0 && index < (int)(sizeof(array) / sizeof((array)[0]))) ? (array)[index] : NULL)
 
-	case 2:
-		return tongue_weapons[str_index];
-
-	case 3:
-		return tongue_armors[str_index];
-
-	case 4:
-		return tongue_world[str_index];
-
-	case 5:
-		return tongue_deathmsg_daikatana[str_index];
-
-	case 6:
-		return tongue_deathmsg_self[str_index];
-
-	case 7:
-		return tongue_deathmsg_weapon1[str_index];
-
-	case 8:
-		return tongue_deathmsg_weapon2[str_index];
-
-	case 9:
-		return tongue_deathmsg_weapon3[str_index];
-
-	case 10:
-		return tongue_deathmsg_weapon4[str_index];
-
-	case 11:
-		return tongue_ctf[str_index];
-
-	case 12:
-		return tongue_deathtag[str_index];
-
-	default:
-		Com_Error (ERR_DROP,"CL_ParseClientString: Bad string resource ID");
-		break;
-	}
-	return "";
+    switch (list)
+    {
+    case CS_RES_TONGUE:             return CS_ARRAY_ITEM(tongue);
+    case CS_RES_WEAPONS:            return CS_ARRAY_ITEM(tongue_weapons);
+    case CS_RES_ARMORS:             return CS_ARRAY_ITEM(tongue_armors);
+    case CS_RES_WORLD:              return CS_ARRAY_ITEM(tongue_world);
+    case CS_RES_DEATHMSG_DAIKATANA: return CS_ARRAY_ITEM(tongue_deathmsg_daikatana);
+    case CS_RES_DEATHMSG_SELF:      return CS_ARRAY_ITEM(tongue_deathmsg_self);
+    case CS_RES_DEATHMSG_WEAPON1:   return CS_ARRAY_ITEM(tongue_deathmsg_weapon1);
+    case CS_RES_DEATHMSG_WEAPON2:   return CS_ARRAY_ITEM(tongue_deathmsg_weapon2);
+    case CS_RES_DEATHMSG_WEAPON3:   return CS_ARRAY_ITEM(tongue_deathmsg_weapon3);
+    case CS_RES_DEATHMSG_WEAPON4:   return CS_ARRAY_ITEM(tongue_deathmsg_weapon4);
+    case CS_RES_CTF:                return CS_ARRAY_ITEM(tongue_ctf);
+    case CS_RES_DEATHTAG:           return CS_ARRAY_ITEM(tongue_deathtag);
+    default:
+        Com_Error(ERR_DROP, "CS_StringForResourceID: bad string resource ID %ld", str_list_index);
+        return "";
+    }
+#undef CS_ARRAY_ITEM
 }
 
-// call to stert sending the string
-void CS_BeginSendString()
+static void CS_BeginSendString()
 {
-	// clear the buffer for the new message
-	SZ_Clear(&client_string_buf);
-
-	bNoContinueSent = false;	
-	
-	// start sending the message data
-	CS_WriteByte(svc_client_string);
+    SZ_Clear(&client_string_buf);
+    bNoContinueSent = FALSE;
+    CS_WriteByte(svc_client_string);
 }
 
-// call to end sending.  call after using unicast to send the message...
-void CS_EndSendString()
+static void CS_EndSendString()
 {
-	// we're done.  clear the buffer
-	SZ_Clear(&client_string_buf);
+    SZ_Clear(&client_string_buf);
 }
 
-// continue processing more parameters, using the previous results as the format string
-void CS_Continue(bool bContinue)
+static void CS_Continue(qboolean bContinue)
 {
-	if (!bContinue)
-		bNoContinueSent = true;
-
-	CS_WriteByte(bContinue ? 1 : 0);
+    if (!bContinue)
+        bNoContinueSent = TRUE;
+    CS_WriteByte(bContinue ? 1 : 0);
 }
 
-// send the parameter count for the next pass
-void CS_SendCount(byte count)
+static void CS_SendCount(byte count) { CS_WriteByte(count); }
+static void CS_SendStringID(long strID) { CS_WriteByte(CS_data_str_resource); CS_WriteLong((int)strID); }
+static void CS_SendString(char *str) { CS_WriteByte(CS_data_str_literal); CS_WriteString(str); }
+static void CS_SendInteger(int val) { CS_WriteByte(CS_data_integer); CS_WriteLong(val); }
+static void CS_SendFloat(float val) { CS_WriteByte(CS_data_float); CS_WriteFloat(val); }
+
+static void CS_SendSpecifierStr(char *str, byte parmCount)
 {
-	CS_WriteByte(count);
+    CS_SendString(str);
+    CS_SendCount(parmCount);
 }
 
-// functions to send parameters--------------------------------------------------
-void CS_SendStringID(long strID)
+static void CS_SendSpecifierID(long strID, byte parmCount)
 {
-	CS_WriteByte(CS_data_str_resource);
-	CS_WriteLong(strID);
+    CS_SendStringID(strID);
+    CS_SendCount(parmCount);
 }
 
-void CS_SendString(char *str)
+static void *CS_DeleteSpace(sizebuf_t *buf, int length)
 {
-	CS_WriteByte(CS_data_str_literal);
-	CS_WriteString(str);
+    void *data;
+    if (buf->cursize < length)
+        Com_Error(ERR_FATAL, "CS_DeleteSpace: length larger than buffer");
+    buf->cursize -= length;
+    data = buf->data + buf->cursize;
+    return data;
 }
 
-void CS_SendInteger(int val)
+static void CS_Unicast(edict_t *ent, byte print_type, float msg_time)
 {
-	CS_WriteByte(CS_data_integer);
-	CS_WriteLong(val);
+    int p;
+    client_t *client;
+
+    if (!bNoContinueSent)
+        CS_Continue(FALSE);
+
+    CS_WriteByte(print_type);
+    if (print_type == CS_print_center)
+        CS_WriteFloat(msg_time);
+
+    if (ent)
+    {
+        p = NUM_FOR_EDICT(ent);
+        if (p >= 1 && p <= maxclients->value)
+        {
+            client = svs.clients + (p - 1);
+            if (client->state != cs_free && client->state != cs_zombie)
+                SZ_Write(&client->netchan.message, client_string_buf.data, client_string_buf.cursize);
+        }
+    }
+
+    CS_DeleteSpace(&client_string_buf, 1);
+    if (print_type == CS_print_center)
+        CS_DeleteSpace(&client_string_buf, 4);
 }
 
-void CS_SendFloat(float val)
+static void CS_Multicast(byte print_type, float msg_time)
 {
-	CS_WriteByte(CS_data_float);
-	CS_WriteFloat(val);
+    client_t *client;
+    int j;
+
+    if (!bNoContinueSent)
+        CS_Continue(FALSE);
+
+    CS_WriteByte(print_type);
+    if (print_type == CS_print_center)
+        CS_WriteFloat(msg_time);
+
+    for (j = 0, client = svs.clients; j < maxclients->value; j++, client++)
+    {
+        if (client->state == cs_free || client->state == cs_zombie)
+            continue;
+        SZ_Write(&client->netchan.message, client_string_buf.data, client_string_buf.cursize);
+    }
+
+    CS_DeleteSpace(&client_string_buf, 1);
+    if (print_type == CS_print_center)
+        CS_DeleteSpace(&client_string_buf, 4);
 }
-//-------------------------------------------------------------------------------
-
-// funcations to send the format specifier string and parameter count------------
-void CS_SendSpecifierStr(char *str, byte parmCount)
-{
-	CS_SendString(str);
-	CS_SendCount(parmCount);
-}
-
-void CS_SendSpecifierID(long strID, byte parmCount)
-{
-	CS_SendStringID(strID);
-	CS_SendCount(parmCount);
-}
-//-------------------------------------------------------------------------------
-
-// functions for sending the message to clients----------------------------------
-
-// removes 'length' bytes from the buffer
-void *SZ_DeleteSpace (sizebuf_t *buf, int length)
-{
-	void	*data;
-	
-	// removing too much?
-	if (buf->cursize < length)
-	{
-			_ASSERTE(FALSE);
-			Com_Error (ERR_FATAL, "SZ_DeleteSpace: length larger than buffer"); 
-	}
-
-	buf->cursize -= length;
-	data = buf->data + buf->cursize;
-	
-	return data;
-}
-
-// does NOT clear the buffer after calling
-void CS_Unicast(edict_t *ent, byte print_type, float msg_time = 0.0f)
-{
-	if (!bNoContinueSent)
-		CS_Continue(false);
-
-	// specify how this client is to display this string
-	CS_WriteByte(print_type);
-	if (print_type == CS_print_center)
-		CS_WriteFloat(msg_time);
-
-	int		p;
-	client_t	*client;
-	if (ent)
-	{
-		p = NUM_FOR_EDICT(ent);
-		if (p >= 1 && p <= maxclients->value)
-		{
-			client = svs.clients + (p-1);
-			if (client->state != cs_free && client->state != cs_zombie)
-			{
-				SZ_Write (&client->netchan.message, client_string_message_buf, client_string_buf.cursize);
-			}
-		}
-	}
-
-	// pop the print specifier back off the buffer
-	SZ_DeleteSpace(&client_string_buf,1);
-	if (print_type == CS_print_center)
-		SZ_DeleteSpace(&client_string_buf,4);
-}
-
-// acts as an endSendString after sending the message to all clients
-void CS_Multicast(byte print_type, float msg_time = 0.0f)
-{
-	if (!bNoContinueSent)
-		CS_Continue(false);
-
-	// specify how this string should be displayed
-	CS_WriteByte(print_type);
-	if (print_type == CS_print_center)
-		CS_WriteFloat(msg_time);
-
-	client_t	*client;
-	int j;
-	// send the data to all relevent clients
-	for (j = 0, client = svs.clients; j < maxclients->value; j++, client++)
-	{
-		if (client->state == cs_free || client->state == cs_zombie)
-			continue;
-
-		SZ_Write (&client->netchan.message, client_string_message_buf, client_string_buf.cursize);
-	}
-
-	// pop the print specifier back off the buffer
-	SZ_DeleteSpace(&client_string_buf,1);
-	if (print_type == CS_print_center)
-		SZ_DeleteSpace(&client_string_buf,4);
-}
-//-------------------------------------------------------------------------------
 
 void CS_Init(game_import_t &import)
 {
-	SZ_Init (&client_string_buf, client_string_message_buf, sizeof(client_string_message_buf));
+    SZ_Init(&client_string_buf, client_string_message_buf, sizeof(client_string_message_buf));
 
-	import.cs.SendStringID		= CS_SendStringID;
-	import.cs.BeginSendString	= CS_BeginSendString;
-	import.cs.EndSendString		= CS_EndSendString;
-
-	import.cs.SendFloat			= CS_SendFloat;
-	import.cs.SendInteger		= CS_SendInteger;
-	import.cs.SendString		= CS_SendString;
-	import.cs.SendStringID		= CS_SendStringID;
-
-	import.cs.SendSpecifierStr	= CS_SendSpecifierStr;
-	import.cs.SendSpecifierID	= CS_SendSpecifierID;		
-	import.cs.SendSpecifierID	= CS_SendSpecifierID;
-	import.cs.SendCount			= CS_SendCount;
-
-	import.cs.Continue			= CS_Continue;
-
-	import.cs.Multicast			= CS_Multicast;
-	import.cs.Unicast			= CS_Unicast;
-
-
-	import.cs.StringForID		= CS_StringForResourceID;
+    import.cs.BeginSendString = CS_BeginSendString;
+    import.cs.EndSendString = CS_EndSendString;
+    import.cs.SendStringID = CS_SendStringID;
+    import.cs.SendString = CS_SendString;
+    import.cs.SendInteger = CS_SendInteger;
+    import.cs.SendFloat = CS_SendFloat;
+    import.cs.SendSpecifierStr = CS_SendSpecifierStr;
+    import.cs.SendSpecifierID = CS_SendSpecifierID;
+    import.cs.SendCount = CS_SendCount;
+    import.cs.Continue = CS_Continue;
+    import.cs.Multicast = CS_Multicast;
+    import.cs.Unicast = CS_Unicast;
+    import.cs.StringForID = CS_StringForResourceID;
 }
-

@@ -108,7 +108,7 @@ void CL_Boost_Icons_Think(void)
 
 //				len = strlen(buffer);
 
-				drawStruct.nFlags = DSFLAG_BLEND;
+				drawStruct.nFlags = DSFLAG_BLEND | DSFLAG_NO_N64FILTER;
 				drawStruct.szString = buffer;
 				drawStruct.nXPos = sx;
 				drawStruct.nYPos = sy;

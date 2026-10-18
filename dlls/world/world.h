@@ -18,8 +18,6 @@
 
 #define		DEMO_MODE	1
 
-extern char *_strlwr(char *);
-
 ///////////////////////////////////////////////////////////////////////////////
 //	enums
 ///////////////////////////////////////////////////////////////////////////////
@@ -127,6 +125,8 @@ extern	cvar_t	*sv_episode;
 extern	cvar_t	*sv_violence;
 extern	cvar_t  *sv_sidekickweapons;
 extern	cvar_t  *sv_aiwander;
+extern	cvar_t  *sv_sidekick_invincible;
+extern	cvar_t  *sv_no_sidekicks;
 extern	cvar_t	*sv_demomode;
 extern  cvar_t	*sv_frictionfactor;
 extern	cvar_t	*ai_scriptedit;
@@ -158,8 +158,8 @@ extern	cvar_t	*dm_friendly_fire;
 extern	cvar_t	*dm_footsteps;
 extern  cvar_t  *dm_allow_hook;
 extern  cvar_t  *dm_item_respawn;
-extern	cvar_t	*dm_instagib;
-extern	cvar_t	*unlimited_saves;
+extern  cvar_t  *dm_instagib;
+extern  cvar_t  *unlimited_saves;
 
 extern  cvar_t  *gib_damage_point;
 extern	cvar_t	*gib_enable;
@@ -672,7 +672,6 @@ typedef	struct	itemInfo_s
 	int		respawnTime;
 	int		frame_start;
 	int		frame_end;
-	int		netNameID;
 
 	float	frame_time;
 	float	render_scale;
@@ -759,6 +758,8 @@ extern void xplevelup(userEntity_t *self);
 extern int GetArmorPercentage(int armor_val, int item_flags);
 extern userEntity_t * findEntityFromName(char *name);
 
+extern int SinglePlayerCheat();
+
 void DecrementMonsterCount();
 void IncrementMonsterCount();
 
@@ -771,7 +772,5 @@ void IncrementMonsterCount();
 #define PLAYER_SF_WEAPON_5				0x0020
 #define PLAYER_SF_WEAPON_6				0x0040
 #define PLAYER_SF_WEAPON_7				0x0080
-
-extern int SinglePlayerCheat();
 
 #endif

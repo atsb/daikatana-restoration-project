@@ -1,8 +1,3 @@
-// added for Japanese version
-#ifdef JPN
-#include<windows.h>
-#endif // JPN
-
 // cvar.c -- dynamic variable tracking
 #include "qcommon.h"
 cvar_t	*cvar_vars = NULL;
@@ -16,25 +11,12 @@ Cvar_InfoValidate
 */
 static qboolean Cvar_InfoValidate (const char *s)
 {
-// Encompass MarkMa 040599
-#ifdef	JPN	// JPN
-	const char *in = s;
-	while (*in)	{
-		if( *in == '\\' || *in == '\;' || *in == '\"')		
-			return false;
-		if(IsDBCSLeadByte(*in))		
-			in++;
-		in++;
-	}
-#else	// JPN
 	if (strstr (s, "\\"))
 		return false;
 	if (strstr (s, "\""))
 		return false;
 	if (strstr (s, ";"))
 		return false;
-#endif	// JPN
-// Encompass MarkMa 040599
 	return true;
 }
 

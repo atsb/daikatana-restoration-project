@@ -1,3 +1,4 @@
+#include <stdint.h>
 // client.h -- primary header for client
 
 //define	PARANOID			// speed sapping error checking
@@ -506,7 +507,7 @@ extern  cvar_t	*cl_antiskate;
 //  Shawn:  Added for Daikatana
 typedef struct cpvolume_s
 {
-	int		key;
+	uintptr_t	key;
 	int		pv_active;
 	int		pv_max;
 } cpvolume_t;
@@ -739,8 +740,8 @@ void CL_SuperTrident(void);
 
 //=================================================
 
-void CL_GenerateVolumeParticles (int key, int type, CVector &mins, CVector &maxs, float dist, int flags);
-void CL_RemoveParticleVolume (int key);
+void CL_GenerateVolumeParticles (uintptr_t key, int type, CVector &mins, CVector &maxs, float dist, int flags);
+void CL_RemoveParticleVolume (uintptr_t key);
 void CL_ClearEffects (void);
 void CL_ClearTEnts (void);
 // void CL_BlasterTrail (CVector &start, CVector &end);

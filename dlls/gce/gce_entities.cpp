@@ -252,7 +252,7 @@ void EntitiesAddEntityPath(int selected_entity) {
                 seg_entity.frame = 2;
                 seg_entity.alpha = 1.0f;
         
-                cin->beam_AddGCESplines (&seg_entity, 1, -1);
+                cin->beam_AddGCESplines (&seg_entity, 1, -1, 1.0f, 1.0f, 1.0f);
 
                 startPos = endPos;
             }

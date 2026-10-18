@@ -35,10 +35,7 @@ enum {
 };
 
 // weapon info def
-weaponInfo_t daikatana_WeaponInfo = 
-{
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_DAIKATANA),
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_NO_AMMO),
+weaponInfo_t daikatana_WeaponInfo = {
 	// names, net names, icon
 	"weapon_daikatana",
 	tongue_weapons[T_WEAPON_DAIKATANA],
@@ -121,15 +118,11 @@ weaponInfo_t daikatana_WeaponInfo =
 	0.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 0.0f,
 
-/*	{
+	{
 		tongue_deathmsg_daikatana[T_DEATHMSGWEAPON_DK_1],
 		NULL,
 		VICTIM_ATTACKER
-	},*/
-
-	RESOURCE_ID_FOR_STRING(tongue_deathmsg_daikatana,T_DEATHMSGWEAPON_DK_1),
-	VICTIM_ATTACKER,
-
+	},
     WEAPON_DKMELEE,
 	0,
 	NULL

@@ -4,25 +4,17 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "dk_std.h"
 #include <time.h>
 
-#include "dk_std.h"
-#include "p_user.h"
-#include "hooks.h"
-#include "common.h"
-#include "weapon_funcs.h"
-#include "libclient.h"
+#include	"p_user.h"
+#include	"hooks.h"
+#include	"common.h"
+#include	"weapon_funcs.h"
+#include    "libclient.h"
 
-#include "l__language.h"
-#include "../world/ai_frames.h"
-/* ATSB
+#include    "l__language.h"
 #include "..\world\ai_frames.h"
-
-^^
-
-I am going to leave this here.  Whoever did that is no programmer, but instead, is a 
-giant *&^&$*($&&%*$&%(% (censored)
-*/
 
 #define TRUE      1
 #define FALSE     0
@@ -31,8 +23,8 @@ giant *&^&$*($&&%*$&%(% (censored)
 // defines                                                         //
 /////////////////////////////////////////////////////////////////////
 
-#define VICTIM_ATTACKER	false
-#define ATTACKER_VICTIM	true
+#define VICTIM_ATTACKER	"0"
+#define ATTACKER_VICTIM	"1"
 
 #define WPCMDS_GIVE 0
 #define WPCMDS_SELC 1
@@ -193,10 +185,9 @@ extern  cvar_t  *dm_fast_switch;
 extern  cvar_t  *dm_footsteps;
 extern  cvar_t  *dm_allow_hook;
 extern  cvar_t  *dm_item_respawn;
+extern  cvar_t  *dm_instagib;
 extern  cvar_t  *dm_shotshells;
-extern	cvar_t	*dm_instagib;
 
-extern	cvar_t	*dedicated;
 #ifdef _DEBUG
 	extern	cvar_t	*dk_level;
 #endif

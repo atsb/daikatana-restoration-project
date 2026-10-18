@@ -21,8 +21,6 @@ enum
 // weapon info def
 weaponInfo_t wyndraxWeaponInfo = 
 {
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_WYNDRAX),
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_WYNDRAX_AMMO),
 	// names, net names, icon
 	"weapon_wyndrax",
 	tongue_weapons[T_WEAPON_WYNDRAX],
@@ -96,15 +94,11 @@ weaponInfo_t wyndraxWeaponInfo =
 	0.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 0.0f,
 
-/*	{
+	{
 		tongue_deathmsg_weapon3[T_DEATHMSGWEAPON_WYNDRAX],
 		NULL,
 		VICTIM_ATTACKER
-	},*/
-
-	RESOURCE_ID_FOR_STRING(tongue_deathmsg_weapon3,T_DEATHMSGWEAPON_WYNDRAX),
-	VICTIM_ATTACKER,
-
+	},
 	WEAPON_WYNDRAX,
 	0,
 	NULL
@@ -205,38 +199,6 @@ typedef struct
 } wispTouchHook_t;
 
 void    ammoWispThink (userEntity_t *self);
-void	ammoWispSetup (userEntity_t *self)
-{
-    wispTouchHook_t *hook;
-    hook = (wispTouchHook_t *) self->userHook;
-
-    hook->count = 5;
-    hook->winfo = winfo;
-
-    hook->spin_count = 0;
-    hook->spin_time = 0;
-    hook->sin_count_add = WISP_SINE_INC + rnd () * 1.0;
-    hook->sin_count = rnd () * 3.14159265359 * 2.0;
-	hook->movePitch = 1.0f;
-
-    self->s.effects |= EF_WISP_TRAIL;
-    self->s.renderfx = SPR_ALPHACHANNEL;
-    self->movetype = MOVETYPE_FLY;
-    self->solid = SOLID_TRIGGER;
-    self->clipmask = MASK_PLAYERSOLID;
-	self->s.render_scale.Set(2,2,2);
-
-    self->s.mins.Set(-8, -8, -8);
-    self->s.maxs.Set(8, 8, 8);
-
-    self->max_speed = 50.0;
-	self->velocity.Set(0,0,self->max_speed);
-
-    gstate->LinkEntity (self);
-
-    self->think = ammoWispThink;
-    self->nextthink = gstate->time + 0.1;
-}
 
 //-----------------------------------------------------------------------------
 //	ammoWispRespawn
@@ -262,11 +224,8 @@ void    ammoWispRespawn (userEntity_t *self)
         if ( self->soundAmbientIndex )
             self->s.sound = self->soundAmbientIndex;
 
-		wispTouchHook_t *hook;
-		hook = (wispTouchHook_t *) self->userHook;
-		self->s.origin = hook->base_origin;
-
-		ammoWispSetup(self);
+        self->think = ammoWispThink;
+        self->nextthink = gstate->time + 3.0;
     }
 }
 
@@ -311,15 +270,7 @@ void    ammoWispTouch (userEntity_t *self, userEntity_t *other, cplane_t *plance
 		return;
 
 	if (ammo->winfo && (other->flags & FL_CLIENT))
-	{
-	//	gstate->centerprint (other, 1.0, "%s %s.\n", tongue[T_PICKUP_WEAPON], ammo->winfo->ammoNetName);
-		gstate->cs.BeginSendString();
-		gstate->cs.SendSpecifierStr("%s %s.\n",2);
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue,T_PICKUP_WEAPON));
-		gstate->cs.SendStringID(ammo->winfo->ammoNameIndex);
-		gstate->cs.Unicast(other, CS_print_center, 1.0);
-		gstate->cs.EndSendString();
-	}
+		gstate->centerprint (other, 1.0, "%s %s.\n", tongue[T_PICKUP_WEAPON], ammo->winfo->ammoNetName);
 
 	gstate->StartEntitySound( other, CHAN_AUTO, gstate->SoundIndex("e3/we_wwispcorditec.wav"),1.0f, ATTN_NORM_MIN, ATTN_NORM_MAX );
 //	winfoPlay(other,SND_PICKUP,1.0);
@@ -444,62 +395,6 @@ void    ammoWispSpin (userEntity_t *self)
 //
 //	ai function for wisp ammo
 //-----------------------------------------------------------------------------
-#define MAX_WISP_HEIGHT 48
-void    ammoWispThink (userEntity_t *self)
-{
-    wispTouchHook_t *hook = (wispTouchHook_t *) self->userHook;
-	if (!hook)
-		return;
-
-	self->s.angles.yaw += 15;
-	if (self->s.angles.yaw > 360)
-		self->s.angles.yaw -= 360;
-
-	float height = self->s.origin.z - hook->base_origin.z;
-	if (hook->movePitch >= 0)	// moving up
-	{
-		if (height > MAX_WISP_HEIGHT)
-		{
-			hook->movePitch = -1;
-		}
-		else if (height < 0)
-		{
-			hook->movePitch = 1;
-		}
-	}
-	else						// moving down
-	{
-		if (height < 0)
-		{
-			hook->movePitch = 1;
-		}
-		else if (height > MAX_WISP_HEIGHT)
-		{
-			hook->movePitch = -1;
-		}
-	}
-
-	if (hook->movePitch >= 0)
-	{
-		if (self->velocity.z < 0)
-			self->velocity.Set(0,0,self->max_speed);
-	}
-	else
-	{
-		if (self->velocity.z >= 0)
-			self->velocity.Set(0,0,-self->max_speed);
-	}
-
-    self->think = ammoWispThink;
-    self->nextthink = gstate->time + 0.1;
-}
-
-/*
-//-----------------------------------------------------------------------------
-//	ammoWispThink
-//
-//	ai function for wisp ammo
-//-----------------------------------------------------------------------------
 
 void    ammoWispThink (userEntity_t *self)
 {
@@ -609,7 +504,7 @@ void    ammoWispThink (userEntity_t *self)
     self->think = ammoWispThink;
     self->nextthink = gstate->time + 0.1;
 }
-*/
+
 //-----------------------------------------------------------------------------
 //	ammo_wisp
 //-----------------------------------------------------------------------------
@@ -627,20 +522,16 @@ void ammo_wisp (userEntity_t *self)
 	self->userHook = gstate->X_Malloc(sizeof(wispTouchHook_t),MEM_TAG_HOOK);
     hook = (wispTouchHook_t *) self->userHook;
 
-    hook->base_origin = self->s.origin;
-    hook->spin_origin = self->s.origin;
-
-/*    hook->count = 5;
+    hook->count = 5;
     hook->winfo = winfo;
 
-    hook->base_origin = self->absmin;
+    hook->base_origin = self->s.origin;
     hook->spin_origin = self->s.origin;
 
     hook->spin_count = 0;
     hook->spin_time = 0;
     hook->sin_count_add = WISP_SINE_INC + rnd () * 1.0;
     hook->sin_count = rnd () * 3.14159265359 * 2.0;
-	hook->movePitch = 1.0f;
 
     self->s.effects |= EF_WISP_TRAIL;
     self->s.renderfx = SPR_ALPHACHANNEL;
@@ -652,14 +543,12 @@ void ammo_wisp (userEntity_t *self)
     self->s.mins.Set(-8, -8, -8);
     self->s.maxs.Set(8, 8, 8);
 
-    self->max_speed = 50.0;
-	self->velocity.Set(0,0,self->max_speed);
+    self->max_speed = 160.0;
 
     gstate->LinkEntity (self);
 
     self->think = ammoWispThink;
-    self->nextthink = gstate->time + 0.1;*/
-	ammoWispSetup(self);
+    self->nextthink = gstate->time + 0.1;
 }
 
 

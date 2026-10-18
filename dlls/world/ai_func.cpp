@@ -2450,7 +2450,7 @@ int AI_FindPathToPoint( userEntity_t *self, CVector &destPoint )
 	// see if the first node is needed
 	AI_RemoveFirstPathIfPossible( self, pNodeHeader, destPoint );
 	
-	return (int)hook->pPathList->pPath;
+	return hook->pPathList->pPath ? TRUE : FALSE;
 }
 
 // ----------------------------------------------------------------------------
@@ -2529,13 +2529,11 @@ int AI_FindPathToEntity( userEntity_t *self, userEntity_t *destEntity, int bTest
 	}
 	if(!pGoalHook)
 		return FALSE;
-
 	NODELIST_PTR pGoalNodeList = NULL;
 	if((destEntity->s.flags & (FL_CLIENT|FL_BOT|FL_MONSTER)) && AI_IsAlive(destEntity))
 	{
 		pGoalNodeList = pGoalHook->pNodeList;
 	}
-
 	if( pGoalNodeList && AI_IsSidekick(hook) && ((nNodeType == 2 && nGoalNodeType == 1) || (nNodeType == 1 && nGoalNodeType == 2)))
 	{
 		
@@ -2575,7 +2573,7 @@ int AI_FindPathToEntity( userEntity_t *self, userEntity_t *destEntity, int bTest
 	// see if the first node is needed
 	AI_RemoveFirstPathIfPossible( self, pNodeHeader, destEntity->s.origin );
 
-	return (int)hook->pPathList->pPath;
+	return hook->pPathList->pPath ? TRUE : FALSE;
 }
 
 // ----------------------------------------------------------------------------
@@ -2666,7 +2664,7 @@ int AI_FindPathToNode( userEntity_t *self, MAPNODE_PTR pDestNode )
 	// see if the first node is needed
 	AI_RemoveFirstPathIfPossible( self, pNodeHeader, pDestNode->position );
 
-	return (int)hook->pPathList->pPath;
+	return hook->pPathList->pPath ? TRUE : FALSE;
 }
 
 
@@ -5399,12 +5397,16 @@ void AI_JumpUp( userEntity_t *self )
 {
 	_ASSERTE( self );
 	playerHook_t *hook = AI_GetPlayerHook( self );
+	GOALSTACK_PTR pGoalStack = AI_GetCurrentGoalStack( hook );
+	TASK_PTR pCurrentTask = pGoalStack ? GOALSTACK_GetCurrentTask( pGoalStack ) : NULL;
+	AIDATA_PTR pAIData = pCurrentTask ? TASK_GetData( pCurrentTask ) : NULL;
 	
 	if(self->delay < gstate->time)
 	{
 		
 		if ( self->groundEntity)
 		{
+			CVector jumpTarget = pAIData ? pAIData->destPoint : self->s.origin;
 			if(AI_IsSidekick(hook))
 			{
 				if(!Check_Que(self,LANDING,5.0f))
@@ -5414,6 +5416,8 @@ void AI_JumpUp( userEntity_t *self )
 			}
 			AI_UpdateCurrentNode( self );
 			AI_RemoveCurrentTask( self );
+			if (AI_IsSidekick(hook) && pAIData)
+				SIDEKICK_SmartJumpFinished(self, jumpTarget);
 			return;
 		}
 
@@ -5438,8 +5442,25 @@ void AI_StartJumpUp( userEntity_t *self )
 
 	CVector Dir;
 
+	if (AI_IsSidekick(hook) && !self->groundEntity)
+	{
+		AI_RemoveCurrentTask(self);
+		return;
+	}
+
 	GOALSTACK_PTR pGoalStack = AI_GetCurrentGoalStack( hook );
 	_ASSERTE( GOALSTACK_GetCurrentTaskType( pGoalStack ) == TASKTYPE_JUMPUP );
+	TASK_PTR pCurrentTask = GOALSTACK_GetCurrentTask( pGoalStack );
+	AIDATA_PTR pAIData = pCurrentTask ? TASK_GetData( pCurrentTask ) : NULL;
+	if (AI_IsSidekick(hook) && pAIData && SIDEKICK_SmartJumpShouldAvoid(self, pAIData->destPoint))
+	{
+		CVector jumpTarget = pAIData->destPoint;
+		AI_RemoveCurrentTask(self);
+		SIDEKICK_SmartRecoverMovement(self, jumpTarget);
+		return;
+	}
+	if (AI_IsSidekick(hook) && pAIData)
+		SIDEKICK_SmartJumpStarted(self, pAIData->destPoint);
 
 	char szAnimation[16];
 	AI_SelectJumpingAnimation( self, szAnimation );
@@ -6475,6 +6496,12 @@ int AI_HandleGap( userEntity_t *self, CVector &destPoint, float fSpeed, float fD
 
 	if ( AI_IsGap( self, destPoint, fDistance ) )
 	{
+		playerHook_t *hook = AI_GetPlayerHook( self );
+		if ( hook && AI_IsSidekick( hook ) )
+		{
+			SIDEKICK_SmartRecoverMovement( self, destPoint );
+			return TRUE;
+		}
 //		GOALSTACK_PTR pGoalStack = AI_GetCurrentGoalStack( hook );
 //		if ( GOALSTACK_GetCurrentTaskType( pGoalStack ) != TASKTYPE_GOINGAROUNDOBSTACLE )
 //		{
@@ -7242,6 +7269,11 @@ int AI_HandleGettingStuck( userEntity_t *self, CVector &destPoint, float fSpeed 
 			else
 			if ( nTaskType != TASKTYPE_GOINGAROUNDOBSTACLE )
 			{
+				if (AI_IsSidekick(hook) && SIDEKICK_SmartRecoverMovement(self, destPoint))
+				{
+					hook->nWaitCounter = 0;
+					return TRUE;
+				}
 				AI_FindPathToPoint( self, destPoint );
 				if ( hook->pPathList->pPath )
 				{
@@ -10062,38 +10094,92 @@ void AI_ClearStateCrouching( playerHook_t *hook )
 __inline static int AI_MoveWhileFollowing( userEntity_t *self, userEntity_t *pTarget )
 {
 	_ASSERTE( self );
-    _ASSERTE( pTarget );
+	_ASSERTE( pTarget );
+
 	playerHook_t *hook = AI_GetPlayerHook( self );
+	CVector followPoint;
+	float fXYDistance;
+	float fZDistance;
+	float fFollowPointDistance;
+	int followPointType = 0;
+	qboolean isSidekick = FALSE;
 
-	float fXYDistance = VectorXYDistance( self->s.origin, pTarget->s.origin );
-	float fZDistance = VectorZDistance( self->s.origin, pTarget->s.origin );
+	if (!hook)
+		return FALSE;
 
-	// NSS[2/23/00]:If we have an enemy (which will reset our path) and we are trying to follow the player
-	// then let's get a more valid path to the player.
-	if(AI_IsSidekick(hook))
+	isSidekick = AI_IsSidekick(hook);
+	fXYDistance = VectorXYDistance( self->s.origin, pTarget->s.origin );
+	fZDistance = VectorZDistance( self->s.origin, pTarget->s.origin );
+	followPoint = pTarget->s.origin;
+
+	if (isSidekick)
+		followPointType = SIDEKICK_GetTightFollowPoint(self, pTarget, followPoint);
+
+	fFollowPointDistance = VectorXYDistance(self->s.origin, followPoint);
+
+	/*
+	 * A validated downward traversal is handled as continuous movement.
+	 * The target point is deliberately just beyond the edge so normal
+	 * physics produces the same drop as the player.
+	 */
+	if (isSidekick && followPointType == 2)
 	{
-		if ( !AI_FindPathToEntity( self, pTarget ) && AI_CanPath( hook ) )
+		AI_MoveTowardPoint(self, followPoint, FALSE);
+		hook->nMoveCounter = 0;
+		return TRUE;
+	}
 
+	if (isSidekick &&
+		followPointType == 1 &&
+		AI_IsLineOfSight(self, pTarget) &&
+		AI_IsOkToMoveStraight(self, followPoint, fFollowPointDistance,
+			VectorZDistance(self->s.origin, followPoint)))
+	{
+		AI_MoveTowardPoint(self, followPoint, FALSE);
+		hook->nMoveCounter = 0;
+		return TRUE;
+	}
+
+	if (isSidekick)
+	{
+		if (!AI_FindPathToEntity( self, pTarget ) && AI_CanPath( hook ))
 		{
-			// do not try another path for 2 seconds
-			AI_SetNextPathTime( hook, 2.0f );
-            if ( !AI_IsOkToMoveStraight( self, pTarget->s.origin, fXYDistance, fZDistance ) )
-            {
-                GOALSTACK_PTR pGoalStack = AI_GetCurrentGoalStack( hook );
-                GOAL_PTR pCurrentGoal = GOALSTACK_GetCurrentGoal( pGoalStack );
-                GOAL_ClearTasks( pCurrentGoal );
-                AI_AddNewTaskAtFront( self, TASKTYPE_IDLE );
-            }
+			AI_SetNextPathTime( hook, 0.25f );
 
-			return FALSE;
+			if (followPointType == 1)
+			{
+				if (AI_FindPathToPoint(self, followPoint))
+				{
+					AI_Move(self);
+					hook->nMoveCounter++;
+					return TRUE;
+				}
+			}
+
+			if (!AI_IsOkToMoveStraight( self, followPoint,
+				fFollowPointDistance,
+				VectorZDistance(self->s.origin, followPoint) ))
+			{
+				SIDEKICK_SmartRecoverMovement( self, pTarget->s.origin );
+				return FALSE;
+			}
+
+			AI_MoveTowardPoint(self, followPoint, FALSE);
+			hook->nMoveCounter = 0;
+			return TRUE;
 		}
 	}
-	
+
 	if ( ( hook->pPathList != NULL ) && hook->pPathList->nPathLength == 0 &&
-         AI_IsLineOfSight(self, pTarget) && 
-		 AI_IsOkToMoveStraight( self, pTarget->s.origin, fXYDistance, fZDistance ) )
+		AI_IsLineOfSight(self, pTarget) &&
+		AI_IsOkToMoveStraight(self, followPoint,
+			followPointType == 1 ? fFollowPointDistance : fXYDistance,
+			followPointType == 1 ?
+				VectorZDistance(self->s.origin, followPoint) : fZDistance) )
 	{
-		AI_MoveTowardPoint( self, pTarget->s.origin, FALSE );
+		AI_MoveTowardPoint( self,
+			followPointType == 1 ? followPoint : pTarget->s.origin,
+			FALSE );
 		hook->nMoveCounter = 0;
 	}
 	else
@@ -10104,28 +10190,50 @@ __inline static int AI_MoveWhileFollowing( userEntity_t *self, userEntity_t *pTa
 			{
 				if ( !AI_FindPathToEntity( self, pTarget ) && AI_CanPath( hook ) )
 				{
-					// do not try another path for 2 seconds
-					AI_SetNextPathTime( hook, 2.0f );
-                    if ( !AI_IsOkToMoveStraight( self, pTarget->s.origin, fXYDistance, fZDistance ) )
-                    {
-                    	GOALSTACK_PTR pGoalStack = AI_GetCurrentGoalStack( hook );
-                        GOAL_PTR pCurrentGoal = GOALSTACK_GetCurrentGoal( pGoalStack );
-                        GOAL_ClearTasks( pCurrentGoal );
-                        AI_AddNewTaskAtFront( self, TASKTYPE_IDLE );
-                    }
+					AI_SetNextPathTime( hook, 0.25f );
+
+					if (isSidekick && followPointType == 1 &&
+						AI_FindPathToPoint(self, followPoint))
+					{
+						AI_Move(self);
+						hook->nMoveCounter++;
+						return TRUE;
+					}
+
+					if (isSidekick &&
+						!AI_IsOkToMoveStraight(self, followPoint,
+							fFollowPointDistance,
+							VectorZDistance(self->s.origin, followPoint)))
+					{
+						SIDEKICK_SmartRecoverMovement(self, pTarget->s.origin);
+						return FALSE;
+					}
+
+					GOALSTACK_PTR pGoalStack = AI_GetCurrentGoalStack( hook );
+					GOAL_PTR pCurrentGoal = GOALSTACK_GetCurrentGoal( pGoalStack );
+
+					if (isSidekick)
+					{
+						SIDEKICK_SmartRecoverMovement(self, pTarget->s.origin);
+					}
+					else
+					{
+						GOAL_ClearTasks( pCurrentGoal );
+						AI_AddNewTaskAtFront( self, TASKTYPE_IDLE );
+					}
 
 					return FALSE;
 				}
 			}
 
 			AI_Move( self );
-
 			hook->nMoveCounter++;
 		}
 	}
 
-    return TRUE;
+	return TRUE;
 }
+
 
 // ----------------------------------------------------------------------------
 //
@@ -10162,7 +10270,9 @@ void AI_StartFollowWalking( userEntity_t *self )
 		AI_RemoveCurrentTask( self, TASKTYPE_FOLLOWRUNNING, pOwner );
 		return;
 	}
-	if ( fXYDistance < AI_GetWalkFollowDistance(hook) && fZDistance < MAX_JUMP_HEIGHT )
+	if ( fXYDistance < AI_GetWalkFollowDistance(hook) &&
+		fZDistance < MAX_JUMP_HEIGHT &&
+		(!AI_IsSidekick(hook) || pOwner->velocity.Length() < 10.0f) )
 	{
 		//	go back to TASKTYPE_IDLE
 		AI_RemoveCurrentTask(self);
@@ -10171,20 +10281,28 @@ void AI_StartFollowWalking( userEntity_t *self )
 		return;
 	}
 	CVector Origin;
+	int followPointType = 0;
 	Origin = pOwner->s.origin;
 
-	if ( !AI_FindPathToEntity( self, pOwner, FALSE ))
+	if (AI_IsSidekick(hook))
+		followPointType = SIDEKICK_GetTightFollowPoint(self, pOwner, Origin);
+
+	if (followPointType != 2 && !AI_FindPathToEntity( self, pOwner, FALSE ))
 	{
+		if (SIDEKICK_SmartRecoverMovement(self, pOwner->s.origin))
+			return;
 		SIDEKICK_FindClearSpotFrom( self, pOwner->s.origin , Origin );
 	}
 
 
-    if( !AI_IsOkToMoveStraight( self,Origin, fXYDistance, fZDistance ) && !AI_FindPathToPoint( self,Origin) && !AI_FindPathToEntity( self, pOwner, FALSE ))
+    if (followPointType != 2 &&
+		!AI_IsOkToMoveStraight( self, Origin,
+			VectorXYDistance(self->s.origin, Origin),
+			VectorZDistance(self->s.origin, Origin) ) &&
+		!AI_FindPathToPoint( self, Origin ) &&
+		!AI_FindPathToEntity( self, pOwner, FALSE ))
     {
-        GOAL_PTR pCurrentGoal = GOALSTACK_GetCurrentGoal( pGoalStack );
-        GOAL_ClearTasks( pCurrentGoal );
-        AI_AddNewTask( self, TASKTYPE_IDLE );
-        SIDEKICK_ResetAmbientTimes( self );
+        SIDEKICK_SmartRecoverMovement(self, pOwner->s.origin);
         return;
     }
 
@@ -10259,7 +10377,7 @@ void AI_FollowWalking( userEntity_t *self )
 		AI_RemoveCurrentGoal( self );
 		return;
 	}
-	if ( !pOwner->groundEntity && pOwner->waterlevel < 3 )
+	if ( !pOwner->groundEntity && pOwner->waterlevel < 3 && !AI_IsSidekick(hook) )
 	{
 		CVector Next;
 		Next	= pOwner->s.origin;
@@ -10283,7 +10401,8 @@ void AI_FollowWalking( userEntity_t *self )
 
 	if ( fXYDistance < AI_GetWalkFollowDistance(hook) && 
          fZDistance < MAX_JUMP_HEIGHT && 
-         AI_IsVisible( self, pOwner ) )
+         AI_IsVisible( self, pOwner ) &&
+         (!AI_IsSidekick(hook) || pOwner->velocity.Length() < 10.0f) )
 	{
 		//	go back to TASKTYPE_IDLE
 		AI_RemoveCurrentTask(self);
@@ -10329,6 +10448,9 @@ void AI_StartFollowRunning( userEntity_t *self )
 
 	float fXYDistance = VectorXYDistance( self->s.origin, pOwner->s.origin );
 	float fZDistance = VectorZDistance( self->s.origin, pOwner->s.origin );
+	CVector followPoint = pOwner->s.origin;
+	int followPointType = AI_IsSidekick(hook) ?
+		SIDEKICK_GetTightFollowPoint(self, pOwner, followPoint) : 0;
 	if ( fXYDistance < AI_GetRunFollowDistance(hook) && fZDistance < MAX_JUMP_HEIGHT )
 	{
 		//	close enough to start walking towards owner
@@ -10344,15 +10466,19 @@ void AI_StartFollowRunning( userEntity_t *self )
 		return;
 	}
 
-	if ( !AI_FindPathToEntity( self, pOwner, FALSE ) &&
-         !AI_IsOkToMoveStraight( self, pOwner->s.origin, fXYDistance, fZDistance ) )
+	if ( followPointType != 2 &&
+		!AI_FindPathToEntity( self, pOwner, FALSE ) &&
+		!AI_IsOkToMoveStraight( self, followPoint,
+			VectorXYDistance(self->s.origin, followPoint),
+			VectorZDistance(self->s.origin, followPoint) ) )
 	{
         GOAL_PTR pCurrentGoal = GOALSTACK_GetCurrentGoal( pGoalStack );
         GOAL_ClearTasks( pCurrentGoal );
         if(AI_IsSidekick(hook))
 		{
-			// NSS[2/25/00]:Chill out for 3 seconds.
-			AI_AddNewTaskAtFront( self, TASKTYPE_SIDEKICK_STOP, 1.0f );
+			if (SIDEKICK_SmartRecoverMovement(self, pOwner->s.origin))
+				return;
+			AI_AddNewTaskAtFront( self, TASKTYPE_FOLLOWWALKING, pOwner );
 			return;
 		}
 		else
@@ -10445,7 +10571,7 @@ void AI_FollowRunning( userEntity_t *self )
 		AI_RemoveCurrentGoal( self );
 		return;
 	}
-	if ( !pOwner->groundEntity && pOwner->waterlevel < 3 )
+	if ( !pOwner->groundEntity && pOwner->waterlevel < 3 && !AI_IsSidekick(hook) )
 	{
 		CVector Next;
 		Next	= pOwner->s.origin;
@@ -10664,7 +10790,7 @@ void AI_FollowSidekickWalking( userEntity_t *self )
 		AI_RemoveCurrentGoal( self );
 		return;
 	}
-	if ( !self->groundEntity && pSidekick->waterlevel < 3 )
+	if ( !self->groundEntity && pSidekick->waterlevel < 3 && !AI_IsSidekick(hook) )
 	{
 		return;
 	}
@@ -10935,7 +11061,7 @@ void AI_FollowSidekickRunning( userEntity_t *self )
 		AI_RemoveCurrentGoal( self );
 		return;
 	}
-	if ( !pSidekick->groundEntity && pSidekick->waterlevel < 3 )
+	if ( !pSidekick->groundEntity && pSidekick->waterlevel < 3 && !AI_IsSidekick(hook) )
 	{
 		return;
 	}
@@ -11429,7 +11555,10 @@ void AI_MoveToLocation( userEntity_t *self )
 				{
 					if ( !AI_FindPathToPoint( self, pAIData->destPoint ) )
 					{
-						AI_RestartCurrentGoal( self );
+						if (AI_IsSidekick(hook))
+							SIDEKICK_SmartRecoverMovement(self, pAIData->destPoint);
+						else
+							AI_RestartCurrentGoal( self );
 					}
 				}					
 			}
@@ -11437,15 +11566,12 @@ void AI_MoveToLocation( userEntity_t *self )
 			{
 				if ( !AI_FindPathToPoint( self, pAIData->destPoint ) )
 				{
-					// NSS[2/21/00]:If our goal is to move to a point that has no path to it then let's not.
-					if(hook->pGoals && hook->pGoals->pTopOfStack && hook->pGoals->pTopOfStack->nGoalType == GOALTYPE_MOVETOLOCATION)
-					{
+					if (AI_IsSidekick(hook))
+						SIDEKICK_SmartRecoverMovement(self, pAIData->destPoint);
+					else if(hook->pGoals && hook->pGoals->pTopOfStack && hook->pGoals->pTopOfStack->nGoalType == GOALTYPE_MOVETOLOCATION)
 						AI_RemoveCurrentGoal( self );
-					}
 					else
-					{
 						AI_RestartCurrentGoal( self );
-					}
 				}
 			}
 		}
@@ -15192,7 +15318,7 @@ int AI_AddScriptActionGoal( userEntity_t *self, char *szScriptAction,
 			if ( strlen( pScriptAction->GetUniqueID() ) > 0 )
 			{
 				pEntity = UNIQUEID_Lookup( pScriptAction->GetUniqueID() );
-				if ( !AI_IsAlive( pEntity ) )
+				if ( !AI_IsAlive( pEntity ) || (_stricmp(pEntity->className,"freed") == 0) )
 				{
 					gstate->Con_Dprintf( "Uniqueid: %s not found\n", pScriptAction->GetUniqueID() );
 					return FALSE;
@@ -17301,6 +17427,7 @@ void AI_JumpTowardPoint( userEntity_t *self )
 	float fDistance = VectorDistance( self->s.origin, pAIData->destPoint );
 	if ( self->groundEntity )
 	{
+		CVector jumpTarget = pAIData->destPoint;
 		if(AI_IsSidekick(hook))
 		{
 			if(!Check_Que(self,LANDING,5.0f))
@@ -17311,6 +17438,8 @@ void AI_JumpTowardPoint( userEntity_t *self )
 		AI_UpdateCurrentNode( self );
 
 		AI_RemoveCurrentTask( self );
+		if (AI_IsSidekick(hook))
+			SIDEKICK_SmartJumpFinished(self, jumpTarget);
 		return;
 	}
 	else
@@ -17347,6 +17476,23 @@ void AI_StartJumpTowardPoint( userEntity_t *self )
 	{
 		return;
 	}
+
+	/* Sidekicks never begin a new jump while already airborne. */
+	if (AI_IsSidekick(hook) && !self->groundEntity)
+	{
+		AI_RemoveCurrentTask(self);
+		return;
+	}
+	
+	if (AI_IsSidekick(hook) && SIDEKICK_SmartJumpShouldAvoid(self, pAIData->destPoint))
+	{
+		CVector jumpTarget = pAIData->destPoint;
+		AI_RemoveCurrentTask(self);
+		SIDEKICK_SmartRecoverMovement(self, jumpTarget);
+		return;
+	}
+	if (AI_IsSidekick(hook))
+		SIDEKICK_SmartJumpStarted(self, pAIData->destPoint);
 	
 	if ( self->groundEntity )
 	{
@@ -17407,6 +17553,23 @@ void AI_StartJumpTowardPoint( userEntity_t *self )
 	if ( pAIData->destPoint.z > self->s.origin.z )
 	{
 		fUpwardVelocity += fZDistance;
+	}
+
+	if (AI_IsSidekick(hook))
+	{
+		/*
+		 * Sidekick jumps are traversal moves, not ballistic launches.
+		 * Limit both components so a long or malformed target cannot send
+		 * the sidekick flying across the map.
+		 */
+		float maxForwardVelocity = hook->forward_vel * 1.10f;
+		float maxUpwardVelocity = hook->upward_vel * 1.10f;
+
+		if (maxForwardVelocity > 0.0f && fForwardVelocity > maxForwardVelocity)
+			fForwardVelocity = maxForwardVelocity;
+
+		if (maxUpwardVelocity > 0.0f && fUpwardVelocity > maxUpwardVelocity)
+			fUpwardVelocity = maxUpwardVelocity;
 	}
 
 	//fUpwardVelocity = fUpwardVelocity * (fDistance/(hook->run_speed*0.75));
@@ -18572,10 +18735,24 @@ void AI_StartPlaySoundToEnd( userEntity_t *self )
 
 	AIDATA_PTR pAIData = TASK_GetData(pCurrentTask);
 
-    // play sound
+    // Play sound. Cinematic sound filenames are stored relative to
+    // data/sounds, while StartMP3 expects a path relative to data.
     if ( strstr( pAIData->pString, "mp3" ) )
     {
-        gstate->StartMP3( pAIData->pString, 2, 1.0, 1 );
+        char mp3name[MAX_QPATH];
+
+        if ( !strnicmp( pAIData->pString, "data/", 5 ) ||
+             !strnicmp( pAIData->pString, "sounds/", 7 ) ||
+             !strnicmp( pAIData->pString, "music/", 6 ) )
+        {
+            Com_sprintf( mp3name, sizeof( mp3name ), "%s", pAIData->pString );
+        }
+        else
+        {
+            Com_sprintf( mp3name, sizeof( mp3name ), "sounds/%s", pAIData->pString );
+        }
+
+        gstate->StartMP3( mp3name, 2, 1.0, 1, TRUE, NULL );
     }
     else
     if ( strstr( pAIData->pString, "wav" ) )
@@ -18693,7 +18870,7 @@ void AI_StartPlayAnimationAndSound( userEntity_t *self )
     {
         if ( strstr( pAIData->pString, "mp3" ) )
         {
-            gstate->StartMP3( pAIData->pString, 2, 1.0, 1 );
+            gstate->StartMP3( pAIData->pString, 2, 1.0, 1, TRUE, NULL );
         }
         else
         if ( strstr( pAIData->pString, "wav" ) )
@@ -18784,7 +18961,7 @@ void AI_StartPlaySound( userEntity_t *self )
     {
         if ( strstr( pAIData->pString, "mp3" ) )
         {
-            gstate->StartMP3( pAIData->pString, 2, 1.0, 1 );
+            gstate->StartMP3( pAIData->pString, 2, 1.0, 1, TRUE, NULL );
         }
         else
         if ( strstr( pAIData->pString, "wav" ) )
@@ -19053,7 +19230,7 @@ void AI_StartActionSetState( userEntity_t *self )
 	_ASSERTE( strlen( pParameter0->GetString() ) > 0 );
 	
 	userEntity_t *pEntity = UNIQUEID_Lookup( pParameter0->GetString() );
-	if ( !AI_IsAlive( pEntity ) || (_stricmp(pEntity->className,"freed") == 0) )
+	if ( !AI_IsAlive( pEntity ) )
 	{
 		gstate->Con_Dprintf( "Uniqueid: %s not found\n", pParameter0->GetString() );
 		AI_RemoveCurrentTask( self );
@@ -19502,7 +19679,7 @@ void AI_StartActionPlaySound(userEntity_t *self)
 
     if ( strstr( pAIData->pString, "mp3" ) )
     {
-        gstate->StartMP3( pParameter0->GetString(), 2, 1.0, 1 );
+        gstate->StartMP3( pParameter0->GetString(), 2, 1.0, 1, TRUE, NULL );
     }
     else
     if ( strstr( pAIData->pString, "wav" ) )
@@ -24267,8 +24444,10 @@ int AI_HandleJumping( userEntity_t *self, NODEHEADER_PTR pNodeHeader,
 			
 			if ( fDistance < self->s.maxs.x)
 			{
-				// make this entity jump forward
-				AI_AddNewTaskAtFront( self, TASKTYPE_JUMPTOWARDPOINT, pNextNode->position );
+				if (AI_IsSidekick(hook) && SIDEKICK_SmartJumpShouldAvoid(self, pNextNode->position))
+					SIDEKICK_SmartRecoverMovement(self, pNextNode->position);
+				else
+					AI_AddNewTaskAtFront( self, TASKTYPE_JUMPTOWARDPOINT, pNextNode->position );
 				bRetValue = TRUE;
 			}
 			else
@@ -24285,7 +24464,10 @@ int AI_HandleJumping( userEntity_t *self, NODEHEADER_PTR pNodeHeader,
 		
 		if( (pNextNode->position.z > (pCurrentNode->position.z + 16.0f)) && (self->s.origin.z < pNextNode->position.z))
 		{
-			AI_AddNewTaskAtFront( self, TASKTYPE_JUMPUP, pNextNode->position );
+			if (AI_IsSidekick(hook) && SIDEKICK_SmartJumpShouldAvoid(self, pNextNode->position))
+				SIDEKICK_SmartRecoverMovement(self, pNextNode->position);
+			else
+				AI_AddNewTaskAtFront( self, TASKTYPE_JUMPUP, pNextNode->position );
 			bRetValue = TRUE;
 		}
 	}

@@ -32,23 +32,22 @@ BUILD_DIR = $(BASE_BUILD)
 
 CXX			= $(STD_CXX)
 CXXFLAGS	= $(STD_CXXFLAGS) -w -I$(BASE_DIR) -I$(DK__DIR) -I$(NULL_DIR) \
-			-I$(QCOMMON_DIR) -I$(SERVER_DIR) -I$(USER_DIR)
+			-I$(QCOMMON_DIR) -I$(SERVER_DIR) -I$(USER_DIR) \
+			-I$(BASE_DIR)/client
 LDFLAGS		= $(STD_LDFLAGS) $(RPATH)./$(DLLS_SUBDIR)
-LIBS		= $(STD_LIBS) $(IONCOMMON)
+LIBS		= $(STD_LIBS) -lSDL3_net $(IONCOMMON)
 
 #-----------------------------------------------------------------------------
 # Files
 #-----------------------------------------------------------------------------
 
-UNAME_S := $(shell uname -s)
-
-ifeq ($(UNAME_S),Linux)
+ifeq ($(OS),Linux)
 OS_OBJS =				\
 	q_shlinux.o			\
 	sys_linux.o
 endif
 
-ifeq ($(UNAME_S),Solaris)
+ifeq ($(OS),solaris)
 OS_OBJS =				\
 	q_shsolaris.o			\
 	sys_solaris.o
@@ -65,12 +64,15 @@ OBJS =					\
 	common.o			\
 	cvar.o				\
 	dk_screen_coord.o		\
-	files.o			\
+	files.o				\
+	glob.o				\
 	key_null.o			\
 	md4.o				\
 	memmgr.o			\
 	misc_null.o			\
-	pmove.o			\
+	net_sdl3.o			\
+	net_chan.o			\
+	pmove.o				\
 	sv_ccmds.o			\
 	sv_ents.o			\
 	sv_game.o			\
@@ -79,8 +81,6 @@ OBJS =					\
 	sv_send.o			\
 	sv_user.o			\
 	sv_world.o			\
-	net_chan.o			\
-	net_bsd.o			\
 	$(OS_OBJS)
 
 OUT = $(DKDED)

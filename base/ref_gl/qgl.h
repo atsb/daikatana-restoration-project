@@ -5,10 +5,7 @@
 #ifndef __QGL_H__
 #define __QGL_H__
 
-#ifdef _WIN32
-#  include <windows.h>
-#endif
-
+#include <SDL3/SDL.h>
 #include <gl/gl.h>
 
 qboolean QGL_Init( const char *dllname );
@@ -369,43 +366,6 @@ extern	void ( APIENTRY * qglUnlockArraysEXT) (void);
 extern	void ( APIENTRY * qglMTexCoord2fSGIS)( GLenum, GLfloat, GLfloat );
 extern	void ( APIENTRY * qglSelectTextureSGIS)( GLenum );
 
-#ifdef _WIN32
-
-extern  int   ( WINAPI * qwglChoosePixelFormat )(HDC, CONST PIXELFORMATDESCRIPTOR *);
-extern  int   ( WINAPI * qwglDescribePixelFormat) (HDC, int, UINT, LPPIXELFORMATDESCRIPTOR);
-extern  int   ( WINAPI * qwglGetPixelFormat)(HDC);
-extern  BOOL  ( WINAPI * qwglSetPixelFormat)(HDC, int, CONST PIXELFORMATDESCRIPTOR *);
-extern  BOOL  ( WINAPI * qwglSwapBuffers)(HDC);
-
-extern BOOL  ( WINAPI * qwglCopyContext)(HGLRC, HGLRC, UINT);
-extern HGLRC ( WINAPI * qwglCreateContext)(HDC);
-extern HGLRC ( WINAPI * qwglCreateLayerContext)(HDC, int);
-extern BOOL  ( WINAPI * qwglDeleteContext)(HGLRC);
-extern HGLRC ( WINAPI * qwglGetCurrentContext)(VOID);
-extern HDC   ( WINAPI * qwglGetCurrentDC)(VOID);
-extern PROC  ( WINAPI * qwglGetProcAddress)(LPCSTR);
-extern BOOL  ( WINAPI * qwglMakeCurrent)(HDC, HGLRC);
-extern BOOL  ( WINAPI * qwglShareLists)(HGLRC, HGLRC);
-extern BOOL  ( WINAPI * qwglUseFontBitmaps)(HDC, DWORD, DWORD, DWORD);
-
-extern BOOL  ( WINAPI * qwglUseFontOutlines)(HDC, DWORD, DWORD, DWORD, FLOAT,
-                                           FLOAT, int, LPGLYPHMETRICSFLOAT);
-
-extern BOOL ( WINAPI * qwglDescribeLayerPlane)(HDC, int, int, UINT,
-                                            LPLAYERPLANEDESCRIPTOR);
-extern int  ( WINAPI * qwglSetLayerPaletteEntries)(HDC, int, int, int,
-                                                CONST COLORREF *);
-extern int  ( WINAPI * qwglGetLayerPaletteEntries)(HDC, int, int, int,
-                                                COLORREF *);
-extern BOOL ( WINAPI * qwglRealizeLayerPalette)(HDC, int, BOOL);
-extern BOOL ( WINAPI * qwglSwapLayerBuffers)(HDC, UINT);
-
-extern BOOL ( WINAPI * qwglSwapIntervalEXT)( int interval );
-
-extern BOOL ( WINAPI * qwglGetDeviceGammaRampEXT ) ( unsigned char *pRed, unsigned char *pGreen, unsigned char *pBlue );
-extern BOOL ( WINAPI * qwglSetDeviceGammaRampEXT ) ( const unsigned char *pRed, const unsigned char *pGreen, const unsigned char *pBlue );
-
-#endif
 
 #ifdef __cplusplus
 }
@@ -413,6 +373,56 @@ extern BOOL ( WINAPI * qwglSetDeviceGammaRampEXT ) ( const unsigned char *pRed, 
 /*
 ** extension constants
 */
+#ifndef GL_TEXTURE_MAX_ANISOTROPY_EXT
+#define GL_TEXTURE_MAX_ANISOTROPY_EXT		0x84FE
+#endif
+#ifndef GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT
+#define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT	0x84FF
+#endif
+
+#ifndef GL_COMBINE
+#define GL_COMBINE					0x8570
+#endif
+#ifndef GL_COMBINE_RGB
+#define GL_COMBINE_RGB				0x8571
+#endif
+#ifndef GL_COMBINE_ALPHA
+#define GL_COMBINE_ALPHA				0x8572
+#endif
+#ifndef GL_RGB_SCALE
+#define GL_RGB_SCALE					0x8573
+#endif
+#ifndef GL_SOURCE0_RGB
+#define GL_SOURCE0_RGB				0x8580
+#endif
+#ifndef GL_SOURCE1_RGB
+#define GL_SOURCE1_RGB				0x8581
+#endif
+#ifndef GL_SOURCE0_ALPHA
+#define GL_SOURCE0_ALPHA				0x8588
+#endif
+#ifndef GL_SOURCE1_ALPHA
+#define GL_SOURCE1_ALPHA				0x8589
+#endif
+#ifndef GL_OPERAND0_RGB
+#define GL_OPERAND0_RGB				0x8590
+#endif
+#ifndef GL_OPERAND1_RGB
+#define GL_OPERAND1_RGB				0x8591
+#endif
+#ifndef GL_OPERAND0_ALPHA
+#define GL_OPERAND0_ALPHA				0x8598
+#endif
+#ifndef GL_OPERAND1_ALPHA
+#define GL_OPERAND1_ALPHA				0x8599
+#endif
+#ifndef GL_PREVIOUS
+#define GL_PREVIOUS					0x8578
+#endif
+#ifndef GL_PRIMARY_COLOR
+#define GL_PRIMARY_COLOR				0x8577
+#endif
+
 #define GL_POINT_SIZE_MIN_EXT				0x8126
 #define GL_POINT_SIZE_MAX_EXT				0x8127
 #define GL_POINT_FADE_THRESHOLD_SIZE_EXT	0x8128

@@ -335,13 +335,12 @@ void CAMBOT_FoundPlayer( userEntity_t *self, userEntity_t *pPlayer )
 
 		// a new enemy found !!!
 		AI_SetEnemy( self, pPlayer );
-		AI_EnemyAlert( self, pPlayer );
 		self->enemy = pPlayer;
 		hook->owner = pPlayer;
 
 		// sound alarm and place a spot light on enemy and alert all AI's within a 1024 radius
 		CAMBOT_SoundAlarm( self );
-		//CAMBOT_AlertNearbyMonsters( self, pPlayer );
+		CAMBOT_AlertNearbyMonsters( self, pPlayer );
 		AI_AddNewGoal( self, GOALTYPE_CAMBOT_FOLLOWPLAYER, pPlayer );
 	}
 }

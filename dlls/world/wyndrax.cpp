@@ -55,9 +55,7 @@ void WYNDRAX_Start_Find_WispMaster(userEntity_t *self)
 	// NSS[7/14/00]:This is a cheeese hack and if you really
 	// want to know why it is here then come talk to me.
 	if(!HasWyndraxCharged)
-	{
-		self->takedamage	= DAMAGE_NO;
-	}
+		self->takedamage = DAMAGE_NO;
 
 	hook->ai_flags |= AI_IGNORE_PLAYER;
 	AI_SetOkToAttackFlag( hook, FALSE );
@@ -169,10 +167,9 @@ void WYNDRAX_Start_Collect_Wisps(userEntity_t *self)
 	// want to know why it is here then come talk to me.
 	if(!HasWyndraxCharged && self->takedamage == DAMAGE_NO)
 	{
-		self->takedamage	= DAMAGE_YES;
-		HasWyndraxCharged   = 1;
+		self->takedamage = DAMAGE_YES;
+		HasWyndraxCharged = 1;
 	}
-
 
 }
 
@@ -494,28 +491,18 @@ void wyndrax_begin_attack( userEntity_t *self )
 }
 
 // ----------------------------------------------------------------------------
-// NSS[7/14/00]:CHEESE
-// Name:		wyndrax_start_pain
-// Description:FUCK FUCK FUCK 
-// Input:userEntity_t *self, userEntity_t *attacker, float kick, int damage 
-// Output:NA
-// Note:
 //
-// ----------------------------------------------------------------------------
-void wyndrax_start_pain(userEntity_t *self, userEntity_t *attacker, float kick, int damage )
+void wyndrax_start_pain(userEntity_t *self, userEntity_t *attacker, float kick, int damage)
 {
-	playerHook_t *hook = (playerHook_t *) self->userHook;
-	if(!HasWyndraxCharged && self->health < (0.45f*hook->base_health))
+	playerHook_t *hook = (playerHook_t *)self->userHook;
+	if(!HasWyndraxCharged && hook && self->health < (0.45f * hook->base_health))
 	{
-		self->health = 0.45f*hook->base_health;
+		self->health = 0.45f * hook->base_health;
 		return;
 	}
-	else
-	{
-		ai_generic_pain_handler( self, attacker, kick,damage,35);
-	}
-}
 
+	ai_generic_pain_handler(self, attacker, kick, damage, 35);
+}
 
 // ----------------------------------------------------------------------------
 //
@@ -608,18 +595,15 @@ void monster_wyndrax( userEntity_t *self )
 	AI_DetermineMovingEnvironment( self );
 	// NSS[2/12/00]:Flag which allows AI to use these things..
 	hook->dflags  |= DFL_CANUSEDOOR;
+	self->pain				= wyndrax_start_pain;
 
-	self->pain              = wyndrax_start_pain;	
 	hook->pain_chance		= 5;
 
 	gstate->LinkEntity(self);
 	// NSS[3/10/00]:Setup the next think time... offset.
 	AI_SetInitialThinkTime(self);
 
-	// NSS[6/7/00]:Mark this monster as a boss
 	hook->dflags |= DFL_ISBOSS;
-
-	// NSS[7/14/00]:Cheese Hack
 	HasWyndraxCharged = 0;
 
 }

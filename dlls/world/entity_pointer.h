@@ -90,7 +90,7 @@ void entity_pointer::operator=(userEntity_t *value) {
 
 //for "if (ptr == NULL) {" dudes.
 entity_pointer::operator int() const {
-    return int(entity);
+    return entity != NULL;
 }
 
 //for "if (ptr) {" asses

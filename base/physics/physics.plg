@@ -1,0 +1,97 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: physics - Win32 Spanish--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\WINDOWS\TEMP\RSPF132.TMP" with contents
+[
+/nologo /G5 /MT /W3 /GX /O2 /I "..\..\user" /I "..\audio" /I "..\..\user\collection" /I "..\..\libent" /I "../dk_" /D "TONGUE_SPANISH" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /Fp"Spanish/physics.pch" /YX /Fo"Spanish/" /Fd"Spanish/" /FD /c 
+"C:\Source Safe\base\physics\com_friction.cpp"
+"C:\Source Safe\base\physics\com_heap.cpp"
+"C:\Source Safe\base\physics\com_list.cpp"
+"C:\Source Safe\base\physics\com_main.cpp"
+"C:\Source Safe\base\physics\com_sub.cpp"
+"C:\Source Safe\base\physics\com_teamplay.cpp"
+"C:\Source Safe\base\physics\com_weapons.cpp"
+"C:\Source Safe\base\physics\dk_dll.cpp"
+"C:\Source Safe\base\physics\dk_sent.cpp"
+"C:\Source Safe\base\physics\dk_ServerState.cpp"
+"C:\Source Safe\base\physics\p_client.cpp"
+"C:\Source Safe\base\physics\p_concmds.cpp"
+"C:\Source Safe\base\physics\p_float.cpp"
+"C:\Source Safe\base\physics\p_inventory.cpp"
+"C:\Source Safe\base\physics\p_main.cpp"
+"C:\Source Safe\base\physics\p_phys.cpp"
+"C:\Source Safe\base\physics\p_save.cpp"
+"C:\Source Safe\base\physics\p_selector.cpp"
+"C:\Source Safe\base\physics\p_stub.cpp"
+"C:\Source Safe\base\physics\p_user.cpp"
+"C:\Source Safe\base\physics\p_utils.cpp"
+]
+Creating command line "cl.exe @C:\WINDOWS\TEMP\RSPF132.TMP" 
+Creating temporary file "C:\WINDOWS\TEMP\RSPF133.TMP" with contents
+[
+winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib wsock32.lib IonCommonSpanish.lib /nologo /subsystem:windows /dll /incremental:no /pdb:".\Spanish/physics.pdb" /machine:I386 /nodefaultlib:"libc.lib" /out:".\Spanish/physics.dll" /implib:".\Spanish/physics.lib" /libpath:"..\..\libs" 
+".\Spanish\com_friction.obj"
+".\Spanish\com_heap.obj"
+".\Spanish\com_list.obj"
+".\Spanish\com_main.obj"
+".\Spanish\com_sub.obj"
+".\Spanish\com_teamplay.obj"
+".\Spanish\com_weapons.obj"
+".\Spanish\dk_dll.obj"
+".\Spanish\dk_sent.obj"
+".\Spanish\dk_ServerState.obj"
+".\Spanish\p_client.obj"
+".\Spanish\p_concmds.obj"
+".\Spanish\p_float.obj"
+".\Spanish\p_inventory.obj"
+".\Spanish\p_main.obj"
+".\Spanish\p_phys.obj"
+".\Spanish\p_save.obj"
+".\Spanish\p_selector.obj"
+".\Spanish\p_stub.obj"
+".\Spanish\p_user.obj"
+".\Spanish\p_utils.obj"
+"\Source Safe\libs\IonCommonSpanish.lib"
+"\Source Safe\libs\libentSpanish.lib"
+]
+Creating command line "link.exe @C:\WINDOWS\TEMP\RSPF133.TMP"
+<h3>Output Window</h3>
+Compiling...
+com_friction.cpp
+com_heap.cpp
+com_list.cpp
+com_main.cpp
+com_sub.cpp
+com_teamplay.cpp
+com_weapons.cpp
+dk_dll.cpp
+dk_sent.cpp
+dk_ServerState.cpp
+p_client.cpp
+p_concmds.cpp
+p_float.cpp
+p_inventory.cpp
+p_main.cpp
+C:\Source Safe\base\physics\p_main.cpp(830) : warning C4101: 'elapsedTime' : unreferenced local variable
+p_phys.cpp
+p_save.cpp
+// SCG[11/20/99]: fix epair save/loading
+p_selector.cpp
+p_stub.cpp
+p_user.cpp
+p_utils.cpp
+Linking...
+   Creating library .\Spanish/physics.lib and object .\Spanish/physics.exp
+
+
+
+<h3>Results</h3>
+physics.dll - 0 error(s), 1 warning(s)
+</pre>
+</body>
+</html>

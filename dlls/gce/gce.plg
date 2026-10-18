@@ -1,0 +1,104 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: gce - Win32 Spanish--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\WINDOWS\TEMP\RSPE1F0.TMP" with contents
+[
+/nologo /G5 /MT /W3 /GX /O2 /I "..\..\base\dk_" /I "..\..\base\client" /I "..\..\base\qcommon" /I "..\..\user" /I "..\..\libclient" /D "TONGUE_SPANISH" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FR"Spanish/" /Fo"Spanish/" /Fd"Spanish/" /FD /c 
+"C:\Source Safe\user\dk_gce_entities.cpp"
+"C:\Source Safe\user\dk_gce_headscript.cpp"
+"C:\Source Safe\user\dk_gce_script.cpp"
+"C:\Source Safe\user\dk_gce_spline.cpp"
+"C:\Source Safe\dlls\gce\gce_commands.cpp"
+"C:\Source Safe\dlls\gce\gce_entities.cpp"
+"C:\Source Safe\dlls\gce\gce_entity_save.cpp"
+"C:\Source Safe\dlls\gce\gce_fields.cpp"
+"C:\Source Safe\dlls\gce\gce_headscript.cpp"
+"C:\Source Safe\dlls\gce\gce_hud.cpp"
+"C:\Source Safe\dlls\gce\gce_hud_entities.cpp"
+"C:\Source Safe\dlls\gce\gce_hud_headbob.cpp"
+"C:\Source Safe\dlls\gce\gce_hud_position.cpp"
+"C:\Source Safe\dlls\gce\gce_hud_script.cpp"
+"C:\Source Safe\dlls\gce\gce_hud_sequence.cpp"
+"C:\Source Safe\dlls\gce\gce_hud_sounds.cpp"
+"C:\Source Safe\dlls\gce\gce_input.cpp"
+"C:\Source Safe\dlls\gce\gce_main.cpp"
+"C:\Source Safe\dlls\gce\gce_position.cpp"
+"C:\Source Safe\dlls\gce\gce_save.cpp"
+"C:\Source Safe\dlls\gce\gce_script.cpp"
+"C:\Source Safe\dlls\gce\gce_sequence.cpp"
+"C:\Source Safe\dlls\gce\gce_sound.cpp"
+]
+Creating command line "cl.exe @C:\WINDOWS\TEMP\RSPE1F0.TMP" 
+Creating temporary file "C:\WINDOWS\TEMP\RSPE1F1.TMP" with contents
+[
+odbc32.lib odbccp32.lib winspool.lib comdlg32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib wsock32.lib advapi32.lib kernel32.lib user32.lib gdi32.lib IonCommonSpanish.lib winmm.lib /nologo /subsystem:windows /dll /incremental:no /pdb:"Spanish/gce.pdb" /machine:I386 /nodefaultlib:"libc.lib" /out:"Spanish/gce.dll" /implib:"Spanish/gce.lib" /libpath:"..\world\release" /libpath:"..\..\libs" 
+".\Spanish\dk_gce_entities.obj"
+".\Spanish\dk_gce_headscript.obj"
+".\Spanish\dk_gce_script.obj"
+".\Spanish\dk_gce_spline.obj"
+".\Spanish\gce_commands.obj"
+".\Spanish\gce_entities.obj"
+".\Spanish\gce_entity_save.obj"
+".\Spanish\gce_fields.obj"
+".\Spanish\gce_headscript.obj"
+".\Spanish\gce_hud.obj"
+".\Spanish\gce_hud_entities.obj"
+".\Spanish\gce_hud_headbob.obj"
+".\Spanish\gce_hud_position.obj"
+".\Spanish\gce_hud_script.obj"
+".\Spanish\gce_hud_sequence.obj"
+".\Spanish\gce_hud_sounds.obj"
+".\Spanish\gce_input.obj"
+".\Spanish\gce_main.obj"
+".\Spanish\gce_position.obj"
+".\Spanish\gce_save.obj"
+".\Spanish\gce_script.obj"
+".\Spanish\gce_sequence.obj"
+".\Spanish\gce_sound.obj"
+"\Source Safe\libs\IonCommonSpanish.lib"
+"\Source Safe\libs\libentSpanish.lib"
+]
+Creating command line "link.exe @C:\WINDOWS\TEMP\RSPE1F1.TMP"
+<h3>Output Window</h3>
+Compiling...
+dk_gce_entities.cpp
+dk_gce_headscript.cpp
+dk_gce_script.cpp
+dk_gce_spline.cpp
+gce_commands.cpp
+gce_entities.cpp
+gce_entity_save.cpp
+gce_fields.cpp
+gce_headscript.cpp
+gce_hud.cpp
+gce_hud_entities.cpp
+gce_hud_headbob.cpp
+gce_hud_position.cpp
+gce_hud_script.cpp
+gce_hud_sequence.cpp
+gce_hud_sounds.cpp
+gce_input.cpp
+gce_main.cpp
+gce_position.cpp
+gce_save.cpp
+Generating Code...
+Compiling...
+gce_script.cpp
+gce_sequence.cpp
+gce_sound.cpp
+Generating Code...
+Linking...
+   Creating library Spanish/gce.lib and object Spanish/gce.exp
+
+
+
+<h3>Results</h3>
+gce.dll - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

@@ -46,8 +46,6 @@ CPtrList *pGoldenSoulList	= NULL;
 //  cheat for powering up attributes
 //
 // ----------------------------------------------------------------------------
-int calcStatLevel( userEntity_t *self );
-
 #define WRAP_BOOST(boost)		if (boost > 5) boost = 0
 int AI_IsVisible( userEntity_t *self, userEntity_t *targ );// NSS[2/22/00]:
 #ifdef _DEBUG
@@ -56,7 +54,6 @@ void AI_Drop_Markers (CVector &Target, float delay);
 //#ifdef _DEBUG
 void af_powerup( userEntity_t *self )
 {
-	extern long exp_level[];
 	int				count;
 	char			*arg;
 	playerHook_t	*hook = AI_GetPlayerHook( self );
@@ -112,8 +109,6 @@ void af_powerup( userEntity_t *self )
 	WRAP_BOOST(hook->base_acro);
 	WRAP_BOOST(hook->base_vita);
 
-	int level = calcStatLevel(self);
-	self->record.exp = exp_level[level];
 	com->CalcBoosts (self);
 }
 
@@ -129,7 +124,6 @@ void af_powerup( userEntity_t *self )
 // ----------------------------------------------------------------------------
 void af_powerdown( userEntity_t *self )
 {
-	extern long exp_level[];
 	int				count;
 	char			*arg;
 	playerHook_t	*hook = AI_GetPlayerHook( self );
@@ -184,8 +178,6 @@ void af_powerdown( userEntity_t *self )
 			hook->vita_boost--;		
 	}
 
-	int level = calcStatLevel(self);
-	self->record.exp = exp_level[level];
 	com->CalcBoosts (self);
 }
 //#endif
@@ -1483,6 +1475,7 @@ userEntity_t *ITEM_GetItemOwnerIsPointingAt(userEntity_t *self)
 			//Get the view angles
 			hook->owner->client->ps.viewangles.AngleToForwardVector(Dir);
 			Destination = Start + 800*Dir;
+//			tr = gstate->TraceLine_q2( Start, Destination, hook->owner, MASK_ALL);
 			tr = gstate->TraceLineTrigger( Start, Destination, hook->owner, MASK_ALL, SVF_ITEM );
 			// If we have hit something marked as an item then return it as the entity
 			SIDEKICK_Drop_Markers((Start + (Dir *(800*tr.fraction))),1.25f);
@@ -1492,8 +1485,8 @@ userEntity_t *ITEM_GetItemOwnerIsPointingAt(userEntity_t *self)
 			}
 			else
 			{
-				tr = gstate->TraceLine_q2( Start, Destination, hook->owner, MASK_ALL);
-				if(tr.ent && ((!_stricmp(tr.ent->className,"misc_healthtree")) || (!_stricmp(tr.ent->className,"misc_lifewater")) || (!_stricmp(tr.ent->className,"misc_hosportal"))) )
+				tr = gstate->TraceLine_q2(Start, Destination, hook->owner, MASK_ALL);
+				if(tr.ent && ((!_stricmp(tr.ent->className,"misc_healthtree")) || (!_stricmp(tr.ent->className,"misc_lifewater")) || (!_stricmp(tr.ent->className,"misc_hosportal"))))
 				{
 					return tr.ent;
 				}

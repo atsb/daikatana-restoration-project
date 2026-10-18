@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include	"world.h"
 
 //#include	"triggers.h"// SCG[1/23/00]: not used
@@ -92,7 +93,7 @@ enum TALKING_HEAD_SPAWNFLAGS
 */
 
 // SCG[11/19/99]: 
-#define	DEBRISHOOK(x) (int)&(((debrisHook_t *)0)->x)
+#define	DEBRISHOOK(x) (int)offsetof(debrisHook_t,x)
 field_t debris_hook_fields[] = 
 {
 	{"modelName",		DEBRISHOOK(modelName),		F_LSTRING},
@@ -113,7 +114,7 @@ field_t debris_hook_fields[] =
 };
 
 // SCG[11/19/99]: Save game stuff
-#define	PARTICLEHOOK(x) (int)&(((particleHook_t *)0)->x)
+#define	PARTICLEHOOK(x) (int)offsetof(particleHook_t,x)
 field_t particle_hook_fields[] = 
 {
 	{"dest",			PARTICLEHOOK(dest),				F_VECTOR},
@@ -135,7 +136,7 @@ field_t particle_hook_fields[] =
 };
 
 // SCG[11/19/99]: Save game stuff
-#define	LAVABALLHOOK(x) (int)&(((lavaballHook_t *)0)->x)
+#define	LAVABALLHOOK(x) (int)offsetof(lavaballHook_t,x)
 field_t lavaball_hook_fields[] = 
 {
 	{"targ_origin",	LAVABALLHOOK(targ_origin),	F_VECTOR},
@@ -148,7 +149,7 @@ field_t lavaball_hook_fields[] =
 };
 
 // SCG[11/19/99]: Save game stuff
-#define	FUNCEXPLOHOOK(x) (int)&(((funcExploHook_t *)0)->x)
+#define	FUNCEXPLOHOOK(x) (int)offsetof(funcExploHook_t,x)
 field_t func_explode_hook_fields[] = 
 {
 	{"damage",		FUNCEXPLOHOOK(damage),		F_INT},
@@ -168,7 +169,7 @@ field_t func_explode_hook_fields[] =
 };
 
 // SCG[11/19/99]: 
-#define	DECOHOOK(x) (int)&(((decoHook_t *)0)->x)
+#define	DECOHOOK(x) (int)offsetof(decoHook_t,x)
 field_t deco_hook_fields[] = 
 {
 	{"damage",		DECOHOOK(damage),		F_INT},
@@ -195,7 +196,7 @@ typedef struct	speakerHook_s
 } speakerHook_t;
 
 // SCG[11/19/99]: 
-#define	SPEAKERHOOK(x) (int)&(((speakerHook_t *)0)->x)
+#define	SPEAKERHOOK(x) (int)offsetof(speakerHook_t,x)
 field_t speaker_hook_fields[] = 
 {
 	{"sound",		SPEAKERHOOK(sound),		F_INT},
@@ -1874,7 +1875,7 @@ void SpawnDeco(userEntity_t *self, char *decoinfo_file_name)
 			{
 				if (speed < -179)
 					speed = -179;
-				self->s.angle_delta.z = 180 - abs(speed);  // encoded..negatives are 0-179 positives are 180-360
+				self->s.angle_delta.z = 180 - abs((int)speed);  // encoded..negatives are 0-179 positives are 180-360
 			}
 			else
 			{
@@ -1895,7 +1896,7 @@ void SpawnDeco(userEntity_t *self, char *decoinfo_file_name)
 			{
 				if (speed < -179)
 					speed = -179;
-				self->s.angle_delta.x = 180 - abs(speed);	// encoded..negatives are 0-179 positives are 180-360
+				self->s.angle_delta.x = 180 - abs((int)speed);	// encoded..negatives are 0-179 positives are 180-360
 			}
 			else
 			{
@@ -1915,7 +1916,7 @@ void SpawnDeco(userEntity_t *self, char *decoinfo_file_name)
 			{
 				if (speed < -179)
 					speed = -179;
-				self->s.angle_delta.y = 180 - abs(speed);	// encoded..negatives are 0-179 positives are 180-360
+				self->s.angle_delta.y = 180 - abs((int)speed);	// encoded..negatives are 0-179 positives are 180-360
 			}
 			else
 			{

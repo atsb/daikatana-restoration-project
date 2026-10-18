@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include "world.h"
 //#include "ai_utils.h"
 //#include "ai_move.h"
@@ -13,7 +14,7 @@
 void SEQUENCEMAP_AllocSequenceMap( userEntity_t *self );
 char *AIATTRIBUTE_GetModelName( const char *szClassName );
 
-#define	PLAYERHOOK(x) (int)&(((playerHook_t *)0)->x)
+#define	PLAYERHOOK(x) (int)offsetof(playerHook_t,x)
 field_t player_hook_fields[] =
 {
 	{"owner",					PLAYERHOOK(owner),						F_EDICT},

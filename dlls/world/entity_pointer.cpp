@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include "p_user.h"
 #include "world.h"
 #include "dk_misc.h"
@@ -19,7 +20,7 @@ void IPointAt(userEntity_t **my_var, userEntity_t *points_here) {
     if (my_var == NULL || points_here == NULL) return;
 
     //add the variable to the hashtable, using the value of the pointer as the key.
-    reference_table->Add(my_var, (unsigned int)points_here);
+    reference_table->Add(my_var, (uintptr_t)points_here);
 }
 
 //unregisters a pointer.
@@ -27,7 +28,7 @@ void RemovePointer(userEntity_t **my_var, userEntity_t *which_pointed_here) {
     if (my_var == NULL || which_pointed_here == NULL) return;
 
     //delete the var from the table.
-    reference_table->Delete(my_var, (unsigned int)which_pointed_here);
+    reference_table->Delete(my_var, (uintptr_t)which_pointed_here);
 }
 
 //when an entity is deleted, it should call this function with itself and NULL 
@@ -37,7 +38,7 @@ void ReplacePointer(userEntity_t *that_point_here, userEntity_t *to_point_here) 
     if (that_point_here == to_point_here) return;
 
     //find a pointer that points to the given entity.
-    userEntity_t **ptr = reference_table->Delete((unsigned int)that_point_here);
+    userEntity_t **ptr = reference_table->Delete((uintptr_t)that_point_here);
 
     //reset all pointers found in the table until none are left that point to the given entity.
     while (ptr != NULL) {
@@ -48,7 +49,7 @@ void ReplacePointer(userEntity_t *that_point_here, userEntity_t *to_point_here) 
         IPointAt(ptr, to_point_here);
 
         //get the next pointer that points at our entity.
-        ptr = reference_table->Delete((unsigned int)that_point_here);
+        ptr = reference_table->Delete((uintptr_t)that_point_here);
     }
 }
 

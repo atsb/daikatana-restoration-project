@@ -33,8 +33,6 @@ enum
 // weapon info def
 weaponInfo_t sidewinderWeaponInfo = 
 {
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_SIDEWINDER),
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_SIDEWINDER_AMMO),
 	// names, net names, icon
 	"weapon_sidewinder",
 	tongue_weapons[T_WEAPON_SIDEWINDER],
@@ -119,15 +117,11 @@ weaponInfo_t sidewinderWeaponInfo =
 	0.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 0.0f,
 
-/*	{ 
+	{ 
 		tongue_deathmsg_weapon1[T_DEATHMSGWEAPON_SIDEWINDER],
 		NULL,
 		VICTIM_ATTACKER
-	},*/
-
-	RESOURCE_ID_FOR_STRING(tongue_deathmsg_weapon1,T_DEATHMSGWEAPON_SIDEWINDER),
-	VICTIM_ATTACKER,
-
+	},
 	WEAPON_SIDEWINDER,
 	0,
 	NULL

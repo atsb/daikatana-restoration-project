@@ -3,73 +3,71 @@
 
 #if id386
 
+#include <intrin.h>
+
 static unsigned long bias;
 static unsigned long *histogram;
 static unsigned long start, range;
 
-__declspec( naked ) void x86_TimerStart( void )
+/*
+ * The original implementation read the low 32 bits of RDTSC into EAX.
+ * __rdtsc() is the compiler intrinsic equivalent; only the low 32 bits are
+ * retained, preserving the original Win32 data size and histogram behavior.
+ */
+static unsigned long x86_ReadTSC32(void)
 {
-	__asm _emit 0fh
-	__asm _emit 31h
-	__asm mov  start, eax
-	__asm ret
+    return (unsigned long)__rdtsc();
 }
 
-__declspec( naked ) void x86_TimerStop( void )
+void x86_TimerStart(void)
 {
-	__asm push edi
-	__asm mov edi, histogram
-	__asm _emit 0fh
-	__asm _emit 31h
-	__asm sub eax, start
-	__asm sub eax, bias
-	__asm js discard
-	__asm cmp eax, range
-	__asm jge  discard
-	__asm lea edi, [edi + eax*4]
-	__asm inc dword ptr [edi]
-discard:
-	__asm pop edi
-	__asm ret
+    start = x86_ReadTSC32();
 }
 
-#pragma warning( disable: 4035 )
-static __declspec( naked ) unsigned long x86_TimerStopBias( void )
+void x86_TimerStop(void)
 {
-	__asm push edi
-	__asm mov edi, histogram
-	__asm _emit 0fh
-	__asm _emit 31h
-	__asm sub eax, start
-	__asm pop edi
-	__asm ret
+    unsigned long now = x86_ReadTSC32();
+    unsigned long elapsed = now - start;
+
+    if (elapsed < bias)
+        return;
+
+    elapsed -= bias;
+    if (elapsed >= range)
+        return;
+
+    histogram[elapsed]++;
 }
-#pragma warning( default:4035 )
+
+static unsigned long x86_TimerStopBias(void)
+{
+    return x86_ReadTSC32() - start;
+}
 
 void x86_TimerInit( unsigned long smallest, unsigned length )
 {
-	int i;
-	unsigned long biastable[100];
+    int i;
+    unsigned long biastable[100];
 
-	range = length;
-	bias = 10000;
+    range = length;
+    bias = 10000;
 
-	for ( i = 0; i < 100; i++ )
-	{
-		x86_TimerStart();
-		biastable[i] = x86_TimerStopBias();
+    for ( i = 0; i < 100; i++ )
+    {
+        x86_TimerStart();
+        biastable[i] = x86_TimerStopBias();
 
-		if ( bias > biastable[i] )
-			bias = biastable[i];
-	}
+        if ( bias > biastable[i] )
+            bias = biastable[i];
+    }
 
-	bias += smallest;
-	histogram = (unsigned long *)X_Malloc( range * sizeof( unsigned long ), MEM_TAG_MISC );
+    bias += smallest;
+    histogram = (unsigned long *)X_Malloc( range * sizeof( unsigned long ), MEM_TAG_MISC );
 }
 
 unsigned long *x86_TimerGetHistogram( void )
 {
-	return histogram;
+    return histogram;
 }
 
 #endif

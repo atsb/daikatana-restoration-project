@@ -30,8 +30,6 @@ enum
 // weapon info def
 weaponInfo_t metamaserWeaponInfo = 
 {
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_METAMASER),
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_METAMASER_AMMO),
 	// names, net names, icon
 	"weapon_metamaser",
 	tongue_weapons[T_WEAPON_METAMASER],
@@ -115,15 +113,11 @@ weaponInfo_t metamaserWeaponInfo =
 	0.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 0.0f,
 
-/*	{
+	{
 		tongue_deathmsg_weapon4[T_DEATHMSGWEAPON_METAMASER],
 		NULL,
 		VICTIM_ATTACKER
-	},*/
-
-	RESOURCE_ID_FOR_STRING(tongue_deathmsg_weapon4,T_DEATHMSGWEAPON_METAMASER),
-	VICTIM_ATTACKER,
-
+	},
 	WEAPON_METAMASER,
 	0,
 	NULL

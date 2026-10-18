@@ -1,3 +1,4 @@
+#include <math.h>
 #if _MSC_VER
 #include <crtdbg.h>
 #endif
@@ -157,18 +158,18 @@ void AI_SetDeathBoundingBox(userEntity_t *self)
 	float MaxDistance=0.0f;
 	
 	//Find the largest side.
-	if(abs(self->s.mins.x) > abs(MaxDistance))
-		MaxDistance = abs(self->s.mins.x);
-	if(abs(self->s.mins.y) > abs(MaxDistance))
-		MaxDistance = abs(self->s.mins.y);
-	if(abs(self->s.mins.z) > abs(MaxDistance))
-		MaxDistance = abs(self->s.mins.z);
-	if(abs(self->s.maxs.x) > abs(MaxDistance))
-		MaxDistance = abs(self->s.maxs.x);
-	if(abs(self->s.maxs.y) > abs(MaxDistance))
-		MaxDistance = abs(self->s.maxs.y);
-	if(abs(self->s.maxs.z) > abs(MaxDistance))
-		MaxDistance = abs(self->s.maxs.z);
+	if(fabs(self->s.mins.x) > fabs(MaxDistance))
+		MaxDistance = fabs(self->s.mins.x);
+	if(fabs(self->s.mins.y) > fabs(MaxDistance))
+		MaxDistance = fabs(self->s.mins.y);
+	if(fabs(self->s.mins.z) > fabs(MaxDistance))
+		MaxDistance = fabs(self->s.mins.z);
+	if(fabs(self->s.maxs.x) > fabs(MaxDistance))
+		MaxDistance = fabs(self->s.maxs.x);
+	if(fabs(self->s.maxs.y) > fabs(MaxDistance))
+		MaxDistance = fabs(self->s.maxs.y);
+	if(fabs(self->s.maxs.z) > fabs(MaxDistance))
+		MaxDistance = fabs(self->s.maxs.z);
 
 	MinDistance = MaxDistance*-1;
 
@@ -248,6 +249,7 @@ int FindClient(userEntity_t *self, int Distance)
 }
 
 
+
 // ----------------------------------------------------------------------------
 // <nss>
 // Name:AdjustHealth_BasedOn_NOC
@@ -264,18 +266,14 @@ void AdjustHealth_BasedOn_NOC(userEntity_t *self)
 	{
 		int Number_Of_Clients = 0;
 		userEntity_t *ent = gstate->FirstEntity();
-		//Process through all the entities on the map
 		while(ent)
 		{
-			//Make sure the entity is the right classname
 			if(ent->flags & FL_CLIENT)
-			{
 				Number_Of_Clients++;
-			}
 			ent = gstate->NextEntity(ent);
 		}
 
-		if(	Number_Of_Clients==0)
+		if(Number_Of_Clients == 0)
 			Number_Of_Clients = 1;
 
 		self->health = self->health * Number_Of_Clients;
@@ -285,7 +283,6 @@ void AdjustHealth_BasedOn_NOC(userEntity_t *self)
 		hook->dflags &= ~DFL_ISBOSS;
 	}
 }
-
 
 // ----------------------------------------------------------------------------
 ///NSS[11/28/99]:
@@ -1597,7 +1594,7 @@ int AI_FlyTowardPoint2( userEntity_t *self, CVector &destPoint, float TurnRate )
 	vecDelta  = vecGoalDir - self->velocity;
 
 	//Get the new Raw roll value
-	//float Roll = abs(vecDelta.Length());	
+	//float Roll = fabs(vecDelta.Length());	
 	CVector Temp1 = self->velocity;
 	CVector Temp2 = vecGoalDir;
 	float Roll = VectorDistance( Temp1, Temp2 );
@@ -1651,25 +1648,25 @@ int AI_FlyTowardPoint2( userEntity_t *self, CVector &destPoint, float TurnRate )
 		//Are we turning left or right?
 		if(vecDelta.z < 0)
 		{
-			Roll = -2.75  * abs(yaw1 - yaw2);
+			Roll = -2.75  * fabs(yaw1 - yaw2);
 		}
 		else
 		{
-			Roll = 2.75 * abs(yaw1 - yaw2);
+			Roll = 2.75 * fabs(yaw1 - yaw2);
 		}
 		//Don't Roll too much
-		if(abs(Roll) > 360)
+		if(fabs(Roll) > 360)
 		{
 			Roll = self->s.angles.roll/130.9;//(360/2.75)
 		}
-		if(abs(Roll) > 45)
+		if(fabs(Roll) > 45)
 		{
 			//Hack to keep the sign direction of the roll
-			Roll = (Roll/abs(Roll))*45;
+			Roll = (Roll/fabs(Roll))*45;
 		}
 
 		//Make sure we don't roll too much too soon
-		if((abs(Roll-self->s.angles.roll))>5)
+		if((fabs(Roll-self->s.angles.roll))>5)
 		{
 			if(Roll > self->s.angles.roll)
 				self->s.angles.roll += 5.0f;

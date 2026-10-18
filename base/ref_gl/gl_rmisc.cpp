@@ -142,7 +142,7 @@ void GL_Strings_f( void )
 void GL_SetDefaultState( void )
 {
 	qglClearColor (1,0, 0.5 , 0.5);
-	qglCullFace(GL_FRONT);
+	GL_SetCullFace(GL_FRONT);
 
 //	unsigned int nStateFlags = ( GLSTATE_TEXTURE_2D | GLSTATE_ALPHA_TEST | GLSTATE_CULL_FACE_FRONT | GLSTATE_DEPTH_MASK | GLSTATE_DEPTH_TEST );
 	unsigned int nStateFlags = GLSTATE_PRESET1;
@@ -198,12 +198,14 @@ void GL_UpdateSwapInterval( void )
 	{
 		gl_swapinterval->modified = false;
 
-		if ( !gl_state.stereo_enabled ) 
+		if ( !gl_state.stereo_enabled )
 		{
-#ifdef _WIN32
-			if ( qwglSwapIntervalEXT )
-				qwglSwapIntervalEXT( gl_swapinterval->value );
-#endif
+			if ( !RImp_SetSwapInterval( (int)gl_swapinterval->value ) )
+			{
+				ri.Con_Printf(PRINT_DEVELOPER,
+					"RImp_SetSwapInterval failed for interval %d\n",
+					(int)gl_swapinterval->value);
+			}
 		}
 	}
 }

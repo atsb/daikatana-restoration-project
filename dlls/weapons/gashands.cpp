@@ -25,8 +25,6 @@ enum {
 
 weaponInfo_t gashandsWeaponInfo = 
 {
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_GASHANDS),
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_NO_AMMO),
     // name
     "weapon_gashands",
     tongue_weapons[T_WEAPON_GASHANDS],
@@ -102,15 +100,11 @@ weaponInfo_t gashandsWeaponInfo =
 	0.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 0.0f,
 
-/*	{ 
+	{ 
 		tongue_deathmsg_weapon1[T_DEATHMSGWEAPON_GASHANDS],
 		NULL,
 		ATTACKER_VICTIM
-	},*/
-
-	RESOURCE_ID_FOR_STRING(tongue_deathmsg_weapon1,T_DEATHMSGWEAPON_GASHANDS),
-	ATTACKER_VICTIM,
-
+	},
 	WEAPON_GASHANDS,
 	0,
 	gashandsThink

@@ -9,11 +9,7 @@
 //	Nelno: include file for Daikatana specific stuff
 #include "daikatana.h"
 #include "vid.h"		//	Nelno:	yeah, I know this sucks
-
-// added for Japanese version
-#ifdef JPN
-#include <windows.h>
-#endif // JPN
+#include "dk_neural_ai.h"
 
 #include <setjmp.h>
 
@@ -350,10 +346,10 @@ void Com_Error (int code, char *fmt, ...)
 	vsprintf (msg,fmt,argptr);
 	va_end (argptr);
 	
-//#if !DEDICATED_ONLY
-	//if (con.mode == CON_LOADING)
-	//	con.mode = CON_NORMAL;
-//#endif
+#if !DEDICATED_ONLY
+	if (con.mode == CON_LOADING)
+		con.mode = CON_NORMAL;
+#endif
 
 	if (code == ERR_DISCONNECT)
 	{
@@ -1964,19 +1960,8 @@ void Info_Print (char *s)
 	while (*s)
 	{
 		o = key;
-// Encompass MarkMa 040599
-#ifdef	JPN	// JPN
-		while (*s)	{
-			if(*s == '\\')	break;
-			if(IsDBCSLeadByte(*s))
-				*o++ = *s++;
-			*o++ = *s++;
-		}
-#else	// JPN
 		while (*s && *s != '\\')
 			*o++ = *s++;
-#endif	// JPN
-// Encompass MarkMa 040599
 
 		l = o - key;
 		if (l < 20)
@@ -1996,20 +1981,8 @@ void Info_Print (char *s)
 
 		o = value;
 		s++;
-// Encompass MarkMa 040599
-#ifdef	JPN	// JPN
-		while (*s)	{
-			if(*s == '\\')	break;
-			if(IsDBCSLeadByte(*s))
-				*o++ = *s++;
-			*o++ = *s++;
-		}
-#else	// JPN
 		while (*s && *s != '\\')
 			*o++ = *s++;
-#endif	// JPN
- // Encompass MarkMa 040599
-
 		*o = 0;
 
 		if (*s)
@@ -2176,9 +2149,9 @@ void	host_rates_f (void)
 	else
 		Com_Printf ("Frame rate display disabled.\n");
 
-//#if !DEDICATED_ONLY
-	//dk_InitRates (viddef.width, 64);
-//#endif
+#if !DEDICATED_ONLY
+	dk_InitRates (viddef.width, 64);
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -2272,6 +2245,9 @@ void Qcommon_Init (int argc, char **argv)
 #elif defined _M_ALPHA
 	gamename = "physicsa.dll";
 	debugdir = "debugaxp";
+#elif defined _M_X64
+	gamename = "physics.dll";
+	debugdir = "debug";
 #endif
 #else
 	gamename = "physics.so";
@@ -2321,6 +2297,8 @@ void Qcommon_Init (int argc, char **argv)
 	Cbuf_Execute ();
 
 	FS_InitFilesystem ();
+
+	DKNeuralAI_Init();
 
     if (!dedicated->value)
     {
@@ -2376,7 +2354,7 @@ void Qcommon_Init (int argc, char **argv)
 	host_speeds = Cvar_Get ("host_speeds", "0", 0);
 	log_stats = Cvar_Get ("log_stats", "0", 0);
 	developer = Cvar_Get ("developer", "0", CVAR_ARCHIVE);
-	console = Cvar_Get ("console", "0", 0);
+	console = Cvar_Get ("console", "1", 0);
 	timescale = Cvar_Get ("timescale", "1", 0);
 	fixedtime = Cvar_Get ("fixedtime", "0", 0);
 
@@ -2390,7 +2368,7 @@ void Qcommon_Init (int argc, char **argv)
 
 	showtrace = Cvar_Get ("showtrace", "0", 0);
 //unix - DEDICATED_ONLY
-#ifdef DEDICATED_ONLY
+#if DEDICATED_ONLY
 	dedicated = Cvar_Get ("dedicated", "1", CVAR_NOSET);
 #else
 	dedicated = Cvar_Get ("dedicated", "0", CVAR_NOSET);
@@ -2408,7 +2386,7 @@ void Qcommon_Init (int argc, char **argv)
 
 	Sys_Init ();
 
-	NET_Init ();
+	DKNET_Init ();
 	Netchan_Init ();
 
 	SV_Init ();
@@ -2526,9 +2504,9 @@ Qcommon_Frame
 */
 
 //unix - DEDICATED_ONLY
-//#if !DEDICATED_ONLY
+#if !DEDICATED_ONLY
 extern	viddef_t	viddef;//	Nelno:	yeah, I know this sucks
-//#endif
+#endif
 
 char *SV_MapName();
 char *CL_MapName();
@@ -2545,7 +2523,7 @@ void Qcommon_Frame (int msec)
 	{
 		if( Cvar_VariableValue( "console" ) == 0 )
 		{
-			//M_Menu_Main_f();
+			M_Menu_Main_f();
 		}
 		return;			// an ERR_DROP was thrown
 	}
@@ -2668,12 +2646,12 @@ void Qcommon_Frame (int msec)
 		time_between = Sys_Milliseconds ();		
 	}
 
-#ifndef DEDICATED_ONLY
-//	szSVMapName = SV_MapName();
-//	szCLMapName = CL_MapName();
-#endif
+#if !DEDICATED_ONLY
+	szSVMapName = SV_MapName();
+	szCLMapName = CL_MapName();
 	
-	//CL_Frame (msec);
+	CL_Frame (msec);
+#endif
 
 	if (host_speeds->value)
 	{
@@ -2699,9 +2677,9 @@ void Qcommon_Frame (int msec)
 	{
 		dk_StopTimer ();
 //unix - DEDICATED_ONLY
-//#if !DEDICATED_ONLY
-		//dk_ShowRates (viddef.width, 64);
-//#endif
+#if !DEDICATED_ONLY
+		dk_ShowRates (viddef.width, 64);
+#endif
 	}
 
 #endif BUILD_PATH_TABLE
@@ -2715,7 +2693,8 @@ Qcommon_Shutdown
 */
 void Qcommon_Shutdown (void)
 {
-	// hi, i'm the lone function
+	DKNeuralAI_Shutdown();
+	DKNET_Shutdown();
 	ShutdownMemoryManager();
 }
 

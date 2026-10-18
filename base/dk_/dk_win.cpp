@@ -23,9 +23,9 @@ static	double	dk_HighRate;
 
 static	double	dk_Frequency;
 
-static	unsigned int	dk_FrameTime;
-static	unsigned int	dk_StartTime;
-static	unsigned int	dk_StopTime;
+static	unsigned long	dk_FrameTime;
+static	unsigned long	dk_StartTime;
+static	unsigned long	dk_StopTime;
 
 static	int				dk_UseQuery;
 static	LARGE_INTEGER	dk_QueryStart;
@@ -38,7 +38,7 @@ static	LARGE_INTEGER	dk_QueryFreq;
 
 void	dk_GetUserName (void)
 {
-	unsigned	int	size = DK_MAX_USERNAME;
+	unsigned	long	size = DK_MAX_USERNAME;
 	if (!GetUserName (dk_userName, &size))
 	{
 		sprintf (dk_userName, "config");
@@ -109,7 +109,7 @@ void	dk_InitRates (int maxx, int y)
 
 void	dk_StopTimer (void)
 {
-	unsigned int	test_time;
+	unsigned long	test_time;
 
 	if (dk_UseQuery)
 	{

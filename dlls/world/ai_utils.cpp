@@ -1575,7 +1575,7 @@ int AI_IsOkToMoveStraight( userEntity_t *self, CVector &destPoint, float fXYDist
 		    if ( (tr.fraction >= 1.0f && fXYDistance < AI_GetStraightMoveDistance( hook ) && fZDistance < MAX_JUMP_HEIGHT) ||
 			     (tr.fraction >= 0.8f && ((1.2f-tr.fraction) * (fXYDistance+fZDistance)) < 96.0f) )
 		    {
-				if ( AI_IsGroundBelowBetween( self, self->s.origin, destPoint,256.0f ) )
+			    if ( AI_IsGroundBelowBetween( self, self->s.origin, destPoint,256.0f ) )
 			    {
 				    return TRUE;
 			    }

@@ -12,6 +12,7 @@
 //#include "dk_model.h"
 #include "winquake.h"
 #include "client.h"
+#include "input.h"
 #include "dk_bitmap.h"
 #include "dk_beams.h"
 #include "server.h"
@@ -39,9 +40,7 @@ char * DKM_sounds[] =
 	"menus/Exit Menu_001.wav"
 };
 
-#define VERSION_STR			"V. 1.2"
-#define	VERSION_X			430
-#define VERSION_Y			416
+
 
 //we keep track of the mouse position.
 static int32 dkm_mouse_x = 320;
@@ -68,6 +67,10 @@ int32 tesselation_quality;
 bool is_fullscreen;
 float use_shadows = false;	// shadows
 short modulate;
+int32 msaa_samples;
+int32 anisotropic;
+int32 texture_filter;
+bool overbright;
 
 // for tracking mode changes
 int32 start_vid_menu_mode;
@@ -79,9 +82,11 @@ float start_use_shadows;
 
 bool start_is_fullscreen;
 short start_modulate;
+int32 start_msaa_samples;
+int32 start_anisotropic;
+int32 start_texture_filter;
+bool start_overbright;
 
-int32 start_gl_driver;
-int32 current_gl_driver;
 
 // local prototypes
 bool UsedSideButton(int i);
@@ -94,6 +99,55 @@ bool DKM_InMenu() {
 
 static int32 cursor_offset_x = 6;
 static int32 cursor_offset_y = 8;
+
+#define VERSION_STR			"V. 1.2"
+#define VERSION_X			430
+#define VERSION_Y			416
+
+float DKM_MenuScale()
+{
+    float scale_x = viddef.width / 640.0f;
+    float scale_y = viddef.height / 480.0f;
+    return (scale_x < scale_y) ? scale_x : scale_y;
+}
+
+int32 DKM_MenuOffsetX()
+{
+    float scale = DKM_MenuScale();
+    return (int32)((viddef.width - 640.0f * scale) * 0.5f);
+}
+
+int32 DKM_MenuOffsetY()
+{
+    float scale = DKM_MenuScale();
+    return (int32)((viddef.height - 480.0f * scale) * 0.5f);
+}
+
+int32 DKM_MenuScreenX(int32 norm_x)
+{
+    return DKM_MenuOffsetX() + (int32)(norm_x * DKM_MenuScale());
+}
+
+int32 DKM_MenuScreenY(int32 norm_y)
+{
+    return DKM_MenuOffsetY() + (int32)(norm_y * DKM_MenuScale());
+}
+
+int32 DKM_MenuNormX(int32 screen_x)
+{
+    float scale = DKM_MenuScale();
+    if (scale <= 0.0f)
+        return 0;
+    return (int32)((screen_x - DKM_MenuOffsetX()) / scale);
+}
+
+int32 DKM_MenuNormY(int32 screen_y)
+{
+    float scale = DKM_MenuScale();
+    if (scale <= 0.0f)
+        return 0;
+    return (int32)((screen_y - DKM_MenuOffsetY()) / scale);
+}
 
 
 static bool dkm_play_enter_sound = true;
@@ -164,23 +218,6 @@ static int32 norm_button_right_bottom = 462;
 
 //we keep track of elapsed time from frame to frame.
 static int32 last_frame_time = 0;
-
-#ifdef JPN
-bool fDBCS = false;
-int TrailByte;
-
-void DbcsCharInput(int chCharCode1, int chCharCode2)
-{
-	if (chCharCode1) {
-		fDBCS = true;
-		TrailByte = chCharCode2;
-		menu.Keydown(chCharCode1);
-		fDBCS = false;
-	}
-	else
-		menu.Keydown(chCharCode2);
-}
-#endif // JPN 
 //when we first enter the menu, we need to initialize last_frame_time
 static bool last_frame_time_init = false;
 
@@ -230,12 +267,9 @@ dk_main_button DKM_ButtonNum(int32 norm_x, int32 norm_y) {
     //just divide the top to bottom span into as many pieces as we have buttons
     dk_main_button button = dk_main_button(int32(float(norm_y - norm_top) / float(norm_bottom - norm_top) * DKMB_NUM_BUTTONS));
 	
-// changed by yokoyama for Japanese version
-#ifndef JPN
 #ifdef DM_DEMO
 	if (!UsedSideButton((int)button))
 		return DKMB_NONE;          //we didnt hit a button.
-#endif // DM_DEMO
 #endif         
 	
     //do some error checking.
@@ -294,16 +328,6 @@ void DKM_LoadVideoSettings(bool setDefaults)
     temp_cvar = Cvar_Get("gl_mode", "0", CVAR_ARCHIVE);
 	/*start_vid_menu_mode = */vid_menu_mode = temp_cvar->value;
 
-	for( int i = 0; i < gl_driver_info_count; i++ )
-	{
-		gl_driver_info_t driver = gl_driver_info.Item( i );
-		if( !strcmp( driver.szFilename, Cvar_VariableString( "gl_driver" ) ) )
-		{
-			current_gl_driver = i;
-			break;
-		}
-	}
-
 	vid_brightness = GetCurrentBrightness();
 
     temp_cvar = Cvar_Get("gl_picmip", "0", CVAR_ARCHIVE);
@@ -321,9 +345,26 @@ void DKM_LoadVideoSettings(bool setDefaults)
     temp_cvar = Cvar_Get("gl_shadows", "0", CVAR_ARCHIVE);
     /*start_use_shadows = */use_shadows = temp_cvar->value;
 
+    temp_cvar = Cvar_Get("r_msaa_samples", "0", CVAR_ARCHIVE);
+    msaa_samples = (int32)temp_cvar->value;
+
+    temp_cvar = Cvar_Get("gl_anisotropic", "1", CVAR_ARCHIVE);
+    anisotropic = (int32)temp_cvar->value;
+
+    temp_cvar = Cvar_Get("gl_texture_filter", "0", CVAR_ARCHIVE);
+    texture_filter = (int32)temp_cvar->value;
+    if (texture_filter < 0) texture_filter = 0;
+    if (texture_filter > 2) texture_filter = 2;
+
+    temp_cvar = Cvar_Get("gl_overbrightbits", "0", CVAR_ARCHIVE);
+    overbright = (temp_cvar->value >= 2.0f);
+
+    temp_cvar = Cvar_Get("gl_bloom", "0", CVAR_ARCHIVE);
+    if (temp_cvar->value != 0.0f)
+        overbright = true;
+
 	if (setDefaults)
 	{
-		start_gl_driver = current_gl_driver;
 		start_vid_menu_mode = vid_menu_mode;
 		start_texture_quality = texture_quality;
 		start_tesselation_quality = tesselation_quality;
@@ -332,20 +373,22 @@ void DKM_LoadVideoSettings(bool setDefaults)
 		start_is_fullscreen = is_fullscreen;
 		start_modulate = modulate;
 		start_use_shadows = use_shadows;
+		start_msaa_samples = msaa_samples;
+		start_anisotropic = anisotropic;
+		start_texture_filter = texture_filter;
+		start_overbright = overbright;
 	}
 }
 extern cvar_t      *vid_ref;           // Name of Refresh DLL loaded
 
 bool DKM_VideoSettingsChanged()
 {
-	return (vid_menu_mode != start_vid_menu_mode) || 
-		(texture_quality != start_texture_quality) ||
-		(tesselation_quality != start_tesselation_quality) || 
-		(modulate != start_modulate) ||
-		(start_is_fullscreen != is_fullscreen) || 
-		(fabs(start_vid_brightness - vid_brightness) > 0.001) ||
-		(start_use_shadows != use_shadows) ||
-		( start_gl_driver != current_gl_driver );
+	return (vid_menu_mode != start_vid_menu_mode) || (texture_quality != start_texture_quality) ||
+		   (tesselation_quality != start_tesselation_quality) || (modulate != start_modulate) ||
+		   (start_is_fullscreen != is_fullscreen) || (fabs(start_vid_brightness - vid_brightness) > 0.001) ||
+		   (start_use_shadows != use_shadows) || (msaa_samples != start_msaa_samples) ||
+		   (anisotropic != start_anisotropic) || (texture_filter != start_texture_filter) ||
+	   (overbright != start_overbright);
 }
 
 void DKM_UpdateVideoSettings()
@@ -378,12 +421,13 @@ void DKM_UpdateVideoSettings()
 	// shadows
     Cvar_SetValue("gl_shadows", use_shadows);
 
-	vid_ref->modified = DKM_VideoSettingsChanged();
+    Cvar_SetValue("r_msaa_samples", (float)msaa_samples);
+    Cvar_SetValue("gl_anisotropic", (float)anisotropic);
+    Cvar_SetValue("gl_texture_filter", (float)texture_filter);
+    Cvar_SetValue("gl_overbrightbits", overbright ? 2.0f : 0.0f);
+    Cvar_SetValue("gl_bloom", overbright ? 1.0f : 0.0f);
 
-// SCG[5/26/00]: 
-	gl_driver_info_t driver = gl_driver_info.Item( current_gl_driver );
-    Cvar_Set( "gl_driver", driver.szFilename );
-	
+						
 	// set currents as default
 	DKM_LoadVideoSettings(true);
 }
@@ -398,7 +442,7 @@ void DKM_Enter(dk_main_button force_menu)
 		dkm_last_menu_in = force_menu;
 	}
 
-	if( in_main_game() == true && ((Cvar_VariableValue("unlimited_saves") != 0) || (cl_savegem_count > 0)) )
+	if( in_main_game() == true && (Cvar_VariableValue("unlimited_saves") != 0.0 || cl_savegem_count > 0) )
 	{
 		re.GetSavegameScreenShot();
 	}
@@ -421,7 +465,7 @@ void DKM_Enter(dk_main_button force_menu)
 	if (!deathmatch->value && !Cvar_VariableValue("coop"))
 		Cvar_Set ("paused", "1");
 
-	ShowCursor( FALSE );
+	IN_MenuMouseSetup();
 	
 	// mdm99.06.28 - background change
 	// mdm99.07.14 - real music API added
@@ -475,26 +519,6 @@ void DKM_Enter(dk_main_button force_menu)
     button_model = re.RegisterModel("models/interface/ib_button.dkm", RESOURCE_INTERFACE);
     box_model = re.RegisterModel("models/interface/iu_unitbox.dkm", RESOURCE_INTERFACE);
 	
-    //move the windows cursor to the middle of our window.
-    //get the rectangle of the window.
-    POINT tl, br;
-    tl.x = tl.y = 0;
-    br.x = viddef.width;
-    br.y = viddef.height;
-    ClientToScreen(cl_hwnd, &tl);
-    ClientToScreen(cl_hwnd, &br);
-	
-    //set the cursor position.  add 320,240 to the position of our window.
-    SetCursorPos(tl.x + viddef.width / 2 , tl.y + viddef.height / 2);
-	
-    //make the mouse confined to our window.
-    RECT window_rect;
-    window_rect.left = tl.x;
-    window_rect.top = tl.y;
-    window_rect.right = br.x;
-    window_rect.bottom = br.y;
-    ClipCursor(&window_rect);
-	
     //tell the main menu that we are entering.
     // 1.10 dsn   moved below -- enter first menu AFTER the fonts/buttons have been loaded
     //menu.Enter();
@@ -537,7 +561,7 @@ void DKM_Leave()
 	re.ClearSavegameScreenShot();
 
     //free the mouse.
-    ClipCursor(NULL);
+    IN_MenuMouseRelease();
 	
     //tell the main menu we are leaving.
     menu.Exit();
@@ -671,18 +695,15 @@ void DKM_DrawString(int32 norm_x, int32 norm_y, const char *str, void *font, boo
         use_font = (hilighted == false) ? menu_font : menu_font_bright;
     }
 	
-    //get the current x and y stretch factors.
-    float norm_to_screen_x = viddef.width / 640.0f;
-    float norm_to_screen_y = viddef.height / 480.0f;
-	
-    //get screen coordinates for the text.
-    int32 screen_x = norm_to_screen_x * norm_x;
-    int32 screen_y = norm_to_screen_y * norm_y;
+    // Keep the original 640x480 menu coordinate system and scale it uniformly.
+    float norm_to_screen = DKM_MenuScale();
+    int32 screen_x = DKM_MenuScreenX(norm_x);
+    int32 screen_y = DKM_MenuScreenY(norm_y);
 	
     if (use_font != NULL) {
         //check if we need to center the text.
         if (center == true) {
-            screen_x -= norm_to_screen_x * re.StringWidth(str, use_font, -1) / 2;
+            screen_x -= (int32)(norm_to_screen * re.StringWidth(str, use_font, -1) / 2);
         }
 		
 		//        re.DrawString(str, screen_x, screen_y, use_font, norm_to_screen_x, norm_to_screen_y);
@@ -699,8 +720,8 @@ void DKM_DrawString(int32 norm_x, int32 norm_y, const char *str, void *font, boo
 		drawStruct.nXPos = screen_x;
 		drawStruct.nYPos = screen_y;
 		drawStruct.pImage = use_font;
-		drawStruct.fScaleX = norm_to_screen_x;
-		drawStruct.fScaleY = norm_to_screen_y;
+		drawStruct.fScaleX = norm_to_screen;
+		drawStruct.fScaleY = norm_to_screen;
 
 		re.DrawString( drawStruct );
 		// consolidation change: SCG 3-15-99
@@ -717,7 +738,7 @@ void DKM_DrawString(int32 norm_x, int32 norm_y, const char *str, void *font, boo
         re.DrawChar(screen_x, screen_y, str[0]);
         
         //move our x over.
-        screen_x = int32((norm_x + pos * 8) * norm_to_screen_x);
+        screen_x = DKM_MenuScreenX(norm_x + pos * 8);
     }
     
 }
@@ -826,25 +847,25 @@ void DKM_Key(int32 key, qboolean down) {
 }
 
 void DKM_NewMousePos() {
-    //convert the current mouse position to normalized 640x480.
-    int32 norm_x = int32(dkm_mouse_x * 640.0f / viddef.width);
-    int32 norm_y = int32(dkm_mouse_y * 480.0f / viddef.height);
+    //convert the current mouse position to the normalized 640x480 menu space.
+    int32 norm_x = DKM_MenuNormX(dkm_mouse_x);
+    int32 norm_y = DKM_MenuNormY(dkm_mouse_y);
 	
     menu.MousePos(norm_x, norm_y);
 }
 
 void DKM_MouseDown() {
-    //convert the current mouse position to normalized 640x480.
-    int32 norm_x = int32(dkm_mouse_x * 640.0f / viddef.width);
-    int32 norm_y = int32(dkm_mouse_y * 480.0f / viddef.height);
+    //convert the current mouse position to the normalized 640x480 menu space.
+    int32 norm_x = DKM_MenuNormX(dkm_mouse_x);
+    int32 norm_y = DKM_MenuNormY(dkm_mouse_y);
 	
     menu.MouseDown(norm_x, norm_y);
 }
 
 void DKM_MouseUp() {
-    //convert the current mouse position to normalized 640x480.
-    int32 norm_x = int32(dkm_mouse_x * 640.0f / viddef.width);
-    int32 norm_y = int32(dkm_mouse_y * 480.0f / viddef.height);
+    //convert the current mouse position to the normalized 640x480 menu space.
+    int32 norm_x = DKM_MenuNormX(dkm_mouse_x);
+    int32 norm_y = DKM_MenuNormY(dkm_mouse_y);
 	
     menu.MouseUp(norm_x, norm_y);
 }
@@ -1067,56 +1088,6 @@ bool UsedSideButton(int i)
 		//i == DKMB_HELP) 
 		return (false);
 #endif
-
-// added for Japanese version
-#ifdef DAIKATANA_DEMO
-#ifndef JPN
-	if (i == DKMB_NEWGAME  ||
-		i == DKMB_LOADGAME ||
-		i == DKMB_SAVEGAME ||
-//		i == DKMB_JOYSTICK ||
-//		i == DKMB_CONFIG   ||
-		i == DKMB_CREDITS) //    ||
-		//i == DKMB_HELP) 
-		return (false);
-#else
-
-	if (/*i == DKMB_MULTIPLAYER  ||*/
-//		i == DKMB_LOADGAME ||
-//		i == DKMB_SAVEGAME ||
-//		i == DKMB_JOYSTICK ||
-//		i == DKMB_CONFIG   ||
-		i == DKMB_CREDITS) //    ||
-		//i == DKMB_HELP) 
-		return (false);
-#endif // JPN
-// SCG[6/16/00]: This breaks things.  Commenting this out makes the U.S. version do what it's
-// SCG[6/16/00]: supposed to do and the japanese version do what it's supposed to do as well as
-// SCG[6/16/00]: the demo for each respective version..
-/*
-#else // DAIKATANA_DEMO
-#ifndef JPN
-	if (i == DKMB_NEWGAME  ||
-		i == DKMB_LOADGAME ||
-		i == DKMB_SAVEGAME)// ||
-//		i == DKMB_JOYSTICK ||
-//		i == DKMB_CONFIG   ||
-//		i == DKMB_CREDITS) //    ||
-		//i == DKMB_HELP) 
-		return (false);
-#else
-
-//	if (i == DKMB_MULTIPLAYER  ||
-//		i == DKMB_LOADGAME ||
-//		i == DKMB_SAVEGAME ||
-//		i == DKMB_JOYSTICK ||
-//		i == DKMB_CONFIG   ||
-//		i == DKMB_CREDITS) //    ||
-		//i == DKMB_HELP) 
-//		return (false);
-#endif // JPN
-*/
-#endif // DAIKATANA_DEMO
 	
 	
 	return (true);
@@ -1125,7 +1096,7 @@ bool UsedSideButton(int i)
 
 void CMenuMain::PlaceButtons() {
     //positioning data for the buttons.
-    static CVector button_top_origin(35, -2.8, 8.35);
+    static CVector button_top_origin(35, -3.3, 8.35);
     static CVector button_top_direction(0, 210, 0);
     static float button_height = 1.165f;
     static float button_scale = 1.09f;
@@ -1282,7 +1253,7 @@ entity_t *CMenuMain::NewEntity() {
     return &entities[num_entities - 1];
 }
 
-void CMenuMain::RenderView() 
+void CMenuMain::RenderView()
 {
     if (button_model == NULL) return;
 	
@@ -1294,106 +1265,124 @@ void CMenuMain::RenderView()
     memset(&refdef, 0, sizeof(refdef));
 	
 	//    refdef.vieworg[2] = 100;
-    refdef.x = scr_vrect.x;
-    refdef.y = scr_vrect.y;
-	//    refdef.width = 640;//viddef.width;
-	//    refdef.height = 480;//viddef.height;
-    refdef.width = viddef.width;
-    refdef.height = viddef.height;
-    refdef.fov_x = 40.0f;
-    refdef.fov_y = CalcFov(refdef.fov_x, refdef.width, refdef.height);
+    float menu_scale = DKM_MenuScale();
+    refdef.x = DKM_MenuOffsetX();
+    refdef.y = DKM_MenuOffsetY();
+    refdef.width = (int32)(640.0f * menu_scale + 0.5f);
+    refdef.height = (int32)(480.0f * menu_scale + 0.5f);
+    refdef.fov_y = CalcFov(40.0f, 640.0f, 480.0f);
+    refdef.fov_x = CalcFov(refdef.fov_y, 480.0f, 640.0f);
     refdef.time = cl.time*0.001;
     refdef.areabits = cl.frame.areabits;
     refdef.rdflags = RDF_NOWORLDMODEL | RDF_CLEARDEPTHBUFF;
     refdef.beamList = &beamList;
 	
-    //initialize our entity list.
     num_entities = 0;
 	
-    //initialize the entities we are going to draw.
     menu.PlaceEntities();
 	
-    //add the entities.
     refdef.num_entities = num_entities;
     refdef.entities = &entities[0];
 	
-    //render the frame.
     re.RenderFrame (&refdef);
 }
 
 void CMenuMain::Draw() {
-    //draw the background images.
-	int		width_256/*, width_128*/;
-	int		/*pic1_x,*/ pic2_x/*, pic3_x*/;
+    cvar_t *menu_texture_filter = Cvar_Get("gl_texture_filter", "0", CVAR_ARCHIVE);
+    float saved_texture_filter = menu_texture_filter ? menu_texture_filter->value : 0.0f;
+    qboolean n64_filter_was_enabled = (menu_texture_filter && saved_texture_filter == 2.0f);
+    if (n64_filter_was_enabled)
+        Cvar_SetValue("gl_texture_filter", 0.0f);
+
+    // Keep the menu artwork and mechanical buttons in the same fixed 640x480
+    // logical coordinate system.  Uniform fit scaling preserves the complete
+    // menu at every resolution without stretching or cropping it.
+	int		width_256;
 	int		height;
 	float	x_scale, y_scale;
 	DRAWSTRUCT drawStruct;
-	
-	x_scale = (viddef.width / 640.0);
-	y_scale = (viddef.height / 480.0);
-	
-	width_256 = (int)(256.0 * x_scale);
-//	width_128 = (int)(128.0 * x_scale);
-	
-//	pic1_x = 0;
-	pic2_x = width_256;
-//	pic3_x = pic2_x + width_256;
-	
-	height = (int)(256.0 * y_scale);
-	
-	//==================================
-	// consolidation change: SCG 3-11-99
-	
-	drawStruct.nFlags = DSFLAG_SCALE|DSFLAG_PALETTE;
+
+	x_scale = DKM_MenuScale();
+	y_scale = x_scale;
+	width_256 = (int)(256.0 * x_scale + 0.5);
+	height = (int)(256.0 * y_scale + 0.5);
+
+	drawStruct.nFlags = DSFLAG_SCALE|DSFLAG_PALETTE|DSFLAG_CLAMP|DSFLAG_NO_N64FILTER;
 	drawStruct.fScaleX = x_scale;
 	drawStruct.fScaleY = y_scale;
-	
-	drawStruct.nYPos = 0;
-	
+
 	int index = 0;
 	for( int i = 0; i < 2; i++ )
 	{
-		drawStruct.nXPos = 0;
+		drawStruct.nXPos = DKM_MenuOffsetX();
+		drawStruct.nYPos = DKM_MenuOffsetY() + (int32)(i * 256.0f * y_scale + 0.5f);
 		for( int j = 0 ;j < 3; j++ )
 		{
 			drawStruct.pImage = re.RegisterPic( bitmaps[DKB_BACK00 + index++].name, NULL, NULL, RESOURCE_INTERFACE );
 			re.DrawPic( drawStruct );
 			drawStruct.nXPos += width_256;
 		}
-		drawStruct.nYPos += height;
 	}
-	
-	// consolidation change: SCG 3-11-99
-	//==================================
-	
+
     //draw the background of the selected menu.
     if (selection != DKMB_NONE) {
         sub_menu[selection]->DrawBackground();
     }
-	
+
     //draw the models.
     RenderView();
-	
+
     //draw the foreground of the selected menu.
     if (selection != DKMB_NONE) {
         sub_menu[selection]->DrawForeground();
     }
-	
+
     //get the cursor pic we will use this frame.
     int32 cursor = int32(float(abs(last_frame_time) % CURSOR_TOTAL_TIME) / CURSOR_TOTAL_TIME * CURSOR_NUM_FRAMES);
-	
+
     //draw the cursor.
-	//    re.DrawPic (dkm_mouse_x - cursor_offset_x, dkm_mouse_y - cursor_offset_y, bitmaps[dk_interface_bmp(DKB_CURSOR_00 + cursor)].name, RESOURCE_INTERFACE);
 	drawStruct.pImage = re.RegisterPic( bitmaps[dk_interface_bmp(DKB_CURSOR_00 + cursor)].name, NULL, NULL, RESOURCE_INTERFACE );
-	drawStruct.nFlags = DSFLAG_BLEND | DSFLAG_SCALE;
-	drawStruct.nXPos = dkm_mouse_x - cursor_offset_x;
-	drawStruct.nYPos = dkm_mouse_y - cursor_offset_y;
-	drawStruct.fScaleX = x_scale;
-	drawStruct.fScaleY = y_scale;
+	drawStruct.nFlags = DSFLAG_BLEND | DSFLAG_SCALE | DSFLAG_NO_N64FILTER;
+	drawStruct.nXPos = dkm_mouse_x - (int32)(cursor_offset_x * DKM_MenuScale());
+	drawStruct.nYPos = dkm_mouse_y - (int32)(cursor_offset_y * DKM_MenuScale());
+	drawStruct.fScaleX = DKM_MenuScale();
+	drawStruct.fScaleY = DKM_MenuScale();
 	re.DrawPic( drawStruct );
 
-	// draw the version string
-	DKM_DrawString(VERSION_X,VERSION_Y,VERSION_STR,NULL,false,false,0.2);
+	// Draw the retail 1.2 version marker in the same logical location as
+	// the centered 640x480 menu artwork.
+	{
+		DRAWSTRUCT versionDraw;
+		float versionScale = DKM_MenuScale();
+		versionDraw.nFlags = DSFLAG_SCALE | DSFLAG_BLEND | DSFLAG_ALPHA | DSFLAG_NO_N64FILTER;
+		versionDraw.fAlpha = 0.2f;
+		versionDraw.szString = VERSION_STR;
+		versionDraw.nXPos = DKM_MenuScreenX(VERSION_X);
+		versionDraw.nYPos = DKM_MenuScreenY(VERSION_Y);
+		versionDraw.pImage = menu_font;
+		versionDraw.fScaleX = versionScale;
+		versionDraw.fScaleY = versionScale;
+		re.DrawString(versionDraw);
+	}
+
+	{
+		CVector black;
+		black.x = black.y = black.z = 0;
+		int32 menu_left = DKM_MenuOffsetX();
+		int32 menu_top = DKM_MenuOffsetY();
+		int32 menu_right = menu_left + (int32)(640.0f * DKM_MenuScale() + 0.5f);
+		int32 menu_bottom = menu_top + (int32)(480.0f * DKM_MenuScale() + 0.5f);
+		if (menu_left > 0)
+			re.DrawFill(0, 0, menu_left, viddef.height, black, 1.0);
+		if (menu_right < viddef.width)
+			re.DrawFill(menu_right, 0, viddef.width - menu_right, viddef.height, black, 1.0);
+		if (menu_top > 0)
+			re.DrawFill(0, 0, viddef.width, menu_top, black, 1.0);
+		if (menu_bottom < viddef.height)
+			re.DrawFill(0, menu_bottom, viddef.width, viddef.height - menu_bottom, black, 1.0);
+	}
+    if (n64_filter_was_enabled)
+        Cvar_SetValue("gl_texture_filter", saved_texture_filter);
 }
 
 void CMenuMain::PlaceEntities() {
@@ -1444,11 +1433,8 @@ bool CMenuMain::MousePos(int32 norm_x, int32 norm_y)
 	{
 				
 				
-// changed by yokoyama for Japanese version
-#ifndef JPN
 #ifdef DM_DEMO
 		if (UsedSideButton((int)button_hit))
-#endif
 #endif         
 		{
 			
@@ -1476,11 +1462,9 @@ bool CMenuMain::MousePos(int32 norm_x, int32 norm_y)
 		//make sure this isnt the one we are on now.
 		if (i == button_hit) continue;
 		
-#ifndef JPN
 #ifdef DM_DEMO
 		if (!UsedSideButton(i))
 			continue;
-#endif
 #endif         
 		
 		
@@ -1531,15 +1515,8 @@ bool CMenuMain::Keydown(int32 key)
     switch (key)
     {
 	case '`' :         // console
-		if( Cvar_VariableValue( "console" ) == 0 )
-		{
-			return false;
-		}
-		Shutdown ();
-		return true;
-
 	case K_ESCAPE :    // escape key
-		if( (Cvar_VariableValue( "console" ) == 0) && !in_main_game() )
+		if( Cvar_VariableValue( "console" ) == 0 )
 		{
 			return false;
 		}
@@ -1666,11 +1643,9 @@ bool CMenuMain::MouseDown(int32 norm_x, int32 norm_y)
 	{
 		if (i == button_hit) continue;
 		
-#ifndef JPN
 #ifdef DM_DEMO
 		if (!UsedSideButton(i))
 			continue;
-#endif
 #endif
 		//unselect this button.
 		CheckUnselect((dk_main_button)i);
@@ -1805,6 +1780,7 @@ void CMenuMain::ShuttingDown(int32 elapsed_time)
             M_PopMenu();
             DKM_Leave();
             cls.key_dest = key_game;
+            IN_ActivateMouse();
         }
     }
 }
@@ -1816,12 +1792,11 @@ void CMenuMain::Animate(int32 elapsed_time)
     for (int32 i = 0; i < DKMB_NUM_BUTTONS; i++)
     {
 		
-#ifndef JPN
 #ifdef DM_DEMO
         if (!UsedSideButton(i))
 			continue;
 #endif
-#endif		
+		
 		
 		
         //get the button.
@@ -1951,22 +1926,22 @@ void Cvar_ForceSetValue (const char *var_name, float value)
 	Cvar_ForceSet (var_name, val);
 }
 
-void ToggleCvarFlag(char *cvar_name, unsigned int flag)
+void ToggleCvarFlag(char *cvar_name, unsigned long flag)
 {
     if (cvar_name == NULL || cvar_name[0] == '\0') return;
 	
     //get the value of the cvar.
-    unsigned int cur_value = (unsigned int)Cvar_VariableValue(cvar_name);
+    unsigned long cur_value = (unsigned long)Cvar_VariableValue(cvar_name);
 	
 	Cvar_ForceSetValue(cvar_name,cur_value ^= flag);
 }
 
-void SetRadioStateFlag(CInterfaceButtonRadio &control, const char *cvar_name, unsigned int flag, bool inverse) 
+void SetRadioStateFlag(CInterfaceButtonRadio &control, const char *cvar_name, unsigned long flag, bool inverse) 
 {
     if (cvar_name == NULL || cvar_name[0] == '\0') return;
 	
     //get the value.
-    unsigned int cur_value = Cvar_VariableValue(cvar_name);
+    unsigned long cur_value = Cvar_VariableValue(cvar_name);
 	
     //set the check state.
 	bool check = ((cur_value & flag) != 0);
@@ -2035,32 +2010,8 @@ int32 CMenuSub::Frame() {
     return 0;
 }
 
+
 void DKM_ToggleEnterSound(bool toggle)
 {
 	dkm_play_enter_sound = toggle;
 } 
-
-void DoQuit(qboolean bQuit)
-{
-	if (bQuit)
-	{
-		DKM_ShutdownString("quit\n");
-		DKM_Shutdown();
-	}
-	else
-	{
-		if (dkm_last_menu_in == DKMB_QUIT)
-		{
-			dkm_last_menu_in = DKMB_NEWGAME;
-			DKM_Shutdown();
-		}
-		else
-		{
-			PlayInterfaceSound(DKM_sounds[DKMS_NO]);
-			DKM_ToggleEnterSound(false); // don't play entry sound next time
-
-			//menu.Enter();
-			DKM_EnterMain();
-		}
-	}
-}

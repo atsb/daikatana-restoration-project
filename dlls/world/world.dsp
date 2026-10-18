@@ -19,8 +19,14 @@ CFG=world - Win32 Demo Debug
 !MESSAGE 
 !MESSAGE "world - Win32 Release" (based on "Win32 (x86) Dynamic-Link Library")
 !MESSAGE "world - Win32 Debug" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "world - Win32 French" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "world - Win32 German" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "world - Win32 Italian" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "world - Win32 Spanish" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "world - Win32 Japanese" (based on "Win32 (x86) Dynamic-Link Library")
 !MESSAGE "world - Win32 Demo Debug" (based on "Win32 (x86) Dynamic-Link Library")
 !MESSAGE "world - Win32 Demo Release" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "world - Win32 German Debug" (based on "Win32 (x86) Dynamic-Link Library")
 !MESSAGE 
 
 # Begin Project
@@ -45,8 +51,8 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /c
-# ADD CPP /nologo /G5 /MT /W3 /GX /O2 /I "..\..\base\dk_" /I "..\..\user" /I "..\..\libent" /D "DAIKATANA_OEM" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
-# SUBTRACT CPP /Z<none> /Fr
+# ADD CPP /nologo /G6 /MT /W3 /GX /O2 /I "..\..\base\dk_" /I "..\..\user" /I "..\..\libent" /D "TONGUE_ENGLISH" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
+# SUBTRACT CPP /Fr
 # ADD BASE MTL /nologo /D "NDEBUG" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
@@ -56,8 +62,8 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /dll /machine:I386
-# ADD LINK32 winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib IonCommonRelease.lib wsock32.lib /nologo /subsystem:windows /dll /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /out:"Release/world.dll" /libpath:"..\..\libs"
-# SUBTRACT LINK32 /profile /map /debug
+# ADD LINK32 winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib IonCommonRelease.lib  /nologo /subsystem:windows /dll /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /out:"Release/world.dll" /libpath:"..\..\libs"
+# SUBTRACT LINK32 /map /debug
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
@@ -73,7 +79,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /c
-# ADD CPP /nologo /G5 /MTd /W3 /Gm /Gi /GX /ZI /Od /I "..\..\base\dk_" /I "..\..\user" /I "..\..\libent" /D "DAIKATANA_OEM" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FR /YX /FD /c
+# ADD CPP /nologo /G6 /MTd /W3 /Gm /Gi /ZI /I "..\..\base\dk_" /I "..\..\user" /I "..\..\libent" /D "TONGUE_ENGLISH" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FR /YX /FD /c
 # ADD BASE MTL /nologo /D "_DEBUG" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
@@ -83,8 +89,153 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /dll /debug /machine:I386
-# ADD LINK32 winmm.lib winspool.lib comdlg32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib wsock32.lib advapi32.lib kernel32.lib user32.lib gdi32.lib IonCommonDebug.lib imagehlp.lib /nologo /subsystem:windows /dll /map /debug /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\..\libs" /debug:full
+# ADD LINK32 winmm.lib winspool.lib comdlg32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib  advapi32.lib kernel32.lib user32.lib gdi32.lib IonCommonDebug.lib imagehlp.lib /nologo /subsystem:windows /dll /map /debug /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\..\libs" /debug:full
 # SUBTRACT LINK32 /pdb:none
+
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "world___Win32_French"
+# PROP BASE Intermediate_Dir "world___Win32_French"
+# PROP BASE Ignore_Export_Lib 0
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir ".\French"
+# PROP Intermediate_Dir ".\French"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /G5 /MT /W3 /GX /O2 /I "..\..\base\dk_" /I "..\..\user" /I "..\..\libent" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /Fr /YX /FD /c
+# ADD CPP /nologo /G5 /MT /W3 /GX /O2 /I "..\..\base\dk_" /I "..\..\user" /I "..\..\libent" /D "TONGUE_FRENCH" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /Fr /YX /FD /c
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD BASE RSC /l 0x409 /d "NDEBUG"
+# ADD RSC /l 0x409 /d "NDEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib IonCommonRelease.lib  /nologo /subsystem:windows /dll /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /out:"Release/world.dll" /libpath:"..\..\libs"
+# SUBTRACT BASE LINK32 /map /debug
+# ADD LINK32 winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib IonCommonFrench.lib  /nologo /subsystem:windows /dll /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /out:"French/world.dll" /libpath:"..\..\libs"
+# SUBTRACT LINK32 /map /debug
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "world___Win32_German"
+# PROP BASE Intermediate_Dir "world___Win32_German"
+# PROP BASE Ignore_Export_Lib 0
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir ".\German"
+# PROP Intermediate_Dir ".\German"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /G5 /MT /W3 /GX /O2 /I "..\..\base\dk_" /I "..\..\user" /I "..\..\libent" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /Fr /YX /FD /c
+# ADD CPP /nologo /G5 /MT /W3 /GX /O2 /I "..\..\base\dk_" /I "..\..\user" /I "..\..\libent" /D "TONGUE_GERMAN" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /Fr /YX /FD /c
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD BASE RSC /l 0x409 /d "NDEBUG"
+# ADD RSC /l 0x409 /d "NDEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib IonCommonRelease.lib  /nologo /subsystem:windows /dll /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /out:"Release/world.dll" /libpath:"..\..\libs"
+# SUBTRACT BASE LINK32 /map /debug
+# ADD LINK32 winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib  IonCommonGerman.lib /nologo /subsystem:windows /dll /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /out:"German/world.dll" /libpath:"..\..\libs"
+# SUBTRACT LINK32 /map /debug
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "world___Win32_Italian"
+# PROP BASE Intermediate_Dir "world___Win32_Italian"
+# PROP BASE Ignore_Export_Lib 0
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir ".\Italian"
+# PROP Intermediate_Dir ".\Italian"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /G5 /MT /W3 /GX /O2 /I "..\..\base\dk_" /I "..\..\user" /I "..\..\libent" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /Fr /YX /FD /c
+# ADD CPP /nologo /G5 /MT /W3 /GX /O2 /I "..\..\base\dk_" /I "..\..\user" /I "..\..\libent" /D "TONGUE_ITALIAN" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /Fr /YX /FD /c
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD BASE RSC /l 0x409 /d "NDEBUG"
+# ADD RSC /l 0x409 /d "NDEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib IonCommonRelease.lib  /nologo /subsystem:windows /dll /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /out:"Release/world.dll" /libpath:"..\..\libs"
+# SUBTRACT BASE LINK32 /map /debug
+# ADD LINK32 winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib  IonCommonItalian.lib /nologo /subsystem:windows /dll /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /out:"Italian/world.dll" /libpath:"..\..\libs"
+# SUBTRACT LINK32 /map /debug
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "world___Win32_Spanish"
+# PROP BASE Intermediate_Dir "world___Win32_Spanish"
+# PROP BASE Ignore_Export_Lib 0
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir ".\Spanish"
+# PROP Intermediate_Dir ".\Spanish"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /G5 /MT /W3 /GX /O2 /I "..\..\base\dk_" /I "..\..\user" /I "..\..\libent" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /Fr /YX /FD /c
+# ADD CPP /nologo /G5 /MT /W3 /GX /O2 /I "..\..\base\dk_" /I "..\..\user" /I "..\..\libent" /D "TONGUE_SPANISH" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /Fr /YX /FD /c
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD BASE RSC /l 0x409 /d "NDEBUG"
+# ADD RSC /l 0x409 /d "NDEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib IonCommonRelease.lib  /nologo /subsystem:windows /dll /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /out:"Release/world.dll" /libpath:"..\..\libs"
+# SUBTRACT BASE LINK32 /map /debug
+# ADD LINK32 winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib IonCommonSpanish.lib  /nologo /subsystem:windows /dll /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /out:"Spanish/world.dll" /libpath:"..\..\libs"
+# SUBTRACT LINK32 /map /debug
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "world___Win32_Japanese"
+# PROP BASE Intermediate_Dir "world___Win32_Japanese"
+# PROP BASE Ignore_Export_Lib 0
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir ".\Japanese"
+# PROP Intermediate_Dir ".\Japanese"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /G5 /MT /W3 /GX /O2 /I "..\..\base\dk_" /I "..\..\user" /I "..\..\libent" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /Fr /YX /FD /c
+# ADD CPP /nologo /G5 /MT /W3 /GX /O2 /I "..\..\base\dk_" /I "..\..\user" /I "..\..\libent" /D "TONGUE_JAPANESE" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /Fr /YX /FD /c
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD BASE RSC /l 0x409 /d "NDEBUG"
+# ADD RSC /l 0x409 /d "NDEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib IonCommonRelease.lib  /nologo /subsystem:windows /dll /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /out:"Release/world.dll" /libpath:"..\..\libs"
+# SUBTRACT BASE LINK32 /map /debug
+# ADD LINK32 winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib IonCommonJapanese.lib  /nologo /subsystem:windows /dll /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /out:"Japanese/world.dll" /libpath:"..\..\libs"
+# SUBTRACT LINK32 /map /debug
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
@@ -110,9 +261,9 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 winmm.lib winspool.lib comdlg32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib wsock32.lib advapi32.lib kernel32.lib user32.lib gdi32.lib IonCommonDebug.lib imagehlp.lib /nologo /subsystem:windows /dll /map /debug /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\..\libs" /debug:full
+# ADD BASE LINK32 winmm.lib winspool.lib comdlg32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib  advapi32.lib kernel32.lib user32.lib gdi32.lib IonCommonDebug.lib imagehlp.lib /nologo /subsystem:windows /dll /map /debug /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\..\libs" /debug:full
 # SUBTRACT BASE LINK32 /pdb:none
-# ADD LINK32 winmm.lib winspool.lib comdlg32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib wsock32.lib advapi32.lib kernel32.lib user32.lib gdi32.lib IonCommonDebug.lib imagehlp.lib /nologo /subsystem:windows /dll /map /debug /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\..\libs" /debug:full
+# ADD LINK32 winmm.lib winspool.lib comdlg32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib  advapi32.lib kernel32.lib user32.lib gdi32.lib IonCommonDebug.lib imagehlp.lib /nologo /subsystem:windows /dll /map /debug /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\..\libs" /debug:full
 # SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
@@ -141,10 +292,39 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib IonCommonRelease.lib wsock32.lib /nologo /subsystem:windows /dll /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /out:"Release/world.dll" /libpath:"..\..\libs"
+# ADD BASE LINK32 winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib IonCommonRelease.lib  /nologo /subsystem:windows /dll /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /out:"Release/world.dll" /libpath:"..\..\libs"
 # SUBTRACT BASE LINK32 /map /debug
-# ADD LINK32 winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib IonCommonRelease.lib wsock32.lib /nologo /subsystem:windows /dll /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\..\libs"
+# ADD LINK32 winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib IonCommonRelease.lib  /nologo /subsystem:windows /dll /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\..\libs"
 # SUBTRACT LINK32 /map /debug
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "world___Win32_German_Debug"
+# PROP BASE Intermediate_Dir "world___Win32_German_Debug"
+# PROP BASE Ignore_Export_Lib 0
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir "German_Debug"
+# PROP Intermediate_Dir "German_Debug"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /G5 /MT /W3 /GX /O2 /I "..\..\base\dk_" /I "..\..\user" /I "..\..\libent" /D "TONGUE_GERMAN" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /Fr /YX /FD /c
+# ADD CPP /nologo /G5 /MTd /W3 /GX /ZI /Od /I "..\..\base\dk_" /I "..\..\user" /I "..\..\libent" /D "TONGUE_GERMAN" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FAs /Fr /YX /FD /c
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD BASE RSC /l 0x409 /d "NDEBUG"
+# ADD RSC /l 0x409 /d "NDEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib  IonCommonGerman.lib /nologo /subsystem:windows /dll /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /out:"German/world.dll" /libpath:"..\..\libs"
+# SUBTRACT BASE LINK32 /map /debug
+# ADD LINK32 winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib  IonCommonGermanDebug.lib /nologo /subsystem:windows /dll /pdb:none /debug /machine:I386 /nodefaultlib:"libc.lib" /out:"German/world.dll" /libpath:"..\..\libs"
+# SUBTRACT LINK32 /map
 
 !ENDIF 
 
@@ -152,8 +332,14 @@ LINK32=link.exe
 
 # Name "world - Win32 Release"
 # Name "world - Win32 Debug"
+# Name "world - Win32 French"
+# Name "world - Win32 German"
+# Name "world - Win32 Italian"
+# Name "world - Win32 Spanish"
+# Name "world - Win32 Japanese"
 # Name "world - Win32 Demo Debug"
 # Name "world - Win32 Demo Release"
+# Name "world - Win32 German Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;hpj;bat;for;f90"
@@ -173,9 +359,39 @@ SOURCE=.\battleboar.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -193,9 +409,39 @@ SOURCE=.\cambot.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -233,9 +479,39 @@ SOURCE=.\froginator.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -253,9 +529,39 @@ SOURCE=.\inmater.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -281,9 +587,39 @@ SOURCE=.\prisoner.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -305,9 +641,39 @@ SOURCE=.\psyclaw.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -325,9 +691,39 @@ SOURCE=.\ragemaster.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -357,9 +753,39 @@ SOURCE=.\sludgeminion.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -385,9 +811,39 @@ SOURCE=.\vermin.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -409,9 +865,39 @@ SOURCE=.\centurion.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -429,9 +915,39 @@ SOURCE=.\cerberus.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -449,9 +965,39 @@ SOURCE=.\column.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -473,9 +1019,39 @@ SOURCE=.\griffon.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -493,9 +1069,39 @@ SOURCE=.\harpy.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -513,9 +1119,39 @@ SOURCE=.\kminos.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -533,9 +1169,39 @@ SOURCE=.\medusa.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -553,9 +1219,39 @@ SOURCE=.\satyr.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -573,9 +1269,39 @@ SOURCE=.\skeleton.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -597,9 +1323,39 @@ SOURCE=.\spider.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -617,9 +1373,39 @@ SOURCE=.\thief.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -641,9 +1427,39 @@ SOURCE=.\buboid.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -661,9 +1477,39 @@ SOURCE=.\doombat.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -681,9 +1527,39 @@ SOURCE=.\dragon.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -701,9 +1577,39 @@ SOURCE=.\dwarf.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -721,9 +1627,39 @@ SOURCE=.\fletcher.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -741,9 +1677,39 @@ SOURCE=.\garroth.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -761,9 +1727,39 @@ SOURCE=.\knight1.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -781,9 +1777,39 @@ SOURCE=.\knight2.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -801,9 +1827,39 @@ SOURCE=.\lycanthir.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -825,9 +1881,39 @@ SOURCE=.\prat.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -873,9 +1959,39 @@ SOURCE=.\blackpris.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -893,9 +2009,39 @@ SOURCE=.\chaingang.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -913,9 +2059,39 @@ SOURCE=.\femgang.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -941,9 +2117,39 @@ SOURCE=.\labmonkey.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -969,9 +2175,39 @@ SOURCE=.\rocketgang.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -993,9 +2229,39 @@ SOURCE=.\scomndo.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1017,9 +2283,39 @@ SOURCE=.\sealcap.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1037,9 +2333,39 @@ SOURCE=.\sgirl.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1057,9 +2383,39 @@ SOURCE=.\shark.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1077,9 +2433,39 @@ SOURCE=.\uzigang.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1105,9 +2491,39 @@ SOURCE=.\bot.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1146,9 +2562,39 @@ SOURCE=.\ai.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1186,9 +2632,39 @@ SOURCE=.\ai_frames.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1210,9 +2686,39 @@ SOURCE=.\ai_func.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1246,9 +2752,39 @@ SOURCE=.\ai_move.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1290,9 +2826,39 @@ SOURCE=.\ai_utils.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1314,9 +2880,39 @@ SOURCE=.\ai_weapons.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1354,9 +2950,39 @@ SOURCE=.\goldfish.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1378,9 +3004,39 @@ SOURCE=.\GrphPath.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1412,12 +3068,42 @@ SOURCE=.\hiro.cpp
 
 # PROP Exclude_From_Build 1
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 # PROP BASE Exclude_From_Build 1
 # PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1435,9 +3121,39 @@ SOURCE=.\MonsterSound.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1467,9 +3183,39 @@ SOURCE=.\nodelist.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1491,9 +3237,39 @@ SOURCE=.\octree.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1551,9 +3327,39 @@ SOURCE=.\thinkFuncs.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1576,9 +3382,39 @@ SOURCE=.\actorlist.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1596,9 +3432,39 @@ SOURCE=.\artifacts.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1616,9 +3482,39 @@ SOURCE=.\bodylist.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1636,9 +3532,39 @@ SOURCE=.\chasecam.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1656,9 +3582,39 @@ SOURCE=.\cin_playback.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1676,9 +3632,39 @@ SOURCE=.\client.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1696,9 +3682,39 @@ SOURCE=.\client_init.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1740,9 +3756,39 @@ SOURCE=.\door.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1760,9 +3806,39 @@ SOURCE=.\drop_monster.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1780,9 +3856,39 @@ SOURCE=.\effects.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1802,12 +3908,42 @@ SOURCE=.\entity_pointer.cpp
 
 # PROP Exclude_From_Build 1
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 # PROP BASE Exclude_From_Build 1
 # PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1833,9 +3969,39 @@ SOURCE=.\func_monitor.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1853,9 +4019,39 @@ SOURCE=.\func_various.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1889,9 +4085,39 @@ SOURCE=.\items.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1909,9 +4135,39 @@ SOURCE=.\light.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1929,9 +4185,39 @@ SOURCE=..\..\user\memory.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1949,9 +4235,39 @@ SOURCE=.\misc.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1969,9 +4285,39 @@ SOURCE=.\monsterpaths.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -1989,9 +4335,39 @@ SOURCE=.\target.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -2013,9 +4389,39 @@ SOURCE=.\triggers.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -2033,9 +4439,39 @@ SOURCE=.\viewthing.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -2053,9 +4489,39 @@ SOURCE=.\world.cpp
 
 !ELSEIF  "$(CFG)" == "world - Win32 Debug"
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# ADD BASE CPP /Zi /Od
+# ADD CPP /Zi /Od
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # ADD BASE CPP /Zi /Od
 # ADD CPP /Zi /Od
@@ -2223,12 +4689,42 @@ SOURCE=..\Daikatana\game\p_client.c
 
 # PROP Exclude_From_Build 1
 
+!ELSEIF  "$(CFG)" == "world - Win32 French"
+
+# PROP BASE Exclude_From_Build 1
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "world - Win32 German"
+
+# PROP BASE Exclude_From_Build 1
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "world - Win32 Italian"
+
+# PROP BASE Exclude_From_Build 1
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "world - Win32 Spanish"
+
+# PROP BASE Exclude_From_Build 1
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "world - Win32 Japanese"
+
+# PROP BASE Exclude_From_Build 1
+# PROP Exclude_From_Build 1
+
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Debug"
 
 # PROP BASE Exclude_From_Build 1
 # PROP Exclude_From_Build 1
 
 !ELSEIF  "$(CFG)" == "world - Win32 Demo Release"
+
+# PROP BASE Exclude_From_Build 1
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "world - Win32 German Debug"
 
 # PROP BASE Exclude_From_Build 1
 # PROP Exclude_From_Build 1

@@ -307,8 +307,7 @@ void ArtFx_Undead(trackParamData_t* trackData)
 // ----------------------------------------------------------------------------
 void ArtFx_BloodCloud(trackParamData_t* trackData)
 {
-// SCG[6/5/00]: #ifdef TONGUE_GERMAN
-#ifdef NO_VIOLENCE
+#ifdef TONGUE_GERMAN
 	return;
 #endif
 

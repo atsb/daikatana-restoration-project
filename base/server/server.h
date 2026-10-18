@@ -8,10 +8,6 @@
 #include "qcommon.h"
 #include "physics.h"
 
-#define TONGUE_SAVE_ERR_LOCAL "You must be running a local game to save!"
-#define TONGUE_SAVE_ERR_INGAME "You must be in a game to save!"
-#define TONGUE_SAVE_ERR_DM "You can not save in a deathmatch!"
-#define TONGUE_SAVE_ERR_CINE "You can not save during a cinematic!"
 
 //=============================================================================
 #define	MAX_MASTERS	8				// max recipients for heartbeat packets
@@ -321,7 +317,6 @@ int SV_GetTraceCount(void);
 void	dk_GetFrameName		(int modelindex, int frameindex, char *name);
 int		dk_GetAnimSequences	(int modelindex, frameData_t *pFrameData);
 int		dk_GetModelSkinIndex(int modelIndex);
-char*		dk_GetModelSkinName(int modelIndex);
 void	dk_ForceModelLoad	(int modelindex, char *name);
 void	dk_PreCacheModel	(int modelindex, char *name);
 int		dk_VertInfo			(edict_t *ent, int surfIndex, int vertIndex, CVector &vert);

@@ -1,3 +1,5 @@
+#include <stdint.h>
+#include <stddef.h>
 /*
 ** RW_IMP.C
 **
@@ -307,7 +309,7 @@ void RImp_AppActivate( qboolean active )
 Sys_MakeCodeWriteable
 ================
 */
-void Sys_MakeCodeWriteable (unsigned long startaddr, unsigned long length)
+void Sys_MakeCodeWriteable (uintptr_t startaddr, size_t length)
 {
 	DWORD  flOldProtect;
 	if (!VirtualProtect((LPVOID)startaddr, length, PAGE_READWRITE, &flOldProtect))

@@ -13,12 +13,7 @@
 // Modify the defines, MPLAYER_URL and MPI_FILE to whatever Mplayer says it 
 // should be and then call LaunchMplayer() (found at the end of this file) and 
 // have your application exit.
-#ifdef JPN
-#define MPLAYER_URL "http://www.37play.com/retailgames/daikatana.phtml"
-#else
 #define MPLAYER_URL "http://www.mplayer.com/gamers/action/daikatana/"
-#endif
-
 #define MPI_FILE    "mpkatana.mpi"
 
 #ifdef _MSC_VER
@@ -123,12 +118,7 @@ LaunchMplayer()
 
 	// let's run the mplayer installer since we know it is installed locally
 	// in 'install\mplayer\mplayerinstaller.exe'
-#ifdef JPN
-	sprintf(mpinstaller, "install\\37player\\37playerinstaller.exe");
-#else
 	sprintf(mpinstaller, "install\\mplayer\\mplayerinstaller.exe");
-#endif
-
 	if(FileExists(mpinstaller))
 		Execute(mpinstaller);
 

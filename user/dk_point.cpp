@@ -553,11 +553,6 @@ float CVector::GetValue( int nIndex )
 	return fValue;
 }
 
-CVector operator *( float n, const CVector& b )
-{
-	return(b * n);
-}
-
 ///////////////////////////////////////////////////////////////////////
 // Scale(source_vector, scale)
 //
@@ -591,6 +586,14 @@ CVector CVector::Interpolate( CVector& v1, CVector& v2, float fPercent )
 
 	return vTemp;
 }
+
+// Scalar-left multiplication.  Keep this as the single external definition
+// used by all modules; the member operator remains inline in release builds.
+CVector operator*(float n, const CVector &v)
+{
+	return v * n;
+}
+
 
 /* ************************************************************************* */
 /*						Helper functions and definitions					 */

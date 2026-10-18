@@ -136,7 +136,7 @@ int save_LoadGameVerify(char *name, char *field1, char *field2, char *comment)
 		return 0;
 	}
 
-	if (strstr(name,"save0") || strstr(name,"save1"))
+	if (strstr(name,"save0"))
 		return 0;
 
 	char path[MAX_OSPATH];
@@ -263,14 +263,9 @@ void CMenuSubSavegame::Enter()
 bool SV_CanSave (client_t *cl, bool msg);
 bool enable_save()
 {
-	return ( in_main_game() && SV_CanSave(NULL, false) );
-/*
-	return ( (cl_savegem_count > 0) &&																					// have save gem
-			 !(cl.refdef.rdflags & RDF_LETTERBOX) &&																	// no cines
-			 (in_main_game() && svs.initialized && svs.clients[0].edict && svs.clients[0].edict->client->ps.stats[STAT_HEALTH] > 0) &&	// in game and alive
-			 (cls.disable_screen == 0));																				// um, yeah
-*/
+	return (in_main_game() && SV_CanSave(NULL, false));
 }
+
 void CMenuSubSavegame::Animate(int32 elapsed_time)
 {
 	status.Animate(elapsed_time);
@@ -325,13 +320,12 @@ void CMenuSubSavegame::DrawForeground()
 //	Com_sprintf( string,sizeof(string), "%s.tga", "shot" );
 
 
-	float xScale = (viddef.width / 640.0);
-	float yScale = (viddef.height / 480.0);
+	float menu_scale = DKM_MenuScale();
 	drawStruct.nFlags = DSFLAG_SCALE;
-	drawStruct.fScaleX = (SCREEN_SHOT_WIDTH * xScale) / SCREEN_SHOT_IMAGE_WIDTH;
-	drawStruct.fScaleY = (SCREEN_SHOT_HEIGHT * yScale) / SCREEN_SHOT_IMAGE_HEIGHT;
-	drawStruct.nXPos = SCREEN_SHOT_LEFT * xScale;
-	drawStruct.nYPos = SCREEN_SHOT_TOP * yScale;
+	drawStruct.fScaleX = (SCREEN_SHOT_WIDTH * menu_scale) / SCREEN_SHOT_IMAGE_WIDTH;
+	drawStruct.fScaleY = (SCREEN_SHOT_HEIGHT * menu_scale) / SCREEN_SHOT_IMAGE_HEIGHT;
+	drawStruct.nXPos = DKM_MenuScreenX(SCREEN_SHOT_LEFT);
+	drawStruct.nYPos = DKM_MenuScreenY(SCREEN_SHOT_TOP);
 //	drawStruct.pImage = re.RegisterPic( "shot.tga", NULL, NULL, RESOURCE_INTERFACE );
 	Com_sprintf(string,sizeof(string),"%s/",FS_SaveGameDir());
 
@@ -396,9 +390,9 @@ void CMenuSubSavegame::DrawForeground()
 	DKM_DrawString( SECRETS_LEFT, SECRETS_TOP, string, NULL, false, false );
 */
 
-	int *stats = (int*)&cl.frame.playerstate.stats;
-	int time = *(stats + STAT_TIME);
-	int tTime = *(stats + STAT_TOTAL_TIME);
+	long *stats = (long*)&cl.frame.playerstate.stats;
+	long time = *(stats + STAT_TIME);
+	long tTime = *(stats + STAT_TOTAL_TIME);
 
 	int nMinutes	= ( time / 60 );
 	int nHours		= ( ( time / 60 ) / 60 );
@@ -552,7 +546,7 @@ void CMenuSubSavegame::FillGameInfo()
 //	file_field.SetText( cl_mapname );
 
 	// fill in the caption bar
-	int *stats = (int*)&cl.frame.playerstate.stats;
+	long *stats = (long*)&cl.frame.playerstate.stats;
 
 	// get the monster kill count
 	monsters = *(stats + STAT_KILLS);
@@ -569,7 +563,7 @@ void CMenuSubSavegame::FillGameInfo()
 	Com_sprintf(curInfo->stats[GAME_STAT_ARMOR],MAX_STAT_LEN,"%d",*(stats + STAT_ARMOR));
 	Com_sprintf(curInfo->stats[GAME_STAT_LEVEL],MAX_STAT_LEN,"%d",*(stats + STAT_LEVEL));
 
-	int health;
+	long health;
 	// fill in superfly's game info
 	curInfo = &game_info[GAME_INFO_SUPERFLY];
 	strcpy(curInfo->name,"Superfly");

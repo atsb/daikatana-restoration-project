@@ -9,10 +9,10 @@ class CThreadSync
 {
 public:
     CThreadSync();
-    CThreadSync( LPCTSTR lpFileMappingName, LPCTSTR lpObjectName );
+    CThreadSync( LPCSTR lpFileMappingName, LPCSTR lpObjectName );
     ~CThreadSync();
     
-    BOOL Init( LPCTSTR lpFileMappingName, LPCTSTR lpObjectName );
+    BOOL Init( LPCSTR lpFileMappingName, LPCSTR lpObjectName );
     BOOL CreateFileMap();
     BOOL OpenFileForRead();
     BOOL OpenFileForWrite();

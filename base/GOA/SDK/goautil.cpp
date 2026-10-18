@@ -30,6 +30,7 @@ INCLUDES
 #include <stdlib.h>
 #include <stdio.h>
 #include "../nonport.h"
+#include <SDL3_net/SDL_net.h>
 #include <string.h>
 #include <assert.h>
 
@@ -77,16 +78,16 @@ static int qport;
 static void *udata = NULL;
 static char gname[24];
 
-static SOCKET querysock = INVALID_SOCKET;
-static SOCKET hbsock = INVALID_SOCKET;
+static NET_DatagramSocket *querysock = NULL;
+static NET_DatagramSocket *hbsock = NULL;
+static NET_Address *master_address = NULL;
 
 
 /********
 PROTOTYPES
 ********/
-void send_heartbeat(int statechanged);
-void parse_query(char *query, struct sockaddr *sender);
-int get_sockaddrin(char *host, int port, struct sockaddr_in *saddr, struct hostent **savehent);
+static void send_heartbeat(int statechanged);
+static void parse_query(char *query, NET_Address *sender, Uint16 sender_port);
 
 
 /****************************************************************************/
@@ -97,143 +98,136 @@ int get_sockaddrin(char *host, int port, struct sockaddr_in *saddr, struct hoste
 if an error occured, or 0 otherwise */
 int goa_init(int queryport, char *gamename, char *ip, void *userdata)
 {
-	int lasterror;
-	struct sockaddr_in saddr;
+    SDL_PropertiesID props;
+    NET_Address *bind_address = NULL;
 
-    
-	//save off query port,gamename and userdata
-	qport = queryport;
-	strncpy(gname, gamename, 23);
-	udata = userdata;
+    qport = queryport;
+    strncpy(gname, gamename, 23);
+    gname[23] = '\0';
+    udata = userdata;
 
-	//create our sockets
-	SocketStartUp();
+    props = SDL_CreateProperties();
+    if (!props)
+        return E_GOA_WSOCKERROR;
+    SDL_SetBooleanProperty(props, NET_PROP_DATAGRAM_SOCKET_REUSEADDR_BOOLEAN, true);
 
-	querysock = socket(PF_INET, SOCK_DGRAM, 0);
-	hbsock = socket(PF_INET, SOCK_DGRAM, 0);
-	if (INVALID_SOCKET == querysock || INVALID_SOCKET == hbsock)
-	{
-		return E_GOA_WSOCKERROR;
-	}
+    if (ip && ip[0] && strcasecmp(ip, "localhost") != 0)
+    {
+        bind_address = NET_ResolveHostname(ip);
+        if (!bind_address)
+        {
+            SDL_DestroyProperties(props);
+            return E_GOA_BINDERROR;
+        }
+        if (NET_WaitUntilResolved(bind_address, -1) < 0)
+        {
+            NET_UnrefAddress(bind_address);
+            SDL_DestroyProperties(props);
+            return E_GOA_BINDERROR;
+        }
+    }
 
-	get_sockaddrin(ip,queryport,&saddr,NULL);
-	if (saddr.sin_addr.s_addr == 0x0100007F) //localhost -- we don't want that!
-		saddr.sin_addr.s_addr = INADDR_ANY;
+    querysock = NET_CreateDatagramSocket(bind_address, (Uint16)queryport, props);
+    if (bind_address)
+        NET_UnrefAddress(bind_address);
+    SDL_DestroyProperties(props);
+    if (!querysock)
+        return E_GOA_BINDERROR;
 
+    master_address = NET_ResolveHostname(MASTER_ADDR);
+    if (!master_address)
+    {
+        NET_DestroyDatagramSocket(querysock);
+        querysock = NULL;
+        return E_GOA_CONNERROR;
+    }
+    if (NET_WaitUntilResolved(master_address, -1) < 0)
+    {
+        NET_UnrefAddress(master_address);
+        master_address = NULL;
+        NET_DestroyDatagramSocket(querysock);
+        querysock = NULL;
+        return E_GOA_CONNERROR;
+    }
 
-	lasterror = bind(querysock, (struct sockaddr *)&saddr, sizeof(saddr));
-	if (lasterror)
-	{
-		return E_GOA_BINDERROR;
-	}
+    hbsock = NET_CreateDatagramSocket(NULL, 0, 0);
+    if (!hbsock)
+    {
+        NET_UnrefAddress(master_address);
+        master_address = NULL;
+        NET_DestroyDatagramSocket(querysock);
+        querysock = NULL;
+        return E_GOA_WSOCKERROR;
+    }
 
-	get_sockaddrin(MASTER_ADDR,MASTER_PORT,&saddr,NULL);
-
-
-	lasterror = connect (hbsock, (struct sockaddr *) &saddr, sizeof(saddr));
-	
-	if (lasterror)
-	{
-		return E_GOA_CONNERROR;
-	}
-  
-	return 0;
-
+    return 0;
 }
 
 /* goa_process_queries: Processes any waiting queries, and sends a
 heartbeat if 5 minutes have elapsed */
 void goa_process_queries(void)
 {
-	static char indata[INBUF_LEN]; //256 byte input buffer
-	struct sockaddr saddr;
-	int saddrlen = sizeof(struct sockaddr);
-	fd_set set; 
-	struct timeval timeout = {0,0};
-	int error;
-	unsigned int tc = current_time();
+    static char indata[INBUF_LEN];
+    unsigned int tc = current_time();
 
-	if (INVALID_SOCKET == querysock || INVALID_SOCKET == hbsock)
-		return; //no sockets to work with!
+    if (!querysock || !hbsock || !master_address)
+        return;
 
-	//check if we need to send a heartbet
-	if (tc - lastheartbeat > HB_TIME)
-		send_heartbeat(0);
+    if (tc - lastheartbeat > HB_TIME)
+        send_heartbeat(0);
 
-	FD_ZERO ( &set );
-	FD_SET ( querysock, &set );
+    for (;;)
+    {
+        NET_Datagram *datagram = NULL;
+        int error;
 
+        if (!NET_ReceiveDatagram(querysock, &datagram) || !datagram)
+            return;
+        error = datagram->buflen;
+        if (error >= INBUF_LEN)
+        {
+            NET_DestroyDatagram(datagram);
+            continue;
+        }
 
-	while (1)
-	{
-		error = select(FD_SETSIZE, &set, NULL, NULL, &timeout);
-		if (SOCKET_ERROR == error || 0 == error)
-			return;
-		//else we have data
-		error = recvfrom(querysock, indata, INBUF_LEN - 1, 0, &saddr, &saddrlen);
-		if (error != SOCKET_ERROR)
-		{
-			indata[error] = '\0';
-			parse_query(indata, &saddr);
-		}
-	}
-		
+        memcpy(indata, datagram->buf, error);
+        indata[error] = '\0';
+        if (datagram->addr)
+            parse_query(indata, datagram->addr, datagram->port);
+        NET_DestroyDatagram(datagram);
+    }
 }
 
 /* goa_send_statechanged: Sends a statechanged heartbeat, call when
 your gamemode changes */
 void goa_send_statechanged(void)
 {
-	send_heartbeat(1);
+    send_heartbeat(1);
 }
 
 /* goa_shutdown: Cleans up the sockets and shuts down */
 void goa_shutdown(void)
 {
-	if (INVALID_SOCKET != querysock)
-	{
-		closesocket(querysock);
-		querysock = INVALID_SOCKET;
-	}
-		
-	if (INVALID_SOCKET != hbsock)
-	{
-		closesocket(hbsock);
-		hbsock = INVALID_SOCKET;
-	}
+    if (querysock)
+    {
+        NET_DestroyDatagramSocket(querysock);
+        querysock = NULL;
+    }
 
-	SocketShutDown();
+    if (hbsock)
+    {
+        NET_DestroyDatagramSocket(hbsock);
+        hbsock = NULL;
+    }
+
+    if (master_address)
+    {
+        NET_UnrefAddress(master_address);
+        master_address = NULL;
+    }
 }
 
 /****************************************************************************/
-
-/* Return a sockaddrin for the given host (numeric or DNS) and port)
-Returns the hostent in savehent if it is not NULL */
-int get_sockaddrin(char *host, int port, struct sockaddr_in *saddr, struct hostent **savehent)
-{
-	struct hostent *hent;
-
-	saddr->sin_family = AF_INET;
-	saddr->sin_port = htons((unsigned short)port);
-	if (host == NULL)
-		saddr->sin_addr.s_addr = INADDR_ANY;
-	else
-		saddr->sin_addr.s_addr = inet_addr(host);
-	
-	if (saddr->sin_addr.s_addr == INADDR_NONE && strcmp(host,"255.255.255.255") != 0)
-	{
-		hent = gethostbyname(host);
-		if (!hent)
-			return 0;
-		saddr->sin_addr.s_addr = *(u_long *)hent->h_addr_list[0];
-	}
-	if (savehent != NULL)
-		*savehent = hent;
-	return 1;
-
-} 
-
-
 
 /* value_for_key: this returns a value for a certain key in s, where s is a string
 containing key\value pairs. If the key does not exist, it returns  NULL. 
@@ -241,7 +235,8 @@ Note: the value is stored in a common buffer. If you want to keep it, make a cop
 char *value_for_key(const char *s, const char *key)
 {
 	static int valueindex;
-	char *pos,*pos2;
+	const char *pos;
+	char *pos2;
 	char keyspec[256]="\\";
 	static char value[2][256];
 
@@ -334,225 +329,195 @@ void gs_encrypt ( uchar *key, int key_len, uchar *buffer_ptr, int buffer_len )
 
 /* packet_send: sends a key\value packet. Appends the queryid
 key\value pair. Clears the buffer */
-void packet_send(struct sockaddr *addr, char *buffer)
+static void packet_send(NET_Address *addr, Uint16 port, char *buffer)
 {
-	char keyvalue[80];
-	
-	if (strlen(buffer) == 0)
-		return; //dont need to send an empty one!
-	packetnumber++; //packet numbers start at 1
-// SCG[1/16/00]: 	sprintf(keyvalue,"\\queryid\\%d.%d",queryid, packetnumber);
-	Com_sprintf(keyvalue,sizeof(keyvalue),"\\queryid\\%d.%d",queryid, packetnumber);
-	strcat(buffer,keyvalue);
-	sendto(querysock, buffer, strlen(buffer), 0, addr, sizeof(struct sockaddr));
-	buffer[0]='\0';
+    char keyvalue[80];
+    if (strlen(buffer) == 0)
+        return;
+    packetnumber++;
+    Com_sprintf(keyvalue, sizeof(keyvalue), "\\queryid\\%d.%d", queryid, packetnumber);
+    strcat(buffer, keyvalue);
+
+    NET_SendDatagram(querysock, addr, port, buffer, (int)strlen(buffer));
+    buffer[0] = '\0';
 }
 
-/* buffer_send: appends buffer with newdata. If the combined
-size would be too large, it flushes buffer first. Space is reserved
-on the total size to allow for the queryid key\value */
-void buffer_send(struct sockaddr *sender, char *buffer, char *newdata)
+static void buffer_send(NET_Address *sender, Uint16 sender_port, char *buffer, char *newdata)
 {
-	char *pos, *lastkey;
-	int bcount = 0;
+    char *pos, *lastkey;
+    int bcount = 0;
 
-	if (strlen(buffer) + strlen(newdata) < MAX_DATA_SIZE - 50)
-	{
-		strcat(buffer, newdata);
-	} else
-	{//test this!
-		if (strlen(newdata) > MAX_DATA_SIZE - 50) //incoming data is too big already!
-		{
-			lastkey = pos = newdata;
-			while (pos - newdata < MAX_DATA_SIZE-50)
-			{
-				if ('\\' == *pos)
-				{
-					if (bcount & 1 == 0)
-						lastkey = pos;
-					bcount++;
-				}
-				pos++;
-			}
-			if (lastkey == newdata)
-				return; //endless loop - single key was too big!
-			*lastkey = '\0';
-			buffer_send(sender, buffer, newdata);
-			*lastkey = '\\';
-			buffer_send(sender, buffer, lastkey); //send the rest!
-		} else
-		{
-			packet_send(sender, buffer);
-			strcpy(buffer,newdata);
-		}
-	}
-
+    if (strlen(buffer) + strlen(newdata) < MAX_DATA_SIZE - 50)
+    {
+        strcat(buffer, newdata);
+    }
+    else
+    {
+        if (strlen(newdata) > MAX_DATA_SIZE - 50)
+        {
+            lastkey = pos = newdata;
+            while (pos - newdata < MAX_DATA_SIZE - 50)
+            {
+                if ('\\' == *pos)
+                {
+                    if (bcount & 1 == 0)
+                        lastkey = pos;
+                    bcount++;
+                }
+                pos++;
+            }
+            if (lastkey == newdata)
+                return;
+            *lastkey = '\0';
+            buffer_send(sender, sender_port, buffer, newdata);
+            *lastkey = '\\';
+            buffer_send(sender, sender_port, buffer, lastkey);
+        }
+        else
+        {
+            packet_send(sender, sender_port, buffer);
+            strcpy(buffer, newdata);
+        }
+    }
 }
 
-/* send_basic: sends a response to the basic query */
-void send_basic(struct sockaddr *sender, char *outbuf)
+static void send_basic(NET_Address *sender, Uint16 sender_port, char *outbuf)
 {
-	char keyvalue[BUF_SIZE] = "";
-
-	assert(goa_basic_callback);
-	goa_basic_callback(keyvalue, sizeof(keyvalue), udata);
-
-	buffer_send(sender, outbuf, keyvalue);
-
-
+    char keyvalue[BUF_SIZE] = "";
+    assert(goa_basic_callback);
+    goa_basic_callback(keyvalue, sizeof(keyvalue), udata);
+    buffer_send(sender, sender_port, outbuf, keyvalue);
 }
 
-/* send_info: sends a response to the info query */
-void send_info(struct sockaddr *sender, char *outbuf)
+static void send_info(NET_Address *sender, Uint16 sender_port, char *outbuf)
 {
-	char keyvalue[BUF_SIZE] = "";
-
-	assert(goa_info_callback);
-	goa_info_callback(keyvalue, sizeof(keyvalue), udata);
-	buffer_send(sender, outbuf, keyvalue);
-
+    char keyvalue[BUF_SIZE] = "";
+    assert(goa_info_callback);
+    goa_info_callback(keyvalue, sizeof(keyvalue), udata);
+    buffer_send(sender, sender_port, outbuf, keyvalue);
 }
 
-/* send_rules: sends a response to the rules query. */
-void send_rules(struct sockaddr *sender, char *outbuf)
+static void send_rules(NET_Address *sender, Uint16 sender_port, char *outbuf)
 {
-	char keyvalue[BUF_SIZE] = "";
-
-	assert(goa_rules_callback);
-	goa_rules_callback(keyvalue, sizeof(keyvalue), udata);
-	buffer_send(sender, outbuf, keyvalue);
-
+    char keyvalue[BUF_SIZE] = "";
+    assert(goa_rules_callback);
+    goa_rules_callback(keyvalue, sizeof(keyvalue), udata);
+    buffer_send(sender, sender_port, outbuf, keyvalue);
 }
 
-/* send_players: sends the players and their information.*/
-void send_players(struct sockaddr *sender, char *outbuf)
+static void send_players(NET_Address *sender, Uint16 sender_port, char *outbuf)
 {
-	char keyvalue[BUF_SIZE] = "";
-
-	assert(goa_players_callback);
-	goa_players_callback(keyvalue, sizeof(keyvalue), udata);
-	buffer_send(sender, outbuf, keyvalue);
-
+    char keyvalue[BUF_SIZE] = "";
+    assert(goa_players_callback);
+    goa_players_callback(keyvalue, sizeof(keyvalue), udata);
+    buffer_send(sender, sender_port, outbuf, keyvalue);
 }
 
-/* send_echo: bounces the echostr back to sender 
-Note: you should always make sure that your echostr doesn't exceed the MAX_DATA_SIZE*/
-void send_echo(struct sockaddr *sender, char *outbuf,char *echostr)
+static void send_echo(NET_Address *sender, Uint16 sender_port, char *outbuf, char *echostr)
 {
-	char keyvalue[MAX_DATA_SIZE];
-
-	if (strlen(echostr) > MAX_DATA_SIZE - 50)
-		return;
-// SCG[1/16/00]: 	sprintf(keyvalue,"\\echo\\%s",echostr);
-	Com_sprintf(keyvalue,sizeof(keyvalue),"\\echo\\%s",echostr);
-	buffer_send(sender, outbuf, keyvalue);
-
+    char keyvalue[MAX_DATA_SIZE];
+    if (strlen(echostr) > MAX_DATA_SIZE - 50)
+        return;
+    Com_sprintf(keyvalue, sizeof(keyvalue), "\\echo\\%s", echostr);
+    buffer_send(sender, sender_port, outbuf, keyvalue);
 }
 
-/* send_final: sends the remaining data in outbuf. Appends the final
-key\value to the end. Also adds validation if required. */
-void send_final(struct sockaddr *sender, char *outbuf,char *validation)
+static void send_final(NET_Address *sender, Uint16 sender_port, char *outbuf, char *validation)
 {
-	char keyvalue[256];
-	char encrypted_val[128]; //don't need to null terminate
-	char encoded_val[200];
-	int keylen;
-	
-	if (validation[0])
-	{
-		keylen = strlen(validation);
-		if (keylen > 128) return;
-		strcpy(encrypted_val, validation);
-		gs_encrypt((unsigned char *)goa_secret_key, strlen(goa_secret_key), (unsigned char *)encrypted_val, keylen);
-		gs_encode((unsigned char *)encrypted_val,keylen, (unsigned char *)encoded_val);
-// SCG[1/16/00]: 		sprintf(keyvalue,"\\validate\\%s",encoded_val);
-		Com_sprintf(keyvalue,sizeof(keyvalue),"\\validate\\%s",encoded_val);
-		buffer_send(sender, outbuf, keyvalue);
-	}
-	
-// SCG[1/16/00]: 	sprintf(keyvalue,"\\final\\");
-	Com_sprintf(keyvalue,sizeof(keyvalue),"\\final\\");
-	buffer_send(sender, outbuf, keyvalue);
-	packet_send(sender, outbuf);
+    char keyvalue[256];
+    char encrypted_val[128];
+    char encoded_val[200];
+    int keylen;
+
+    if (validation[0])
+    {
+        keylen = strlen(validation);
+        if (keylen > 128)
+            return;
+        strcpy(encrypted_val, validation);
+        gs_encrypt((unsigned char *)goa_secret_key, strlen(goa_secret_key), (unsigned char *)encrypted_val, keylen);
+        gs_encode((unsigned char *)encrypted_val, keylen, (unsigned char *)encoded_val);
+        Com_sprintf(keyvalue, sizeof(keyvalue), "\\validate\\%s", encoded_val);
+        buffer_send(sender, sender_port, outbuf, keyvalue);
+    }
+
+    Com_sprintf(keyvalue, sizeof(keyvalue), "\\final\\");
+    buffer_send(sender, sender_port, outbuf, keyvalue);
+    packet_send(sender, sender_port, outbuf);
 }
 
-
-/* parse_query: parse an incoming query (which may contain 1 or more
-individual queries) and reply to each query */
-void parse_query(char *query, struct sockaddr *sender)
+static void parse_query(char *query, NET_Address *sender, Uint16 sender_port)
 {
-	query_t querytype;
-	char buffer[MAX_DATA_SIZE]="";
-	char *value;
-	char validation[256] = "";
+    query_t querytype;
+    char buffer[MAX_DATA_SIZE] = "";
+    char *value;
+    char validation[256] = "";
 
-	queryid++;
-	packetnumber = 0;
+    queryid++;
+    packetnumber = 0;
 
-	for (querytype = qtbasic; querytype <= qtsecure ; querytype = (query_t)((int)querytype + 1))
-	{
-		if ((value = value_for_key(query, queries[querytype])))
-			switch (querytype)
-			{
-				case qtbasic:
-					send_basic(sender,buffer);
-					break;
-				case qtinfo:
-					send_info(sender,buffer);
-					break;
-				case qtrules:
-					send_rules(sender,buffer);
-					break;
-				case qtplayers:
-					send_players(sender,buffer);
-					break;
-				case qtstatus:
-					send_basic(sender,buffer);
-					send_info(sender,buffer);
-					send_rules(sender,buffer);
-					send_players(sender,buffer);
-					break;
-				case qtpackets:
-				/*note: "packets" is NOT a real query type. It is simply here to illustrate
-					how a large query would look if broken into packets */
-					send_basic(sender,buffer); packet_send(sender, buffer);
-					send_info(sender,buffer); packet_send(sender, buffer);
-					send_rules(sender,buffer); packet_send(sender, buffer);
-					send_players(sender,buffer);
-					break;
-				case qtecho:
-					//note: \echo\value is the syntax here
-					send_echo(sender,buffer,value);
-					break;
-				case qtsecure:
-					strcpy(validation, value);
-					break;
-				case qtunknown:
-					break;
-
-			}
-	}
-	send_final(sender,buffer,validation);
+    for (querytype = qtbasic; querytype <= qtsecure; querytype = (query_t)((int)querytype + 1))
+    {
+        if ((value = value_for_key(query, queries[querytype])))
+        {
+            switch (querytype)
+            {
+                case qtbasic:
+                    send_basic(sender, sender_port, buffer);
+                    break;
+                case qtinfo:
+                    send_info(sender, sender_port, buffer);
+                    break;
+                case qtrules:
+                    send_rules(sender, sender_port, buffer);
+                    break;
+                case qtplayers:
+                    send_players(sender, sender_port, buffer);
+                    break;
+                case qtstatus:
+                    send_basic(sender, sender_port, buffer);
+                    send_info(sender, sender_port, buffer);
+                    send_rules(sender, sender_port, buffer);
+                    send_players(sender, sender_port, buffer);
+                    break;
+                case qtpackets:
+                    send_basic(sender, sender_port, buffer); packet_send(sender, sender_port, buffer);
+                    send_info(sender, sender_port, buffer); packet_send(sender, sender_port, buffer);
+                    send_rules(sender, sender_port, buffer); packet_send(sender, sender_port, buffer);
+                    send_players(sender, sender_port, buffer);
+                    break;
+                case qtecho:
+                    send_echo(sender, sender_port, buffer, value);
+                    break;
+                case qtsecure:
+                    strcpy(validation, value);
+                    break;
+                case qtunknown:
+                    break;
+            }
+        }
+    }
+    send_final(sender, sender_port, buffer, validation);
 }
 
 /* send_heartbeat: Sends a heartbeat to the gamemaster,
-adds \statechanged\ if statechanged != 0 */
-void send_heartbeat(int statechanged)
+adds \\statechanged\\ if statechanged != 0 */
+static void send_heartbeat(int statechanged)
 {
-	char buf[256];
-	
+    char buf[256];
     if (!dedicated || !dedicated->value)
-		return;		// only dedicated servers send heartbeats
-  
-	if (!public_server->value)
-		return;		// a private dedicated game
+        return;
+    if (!public_server->value)
+        return;
+    if (!hbsock || !master_address)
+        return;
 
-// SCG[1/16/00]:     sprintf(buf,"\\heartbeat\\%d\\gamename\\%s",qport, gname);
-    Com_sprintf(buf,sizeof(buf),"\\heartbeat\\%d\\gamename\\%s",qport, gname);
-	if (statechanged)
-		strcat(buf,"\\statechanged\\");
-	send(hbsock, buf, strlen(buf), 0);
-	lastheartbeat = current_time();
+    Com_sprintf(buf, sizeof(buf), "\\heartbeat\\%d\\gamename\\%s", qport, gname);
+    if (statechanged)
+        strcat(buf, "\\statechanged\\");
+
+    NET_SendDatagram(hbsock, master_address, MASTER_PORT, buf, (int)strlen(buf));
+    lastheartbeat = current_time();
 }
 
 #ifdef __cplusplus

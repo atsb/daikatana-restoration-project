@@ -10,25 +10,12 @@
 
 #include "../GOA/CEngine/goaceng.h"
 
-typedef struct gl_driver_info_s
-{
-	buffer64	szFilename;
-	buffer32	szVendor;
-	buffer32	szRenderer;
-	buffer32	szVersion;
-	buffer256	szExtensions;
-} gl_driver_info_t;
 
 //extern float use_shadows;
 extern int32 vid_menu_mode;	// resolution
 extern float vid_brightness;	// brightness
 extern int32 texture_quality;
 extern int32 tesselation_quality;
-
-extern int32 current_gl_driver;
-
-extern array_obj<gl_driver_info_t>	gl_driver_info;
-extern int							gl_driver_info_count;
 
 extern bool is_fullscreen;
 extern float use_shadows;	// shadows
@@ -136,6 +123,13 @@ bool in_main_game(void);
 void M_PopMenu();
 float CalcFov(float fov_x, float width, float height);
 void PlayInterfaceSound(const char* file_name);
+float DKM_MenuScale();
+int32 DKM_MenuOffsetX();
+int32 DKM_MenuOffsetY();
+int32 DKM_MenuScreenX(int32 norm_x);
+int32 DKM_MenuScreenY(int32 norm_y);
+int32 DKM_MenuNormX(int32 screen_x);
+int32 DKM_MenuNormY(int32 screen_y);
 
 
 extern void *menu_font;           //the font.
@@ -274,8 +268,8 @@ void ToggleRadioState(const char *cvar_name);
 //reads the value of the cvar, and sets the check state for the radio button control.
 void SetRadioState(CInterfaceButtonRadio &control, const char *cvar_name, bool inverse = false);
 void Cvar_ForceSetValue (const char *var_name, float value);
-void ToggleCvarFlag(char *cvar_name, unsigned int flag);
-void SetRadioStateFlag(CInterfaceButtonRadio &control, const char *cvar_name, unsigned int flag, bool inverse = false) ;
+void ToggleCvarFlag(char *cvar_name, unsigned long flag);
+void SetRadioStateFlag(CInterfaceButtonRadio &control, const char *cvar_name, unsigned long flag, bool inverse = false) ;
 
 //macro that does list box hit test, returns the index that was selected, or -1 if we are off the box.
 //num is the number of visible lines from top to bottom.  x and y are the current position of the mouse.
@@ -468,6 +462,7 @@ class CMenuSubQuit : public CMenuSub {
     CInterfaceButton		no;
 
 	void					GetQuitMessage(buffer128 &buf1, buffer128 &buf2, buffer128 &buf3);
+	void					DoQuit();
 	int						message;
 	short					rare;
 };
@@ -593,18 +588,21 @@ class CMenuSubOptions : public CMenuSub {
     CInterfaceButtonRadio auto_target_radio;
     CInterfaceButtonRadio weapon_visible;
 	CInterfaceButtonRadio subtitles_radio;
+	CInterfaceButtonRadio invincible_sidekicks_radio;
+	CInterfaceButtonRadio no_sidekicks_radio;
 	CInterfaceButtonRadio no_alttab_radio;
 	CInterfaceButtonRadio weapon_bob_radio;
 	CInterfaceButtonRadio weapon_autoswitch_radio;
 	CInterfaceButtonRadio play_intro_radio;
-	CInterfaceButtonRadio bloody_game_radio;
 	CInterfaceButtonRadio dm_taunts_radio;
 	CInterfaceButtonRadio unlimited_saves;
 	CInterfaceButtonRadio dm_help;
+	CInterfaceButtonRadio bloody_game_radio;
 
 
     //picker for crosshair graphic
     CInterfacePicker crosshair_picker;
+    CInterfacePicker hud_scale_picker;
 	void DrawCrosshair();
 
     CInterfaceSlider sbar_alpha;  // slider for setting alpha on status bar
@@ -628,27 +626,6 @@ public:
     virtual bool MouseUp(int32 norm_x, int32 norm_y);
 
 protected:
-	void PositionControls();
-	int32 ConfiguringAxisNum();
-	unsigned int BoundAdvAxisFlags();
-
-	void LoadAdvBindings();
-	void SaveAdvBindings();
-
-	CInterfacePicker		config_axis;
-    CInterfaceButtonRadio	advanced_radio;
-    CInterfaceButtonRadio	absolute_radio;
-	bool advAbsolute;
-
-	// advanced cvars
-	cvar_t *joy_advanced;
-	cvar_t *joy_advaxisx;
-	cvar_t *joy_advaxisy;
-	cvar_t *joy_advaxisz;
-	cvar_t *joy_advaxisr;
-	cvar_t *joy_advaxisu;
-	cvar_t *joy_advaxisv;
-
 	cvar_t *joy_forwardthreshold;	
 	cvar_t *joy_forwardsensitivity;	
 
@@ -878,6 +855,15 @@ class CMenuSubMouse : public CMenuSub {
     void TopIndex(int32 index);
 };
 
+typedef struct gl_driver_info_s
+{
+	buffer64	szFilename;
+	buffer32	szVendor;
+	buffer32	szRenderer;
+	buffer32	szVersion;
+	buffer256	szExtensions;
+} gl_driver_info_t;
+
 typedef enum {
 //    VM_SOFTWARE,
     VM_OPENGL,
@@ -1002,6 +988,11 @@ class CMenuSubVideo : public CMenuSub {
 	CInterfaceButtonRadio btn_snow_rain;
 
 	CInterfacePicker picker_modulate;
+	CInterfacePicker picker_msaa;
+	CInterfacePicker picker_texture_filter;
+	CInterfacePicker picker_anisotropic_level;
+	CInterfacePicker picker_vsync;
+	CInterfaceButtonRadio btn_overbright;
 
     //values for the buttons.
     bool fullscreen;
@@ -1133,8 +1124,6 @@ public:
     virtual bool MouseUp(int32 norm_x, int32 norm_y);
 
 protected:
-	void					GetPic();
-
 	CInterfaceFileBox		files;
 	CInterfaceLine			separator;
 	CInterfaceLine			separator2;
@@ -1149,8 +1138,8 @@ protected:
 	int						secrets;
 	int						tsecrets;
 
-	int					time;
-	int					total;
+	long					time;
+	long					total;
 
 	int						episode;
 	char					title[MAX_TITLE];
@@ -1163,11 +1152,13 @@ protected:
 	bool					bCoop;
 };
 
-// weapon selection menu screen.  used from within the multiplayer menu.
+
+
+// weapon selection menu screen. Used from within the multiplayer menu.
 typedef struct weaponStruct_s
 {
 	CInterfaceButtonRadio	button;
-	unsigned int			flag;
+	unsigned long			flag;
 } weaponStruct_t;
 
 class CMenuSubWeapons : public CMenuSub
@@ -1175,7 +1166,7 @@ class CMenuSubWeapons : public CMenuSub
 public:
     CMenuSubWeapons();
     virtual void Enter();
-	virtual void Leave();
+    virtual void Leave();
     virtual void Animate(int32 elapsed_time);
     virtual void DrawForeground();
     virtual void DrawBackground();
@@ -1185,16 +1176,16 @@ public:
     virtual bool MouseDown(int32 norm_x, int32 norm_y);
     virtual bool MouseUp(int32 norm_x, int32 norm_y);
 
-	void Activate(char *cvar);
-	bool Active();
+    void Activate(char *cvar);
+    bool Active();
 protected:
-	char					*weapCvar;
-	bool					bActive;
-	weaponStruct_t			weapons[24];
-	CInterfaceButton		back;
-    CInterfaceLine			separator;                    // separator line
+    char                    weapCvar[64];
+    bool                    bActive;
+    weaponStruct_t          weapons[24];
+    CInterfaceButton        back;
+    CInterfaceLine          separator;
 
-	void InitWeaponBtn(int episode, int num, unsigned int flag, const char *str);
+    void InitWeaponBtn(int episode, int num, unsigned long flag, const char *str);
 };
 
 //the different modes of the multiplayer menu.
@@ -1231,6 +1222,7 @@ typedef enum {
     MJRS_DRAW_MESSAGE,
     MJRS_DO_PINGS
 } multi_join_refresh_state;
+
 
 class CMenuSubMultiplayer : public CMenuSub
 {
@@ -1272,12 +1264,6 @@ public:
 	virtual bool MouseUpCooperative(int32 norm_x, int32 norm_y);
 
   protected:
-	CInterfaceButtonRadio	instagib_radio;
-	CInterfaceButton		BtnConfigureWeapons;
-	CMenuSubWeapons			weapons;
-	int32					lastClick;
-
-	bool					DoJoin();
 	char					manual_server[64];
 	void					DoRefresh();
 	DRAWSTRUCT				picDrawStruct;
@@ -1391,10 +1377,13 @@ public:
     CInterfaceButtonRadio shotshells_radio;
 	CInterfaceButtonRadio skill_system_radio;
 
-//	CInterfaceButtonRadio weapon_allow[6];
+	CInterfaceButtonRadio weapon_allow[6];
 
     CInterfaceButtonRadio teamplay_radio;
     CInterfaceButtonRadio friendly_fire_radio;
+CInterfaceButtonRadio instagib_radio;
+	CInterfaceButton		BtnConfigureWeapons;
+	CMenuSubWeapons		weapons;
 
 //	CInterfaceButtonRadio allow_hook_radio;
 //	CInterfaceButtonRadio instant_powerups_radio;
@@ -1526,6 +1515,8 @@ class CMenuSubNewgame : public CMenuSub {
     void DrawSkillPic(char * filename, int x, int y);
 
     CInterfaceButton start[12];
+    CInterfaceButtonRadio advanced_reasoning_radio;
+    CInterfaceButtonRadio neural_ai_radio;
 };
 
 

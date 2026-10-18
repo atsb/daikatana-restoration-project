@@ -1,0 +1,509 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: world - Win32 Spanish--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\WINDOWS\TEMP\RSP7111.TMP" with contents
+[
+/nologo /G5 /MT /W3 /GX /Zi /Od /I "..\..\base\dk_" /I "..\..\user" /I "..\..\libent" /D "TONGUE_SPANISH" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /Fr".\Spanish/" /Fp".\Spanish/world.pch" /YX /Fo".\Spanish/" /Fd".\Spanish/" /FD /c 
+"C:\Source Safe\dlls\world\battleboar.cpp"
+"C:\Source Safe\dlls\world\cambot.cpp"
+"C:\Source Safe\dlls\world\froginator.cpp"
+"C:\Source Safe\dlls\world\inmater.cpp"
+"C:\Source Safe\dlls\world\prisoner.cpp"
+"C:\Source Safe\dlls\world\psyclaw.cpp"
+"C:\Source Safe\dlls\world\ragemaster.cpp"
+"C:\Source Safe\dlls\world\sludgeminion.cpp"
+"C:\Source Safe\dlls\world\vermin.cpp"
+"C:\Source Safe\dlls\world\centurion.cpp"
+"C:\Source Safe\dlls\world\cerberus.cpp"
+"C:\Source Safe\dlls\world\column.cpp"
+"C:\Source Safe\dlls\world\griffon.cpp"
+"C:\Source Safe\dlls\world\harpy.cpp"
+"C:\Source Safe\dlls\world\kminos.cpp"
+"C:\Source Safe\dlls\world\medusa.cpp"
+"C:\Source Safe\dlls\world\satyr.cpp"
+"C:\Source Safe\dlls\world\skeleton.cpp"
+"C:\Source Safe\dlls\world\spider.cpp"
+"C:\Source Safe\dlls\world\thief.cpp"
+"C:\Source Safe\dlls\world\buboid.cpp"
+"C:\Source Safe\dlls\world\doombat.cpp"
+"C:\Source Safe\dlls\world\dragon.cpp"
+"C:\Source Safe\dlls\world\dwarf.cpp"
+"C:\Source Safe\dlls\world\fletcher.cpp"
+"C:\Source Safe\dlls\world\garroth.cpp"
+"C:\Source Safe\dlls\world\knight1.cpp"
+"C:\Source Safe\dlls\world\knight2.cpp"
+"C:\Source Safe\dlls\world\lycanthir.cpp"
+"C:\Source Safe\dlls\world\prat.cpp"
+"C:\Source Safe\dlls\world\blackpris.cpp"
+"C:\Source Safe\dlls\world\chaingang.cpp"
+"C:\Source Safe\dlls\world\femgang.cpp"
+"C:\Source Safe\dlls\world\labmonkey.cpp"
+"C:\Source Safe\dlls\world\rocketgang.cpp"
+"C:\Source Safe\dlls\world\scomndo.cpp"
+"C:\Source Safe\dlls\world\sealcap.cpp"
+"C:\Source Safe\dlls\world\sgirl.cpp"
+"C:\Source Safe\dlls\world\shark.cpp"
+"C:\Source Safe\dlls\world\uzigang.cpp"
+"C:\Source Safe\dlls\world\bot.cpp"
+"C:\Source Safe\dlls\world\ai.cpp"
+"C:\Source Safe\dlls\world\ai_frames.cpp"
+"C:\Source Safe\dlls\world\ai_func.cpp"
+"C:\Source Safe\dlls\world\ai_move.cpp"
+"C:\Source Safe\dlls\world\ai_utils.cpp"
+"C:\Source Safe\dlls\world\ai_weapons.cpp"
+"C:\Source Safe\dlls\world\goldfish.cpp"
+"C:\Source Safe\dlls\world\GrphPath.cpp"
+"C:\Source Safe\dlls\world\hiro.cpp"
+"C:\Source Safe\dlls\world\MonsterSound.cpp"
+"C:\Source Safe\dlls\world\nodelist.cpp"
+"C:\Source Safe\dlls\world\octree.cpp"
+"C:\Source Safe\dlls\world\thinkFuncs.cpp"
+"C:\Source Safe\dlls\world\actorlist.cpp"
+"C:\Source Safe\dlls\world\artifacts.cpp"
+"C:\Source Safe\dlls\world\bodylist.cpp"
+"C:\Source Safe\dlls\world\chasecam.cpp"
+"C:\Source Safe\dlls\world\cin_playback.cpp"
+"C:\Source Safe\dlls\world\client.cpp"
+"C:\Source Safe\dlls\world\client_init.cpp"
+"C:\Source Safe\dlls\world\door.cpp"
+"C:\Source Safe\dlls\world\drop_monster.cpp"
+"C:\Source Safe\dlls\world\effects.cpp"
+"C:\Source Safe\dlls\world\entity_pointer.cpp"
+"C:\Source Safe\dlls\world\func_monitor.cpp"
+"C:\Source Safe\dlls\world\func_various.cpp"
+"C:\Source Safe\dlls\world\items.cpp"
+"C:\Source Safe\dlls\world\light.cpp"
+"C:\Source Safe\user\memory.cpp"
+"C:\Source Safe\dlls\world\misc.cpp"
+"C:\Source Safe\dlls\world\monsterpaths.cpp"
+"C:\Source Safe\dlls\world\target.cpp"
+"C:\Source Safe\dlls\world\triggers.cpp"
+"C:\Source Safe\dlls\world\viewthing.cpp"
+"C:\Source Safe\dlls\world\world.cpp"
+]
+Creating command line "cl.exe @C:\WINDOWS\TEMP\RSP7111.TMP" 
+Creating temporary file "C:\WINDOWS\TEMP\RSP7112.TMP" with contents
+[
+/nologo /G5 /MT /W3 /GX /O2 /I "..\..\base\dk_" /I "..\..\user" /I "..\..\libent" /D "TONGUE_SPANISH" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /Fr".\Spanish/" /Fp".\Spanish/world.pch" /YX /Fo".\Spanish/" /Fd".\Spanish/" /FD /c 
+"C:\Source Safe\dlls\world\crox.cpp"
+"C:\Source Safe\dlls\world\cryotech.cpp"
+"C:\Source Safe\dlls\world\deathsphere.cpp"
+"C:\Source Safe\dlls\world\fatworker.cpp"
+"C:\Source Safe\dlls\world\FireFly.cpp"
+"C:\Source Safe\dlls\world\lasergat.cpp"
+"C:\Source Safe\dlls\world\mishimaguard.cpp"
+"C:\Source Safe\dlls\world\protopod.cpp"
+"C:\Source Safe\dlls\world\rockgat.cpp"
+"C:\Source Safe\dlls\world\skeeter.cpp"
+"C:\Source Safe\dlls\world\skinnyworker.cpp"
+"C:\Source Safe\dlls\world\surgeon.cpp"
+"C:\Source Safe\dlls\world\thunderskeet.cpp"
+"C:\Source Safe\dlls\world\ferryman.cpp"
+"C:\Source Safe\dlls\world\smallspider.cpp"
+"C:\Source Safe\dlls\world\nharre.cpp"
+"C:\Source Safe\dlls\world\priest.cpp"
+"C:\Source Safe\dlls\world\rotworm.cpp"
+"C:\Source Safe\dlls\world\stavros.cpp"
+"C:\Source Safe\dlls\world\wisp.cpp"
+"C:\Source Safe\dlls\world\wyndrax.cpp"
+"C:\Source Safe\dlls\world\ghost.cpp"
+"C:\Source Safe\dlls\world\kage.cpp"
+"C:\Source Safe\dlls\world\mikiko_monster.cpp"
+"C:\Source Safe\dlls\world\piperat.cpp"
+"C:\Source Safe\dlls\world\rocketmp.cpp"
+"C:\Source Safe\dlls\world\seagull.cpp"
+"C:\Source Safe\dlls\world\whitepris.cpp"
+"C:\Source Safe\dlls\world\cine_entities.cpp"
+"C:\Source Safe\dlls\world\action.cpp"
+"C:\Source Safe\dlls\world\ai_aim.cpp"
+"C:\Source Safe\dlls\world\AI_File.cpp"
+"C:\Source Safe\dlls\world\ai_group.cpp"
+"C:\Source Safe\dlls\world\ai_info.cpp"
+"C:\Source Safe\dlls\world\ai_save.cpp"
+"C:\Source Safe\dlls\world\ai_test.cpp"
+"C:\Source Safe\dlls\world\ai_think.cpp"
+"C:\Source Safe\dlls\world\DUMPSTAK.CPP"
+"C:\Source Safe\dlls\world\func2.cpp"
+"C:\Source Safe\dlls\world\greyfish.cpp"
+"C:\Source Safe\dlls\world\guppyone.cpp"
+"C:\Source Safe\dlls\world\guppytwo.cpp"
+"C:\Source Safe\dlls\world\NavTest.cpp"
+"C:\Source Safe\dlls\world\PathTable.cpp"
+"C:\Source Safe\dlls\world\SequenceMap.cpp"
+"C:\Source Safe\dlls\world\SFX_ENTITIES.CPP"
+"C:\Source Safe\dlls\world\Sidekick.cpp"
+"C:\Source Safe\dlls\world\spawn.cpp"
+"C:\Source Safe\dlls\world\common.cpp"
+"C:\Source Safe\dlls\world\coop.cpp"
+"C:\Source Safe\dlls\world\CTF.cpp"
+"C:\Source Safe\dlls\world\deathtag.cpp"
+"C:\Source Safe\dlls\world\flag.cpp"
+"C:\Source Safe\dlls\world\func_event_generator.cpp"
+"C:\Source Safe\dlls\world\gib.cpp"
+"C:\Source Safe\dlls\world\healthtree.cpp"
+"C:\Source Safe\dlls\world\hosportal.cpp"
+"C:\Source Safe\dlls\world\inventory.cpp"
+"C:\Source Safe\dlls\world\transition.cpp"
+]
+Creating command line "cl.exe @C:\WINDOWS\TEMP\RSP7112.TMP" 
+Creating temporary file "C:\WINDOWS\TEMP\RSP7113.TMP" with contents
+[
+winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib IonCommonSpanish.lib wsock32.lib /nologo /subsystem:windows /dll /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /out:"Spanish/world.dll" /implib:".\Spanish/world.lib" /libpath:"..\..\libs" 
+".\Spanish\battleboar.obj"
+".\Spanish\cambot.obj"
+".\Spanish\crox.obj"
+".\Spanish\cryotech.obj"
+".\Spanish\deathsphere.obj"
+".\Spanish\fatworker.obj"
+".\Spanish\FireFly.obj"
+".\Spanish\froginator.obj"
+".\Spanish\inmater.obj"
+".\Spanish\lasergat.obj"
+".\Spanish\mishimaguard.obj"
+".\Spanish\prisoner.obj"
+".\Spanish\protopod.obj"
+".\Spanish\psyclaw.obj"
+".\Spanish\ragemaster.obj"
+".\Spanish\rockgat.obj"
+".\Spanish\skeeter.obj"
+".\Spanish\skinnyworker.obj"
+".\Spanish\sludgeminion.obj"
+".\Spanish\surgeon.obj"
+".\Spanish\thunderskeet.obj"
+".\Spanish\vermin.obj"
+".\Spanish\centurion.obj"
+".\Spanish\cerberus.obj"
+".\Spanish\column.obj"
+".\Spanish\ferryman.obj"
+".\Spanish\griffon.obj"
+".\Spanish\harpy.obj"
+".\Spanish\kminos.obj"
+".\Spanish\medusa.obj"
+".\Spanish\satyr.obj"
+".\Spanish\skeleton.obj"
+".\Spanish\smallspider.obj"
+".\Spanish\spider.obj"
+".\Spanish\thief.obj"
+".\Spanish\buboid.obj"
+".\Spanish\doombat.obj"
+".\Spanish\dragon.obj"
+".\Spanish\dwarf.obj"
+".\Spanish\fletcher.obj"
+".\Spanish\garroth.obj"
+".\Spanish\knight1.obj"
+".\Spanish\knight2.obj"
+".\Spanish\lycanthir.obj"
+".\Spanish\nharre.obj"
+".\Spanish\prat.obj"
+".\Spanish\priest.obj"
+".\Spanish\rotworm.obj"
+".\Spanish\stavros.obj"
+".\Spanish\wisp.obj"
+".\Spanish\wyndrax.obj"
+".\Spanish\blackpris.obj"
+".\Spanish\chaingang.obj"
+".\Spanish\femgang.obj"
+".\Spanish\ghost.obj"
+".\Spanish\kage.obj"
+".\Spanish\labmonkey.obj"
+".\Spanish\mikiko_monster.obj"
+".\Spanish\piperat.obj"
+".\Spanish\rocketgang.obj"
+".\Spanish\rocketmp.obj"
+".\Spanish\scomndo.obj"
+".\Spanish\seagull.obj"
+".\Spanish\sealcap.obj"
+".\Spanish\sgirl.obj"
+".\Spanish\shark.obj"
+".\Spanish\uzigang.obj"
+".\Spanish\whitepris.obj"
+".\Spanish\bot.obj"
+".\Spanish\cine_entities.obj"
+".\Spanish\action.obj"
+".\Spanish\ai.obj"
+".\Spanish\ai_aim.obj"
+".\Spanish\AI_File.obj"
+".\Spanish\ai_frames.obj"
+".\Spanish\ai_func.obj"
+".\Spanish\ai_group.obj"
+".\Spanish\ai_info.obj"
+".\Spanish\ai_move.obj"
+".\Spanish\ai_save.obj"
+".\Spanish\ai_test.obj"
+".\Spanish\ai_think.obj"
+".\Spanish\ai_utils.obj"
+".\Spanish\ai_weapons.obj"
+".\Spanish\DUMPSTAK.OBJ"
+".\Spanish\func2.obj"
+".\Spanish\goldfish.obj"
+".\Spanish\greyfish.obj"
+".\Spanish\GrphPath.obj"
+".\Spanish\guppyone.obj"
+".\Spanish\guppytwo.obj"
+".\Spanish\hiro.obj"
+".\Spanish\MonsterSound.obj"
+".\Spanish\NavTest.obj"
+".\Spanish\nodelist.obj"
+".\Spanish\octree.obj"
+".\Spanish\PathTable.obj"
+".\Spanish\SequenceMap.obj"
+".\Spanish\SFX_ENTITIES.OBJ"
+".\Spanish\Sidekick.obj"
+".\Spanish\spawn.obj"
+".\Spanish\thinkFuncs.obj"
+".\Spanish\actorlist.obj"
+".\Spanish\artifacts.obj"
+".\Spanish\bodylist.obj"
+".\Spanish\chasecam.obj"
+".\Spanish\cin_playback.obj"
+".\Spanish\client.obj"
+".\Spanish\client_init.obj"
+".\Spanish\common.obj"
+".\Spanish\coop.obj"
+".\Spanish\CTF.obj"
+".\Spanish\deathtag.obj"
+".\Spanish\door.obj"
+".\Spanish\drop_monster.obj"
+".\Spanish\effects.obj"
+".\Spanish\entity_pointer.obj"
+".\Spanish\flag.obj"
+".\Spanish\func_event_generator.obj"
+".\Spanish\func_monitor.obj"
+".\Spanish\func_various.obj"
+".\Spanish\gib.obj"
+".\Spanish\healthtree.obj"
+".\Spanish\hosportal.obj"
+".\Spanish\inventory.obj"
+".\Spanish\items.obj"
+".\Spanish\light.obj"
+".\Spanish\memory.obj"
+".\Spanish\misc.obj"
+".\Spanish\monsterpaths.obj"
+".\Spanish\target.obj"
+".\Spanish\transition.obj"
+".\Spanish\triggers.obj"
+".\Spanish\viewthing.obj"
+".\Spanish\world.obj"
+"\Source Safe\libs\IonCommonSpanish.lib"
+"\Source Safe\libs\libentSpanish.lib"
+]
+Creating command line "link.exe @C:\WINDOWS\TEMP\RSP7113.TMP"
+<h3>Output Window</h3>
+Compiling...
+battleboar.cpp
+cambot.cpp
+froginator.cpp
+inmater.cpp
+prisoner.cpp
+psyclaw.cpp
+ragemaster.cpp
+sludgeminion.cpp
+vermin.cpp
+centurion.cpp
+cerberus.cpp
+column.cpp
+griffon.cpp
+harpy.cpp
+kminos.cpp
+medusa.cpp
+satyr.cpp
+skeleton.cpp
+spider.cpp
+thief.cpp
+buboid.cpp
+doombat.cpp
+dragon.cpp
+dwarf.cpp
+fletcher.cpp
+garroth.cpp
+knight1.cpp
+knight2.cpp
+lycanthir.cpp
+prat.cpp
+blackpris.cpp
+chaingang.cpp
+femgang.cpp
+labmonkey.cpp
+rocketgang.cpp
+scomndo.cpp
+sealcap.cpp
+sgirl.cpp
+shark.cpp
+uzigang.cpp
+bot.cpp
+ai.cpp
+ai_frames.cpp
+ai_func.cpp
+TODO NSS: AI_IsOkToMoveStraight fails when it should not. For Now go into Wander mode.
+ai_move.cpp
+ai_utils.cpp
+ai_weapons.cpp
+goldfish.cpp
+GrphPath.cpp
+hiro.cpp
+MonsterSound.cpp
+nodelist.cpp
+octree.cpp
+thinkFuncs.cpp
+actorlist.cpp
+artifacts.cpp
+bodylist.cpp
+chasecam.cpp
+// SCG[10/27/99]: This wont work in multiplayer!
+cin_playback.cpp
+client.cpp
+// SCG[10/27/99]: patch
+// WAW[11/10/99], TODO: Coop Mode... Stop the game somehow.
+// SCG[10/23/99]: Add teleport fog here
+client_init.cpp
+door.cpp
+drop_monster.cpp
+effects.cpp
+entity_pointer.cpp
+func_monitor.cpp
+func_various.cpp
+items.cpp
+// SCG[1/11/00]: Remove for Release build
+// SCG[1/11/00]: Remove for Release build
+light.cpp
+memory.cpp
+misc.cpp
+monsterpaths.cpp
+target.cpp
+triggers.cpp
+viewthing.cpp
+world.cpp
+// SCG[1/11/00]: Remove for Release build
+// SCG[1/11/00]: Remove for Release build
+// SCG[1/11/00]: Remove for Release build
+Compiling...
+crox.cpp
+cryotech.cpp
+deathsphere.cpp
+fatworker.cpp
+FireFly.cpp
+..\..\user\collect.h(49) : fatal error C1088: Cannot flush compiler intermediate file: 'C:\WINDOWS\TEMP\a26657ex': No space left on device
+..\..\user\collect.h(49) : error C2418: cannot delete browser file: .\Spanish/FireFly.sbr
+lasergat.cpp
+C:\Source Safe\dlls\world\lasergat.cpp(32) : fatal error C1084: Cannot read compiler intermediate file: '': No space left on device
+mishimaguard.cpp
+C:\Source Safe\dlls\world\mishimaguard.cpp(30) : fatal error C1085: Cannot write precompiled header file: '.\Spanish/world.pch': There is not enough space on the disk.
+
+protopod.cpp
+C:\Source Safe\dlls\world\protopod.cpp(40) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+rockgat.cpp
+C:\Source Safe\dlls\world\rockgat.cpp(29) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+skeeter.cpp
+C:\Source Safe\dlls\world\skeeter.cpp(39) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+skinnyworker.cpp
+C:\Source Safe\dlls\world\skinnyworker.cpp(30) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+surgeon.cpp
+C:\Source Safe\dlls\world\surgeon.cpp(26) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+thunderskeet.cpp
+C:\Source Safe\dlls\world\thunderskeet.cpp(39) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+ferryman.cpp
+C:\Source Safe\dlls\world\ferryman.cpp(26) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+smallspider.cpp
+C:\Source Safe\dlls\world\smallspider.cpp(25) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+nharre.cpp
+C:\Source Safe\dlls\world\nharre.cpp(21) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+priest.cpp
+C:\Source Safe\dlls\world\priest.cpp(26) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+rotworm.cpp
+C:\Source Safe\dlls\world\rotworm.cpp(31) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+stavros.cpp
+C:\Source Safe\dlls\world\stavros.cpp(27) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+wisp.cpp
+C:\Source Safe\dlls\world\wisp.cpp(28) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+wyndrax.cpp
+C:\Source Safe\dlls\world\wyndrax.cpp(28) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+ghost.cpp
+C:\Source Safe\dlls\world\ghost.cpp(11) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+kage.cpp
+C:\Source Safe\dlls\world\kage.cpp(23) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+mikiko_monster.cpp
+C:\Source Safe\dlls\world\mikiko_monster.cpp(26) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+piperat.cpp
+C:\Source Safe\dlls\world\piperat.cpp(22) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+rocketmp.cpp
+C:\Source Safe\dlls\world\rocketmp.cpp(33) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+seagull.cpp
+C:\Source Safe\dlls\world\seagull.cpp(21) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+whitepris.cpp
+C:\Source Safe\dlls\world\whitepris.cpp(32) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+cine_entities.cpp
+C:\Source Safe\dlls\world\cine_entities.cpp(10) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+action.cpp
+C:\Source Safe\dlls\world\action.cpp(68) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+ai_aim.cpp
+C:\Source Safe\dlls\world\ai_aim.cpp(24) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+AI_File.cpp
+C:\Source Safe\dlls\world\AI_File.cpp(26) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+ai_group.cpp
+C:\Source Safe\dlls\world\ai_group.cpp(19) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+ai_info.cpp
+C:\Source Safe\dlls\world\ai_info.cpp(17) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+ai_save.cpp
+C:\Source Safe\dlls\world\ai_save.cpp(13) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+ai_test.cpp
+C:\Source Safe\dlls\world\ai_test.cpp(40) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+ai_think.cpp
+C:\Source Safe\dlls\world\ai_think.cpp(25) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+DUMPSTAK.CPP
+C:\Source Safe\dlls\world\DUMPSTAK.CPP(28) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+func2.cpp
+C:\Source Safe\dlls\world\func2.cpp(25) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+greyfish.cpp
+C:\Source Safe\dlls\world\greyfish.cpp(25) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+guppyone.cpp
+C:\Source Safe\dlls\world\guppyone.cpp(25) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+guppytwo.cpp
+C:\Source Safe\dlls\world\guppytwo.cpp(25) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+NavTest.cpp
+C:\Source Safe\dlls\world\NavTest.cpp(29) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+PathTable.cpp
+C:\Source Safe\dlls\world\PathTable.cpp(19) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+SequenceMap.cpp
+C:\Source Safe\dlls\world\SequenceMap.cpp(20) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+SFX_ENTITIES.CPP
+C:\Source Safe\dlls\world\SFX_ENTITIES.CPP(18) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+Sidekick.cpp
+C:\Source Safe\dlls\world\Sidekick.cpp(52) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+spawn.cpp
+C:\Source Safe\dlls\world\spawn.cpp(34) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+common.cpp
+C:\Source Safe\dlls\world\common.cpp(7) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+coop.cpp
+C:\Source Safe\dlls\world\coop.cpp(25) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+CTF.cpp
+C:\Source Safe\dlls\world\CTF.cpp(58) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+deathtag.cpp
+C:\Source Safe\dlls\world\deathtag.cpp(15) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+flag.cpp
+C:\Source Safe\dlls\world\flag.cpp(20) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+func_event_generator.cpp
+C:\Source Safe\dlls\world\func_event_generator.cpp(3) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+gib.cpp
+C:\Source Safe\dlls\world\gib.cpp(26) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+healthtree.cpp
+C:\Source Safe\dlls\world\healthtree.cpp(6) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+hosportal.cpp
+C:\Source Safe\dlls\world\hosportal.cpp(6) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+inventory.cpp
+C:\Source Safe\dlls\world\inventory.cpp(27) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+transition.cpp
+C:\Source Safe\dlls\world\transition.cpp(34) : fatal error C1083: Cannot open precompiled header file: '.\Spanish/world.pch': Permission denied
+Error executing cl.exe.
+
+
+
+<h3>Results</h3>
+world.dll - 56 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

@@ -2,6 +2,7 @@
 #include	<assert.h>
 
 #include	"gl_local.h"
+#include <stdint.h>
 
 #include "dk_point.h"
 #include "dk_array.h"
@@ -193,9 +194,9 @@ void DrawFlatPoly( msurface_t *pSurf )
 	float		r, g, b;
 	int			i;
 
-	r = ( ( int ) pSurf & 0xff ) / 255.0;
-	g = ( ( int ) pSurf->polys & 0xff ) / 255.0;
-	b = ( ( int ) pSurf->plane & 0xff ) / 255.0;
+	r = ( ( (uintptr_t)pSurf ) & 0xffu ) / 255.0;
+	g = ( ( (uintptr_t)pSurf->polys ) & 0xffu ) / 255.0;
+	b = ( ( (uintptr_t)pSurf->plane ) & 0xffu ) / 255.0;
 
 	GL_SetState( GLSTATE_PRESET1 & ~GLSTATE_TEXTURE_2D );
 
@@ -220,6 +221,9 @@ DrawSubdividedPolys
 */
 void DrawSubdividedPolys( msurface_t *pSurf )
 {
+	if ( R_RenderPrepDrawAlphaSurface( pSurf ) )
+		return;
+
 	int			i;
 	float		fScroll;
 	glpoly_t	*pPoly;
@@ -686,6 +690,8 @@ void R_BlendLightmaps( qboolean bReTransform )
 
 				GL_Bind( gl_state.lightmap_textures + i);
 
+				R_TextureFilterBeginSingle( gl_state.lightmap_textures + i, BLOCK_WIDTH, BLOCK_HEIGHT );
+
 				for( pSurf = gl_lms.lightmap_surfaces[i]; pSurf != 0; pSurf = pSurf->lightmapchain )
 				{
 					if ( pSurf->polys )
@@ -707,7 +713,9 @@ void R_BlendLightmaps( qboolean bReTransform )
 						}
 					}
 				}
-			}
+			
+
+				R_TextureFilterEnd();}
 		}
 	}
 	else
@@ -724,6 +732,8 @@ void R_BlendLightmaps( qboolean bReTransform )
 
 				GL_Bind( gl_state.lightmap_textures + i);
 
+				R_TextureFilterBeginSingle( gl_state.lightmap_textures + i, BLOCK_WIDTH, BLOCK_HEIGHT );
+
 				for( pSurf = gl_lms.lightmap_surfaces[i]; pSurf != 0; pSurf = pSurf->lightmapchain )
 				{
 					if ( pSurf->polys )
@@ -738,7 +748,9 @@ void R_BlendLightmaps( qboolean bReTransform )
 						}
 					}
 				}
-			}
+			
+
+				R_TextureFilterEnd();}
 		}
 	}
 
@@ -750,6 +762,8 @@ void R_BlendLightmaps( qboolean bReTransform )
 		LM_InitBlock();
 
 		GL_Bind( gl_state.lightmap_textures+0 );
+
+		R_TextureFilterBeginSingle( gl_state.lightmap_textures + 0, BLOCK_WIDTH, BLOCK_HEIGHT );
 
 		if( currentmodel == r_worldmodel )
 		{
@@ -873,7 +887,8 @@ void R_BlendLightmaps( qboolean bReTransform )
 				}
 			}
 		}
-	}
+	
+		R_TextureFilterEnd();}
 
 	qglBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
@@ -909,6 +924,8 @@ void R_RenderBrushPoly( msurface_t *pSurf )
 
 	GL_Bind( image->texnum );
 
+	R_TextureFilterBeginBase(image);
+
 	if( pSurf->flags & ( SURF_DRAWFOG | SURF_DRAWTURB ) )
 	{
 		GL_TexEnv( GL_MODULATE );
@@ -919,6 +936,8 @@ void R_RenderBrushPoly( msurface_t *pSurf )
 	{
 		DrawGLPoly( pSurf );
 	}
+
+	R_TextureFilterEnd();
 
 	if( r_fullbright->value != 0 )
 	{
@@ -1223,6 +1242,10 @@ void R_DrawFullbrightSurfaces()
 	{
 		nStateFlags |= GLSTATE_SHARED_PALETTE;
 	}
+
+	// Explicitly use straight alpha for translucent world surfaces.
+	// Do not inherit an additive or lightmap blend function from an earlier pass.
+	qglBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
 	// SCG[5/18/99]: Set the state
 	GL_SetState( nStateFlags | GLSTATE_BLEND );
@@ -1568,6 +1591,8 @@ dynamic:
 		GL_MBind( GL_TEXTURE0_SGIS, image->texnum );
 		GL_MBind( GL_TEXTURE1_SGIS, gl_state.lightmap_textures + lmtex );
 
+		R_TextureFilterBeginLightmapped(image, 128.0f, 128.0f);
+
 		if( pSurf->flags & ( SURF_DRAWFOG | SURF_DRAWTURB ) && !( pSurf->texinfo->flags & SURF_FLOWING ) )
 		{
 			for( pPoly = pSurf->polys; pPoly; pPoly = pPoly->next )
@@ -1621,6 +1646,8 @@ dynamic:
 	{
 		GL_MBind( GL_TEXTURE0_SGIS, image->texnum );
 		GL_MBind( GL_TEXTURE1_SGIS, gl_state.lightmap_textures + lmtex );
+
+		R_TextureFilterBeginLightmapped(image, 128.0f, 128.0f);
 
 		// this block is debug code....
 		if (r_speeds->value && image)
@@ -1691,6 +1718,8 @@ dynamic:
 			}
 		}
 	}
+
+	R_TextureFilterEnd();
 }
 
 /*

@@ -37,8 +37,6 @@ enum
 // weapon info def
 weaponInfo_t sluggerWeaponInfo = 
 {
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_SLUGGER),
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_SLUGGER_AMMO),
 	// names, net names, icon
 	"weapon_slugger",
 	tongue_weapons[T_WEAPON_SLUGGER],
@@ -129,25 +127,18 @@ weaponInfo_t sluggerWeaponInfo =
 	0.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 0.0f,
 
-/*	{
+	{
 		tongue_deathmsg_weapon4[T_DEATHMSGWEAPON_SLUGGER],
 		NULL,
 		ATTACKER_VICTIM
-	},*/
-
-	RESOURCE_ID_FOR_STRING(tongue_deathmsg_weapon4,T_DEATHMSGWEAPON_SLUGGER),
-	ATTACKER_VICTIM,
-
+	},
 	WEAPON_SLUGGER,
 	0,
 	NULL
 };
 
 // weapon info def
-weaponInfo_t corditeWeaponInfo = 
-{
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_SLUGGER),
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_RIPGUN_AMMO),
+weaponInfo_t corditeWeaponInfo = {
     // names, net names, icon
     "weapon_slugger",
     tongue_weapons[T_WEAPON_SLUGGER],
@@ -235,15 +226,11 @@ weaponInfo_t corditeWeaponInfo =
 	0.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 0.0f,
 
-/*	{
+	{
 		tongue_deathmsg_weapon4[T_DEATHMSGWEAPON_SLUGGER],
 		NULL,
 		ATTACKER_VICTIM
-	},*/
-
-	RESOURCE_ID_FOR_STRING(tongue_deathmsg_weapon4,T_DEATHMSGWEAPON_SLUGGER),
-	ATTACKER_VICTIM,
-
+	},
     WEAPON_SLUGGER,
     1,
     NULL
@@ -259,8 +246,6 @@ static   float flash_delta_yaw;  // difference between entities view angle and a
 
 //---------------------------------------------------------------------------
 // slugger_give()
-// 00000000 00000000 00000000 00000000
-// mccccccc cccccccc ssssssss ssssssss
 //---------------------------------------------------------------------------
 userInventory_t *slugger_give (userEntity_t *self, int ammoCount)
 {
@@ -273,10 +258,9 @@ userInventory_t *slugger_give (userEntity_t *self, int ammoCount)
 	{
 		weaponGive(self,cwinfo,cordite);
 	}
-
     slugger=(weaponPulse_t *)weaponGive (self, swinfo, slugs);
 
-    if ( slugger && slugger->mode!=0 && slugger->mode!=1 )
+    if ( slugger&& slugger->mode!=0 && slugger->mode!=1 )
         slugger->mode = 0;
 
     return((userInventory_t *)slugger);
@@ -978,15 +962,7 @@ void    ammoTouchSlugger (userEntity_t *self, userEntity_t *other, cplane_t *pla
 		return;
 
 	if (ammo->winfo && (other->flags & FL_CLIENT))
-	{
-		//gstate->centerprint (other, 1.0, "%s %s.\n", tongue[T_PICKUP_WEAPON], ammo->winfo->ammoNetName);
-		gstate->cs.BeginSendString();
-		gstate->cs.SendSpecifierStr("%s %s.\n",2);
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue,T_PICKUP_WEAPON));
-		gstate->cs.SendStringID(ammo->winfo->ammoNameIndex);
-		gstate->cs.Unicast(other, CS_print_center, 1.0);
-		gstate->cs.EndSendString();
-	}
+		gstate->centerprint (other, 1.0, "%s %s.\n", tongue[T_PICKUP_WEAPON], ammo->winfo->ammoNetName);
 
 	//	make ammo invisible
     self->s.modelindex = 0;

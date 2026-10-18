@@ -126,13 +126,7 @@ void PF_cprintf (edict_t *ent, int level, char *fmt, ...)
 	va_end (argptr);
 
 	if (ent)
-	{
-		client_t *cl = ( client_t *)( svs.clients+(n-1) );
-		if( cl->state >= cs_connected )
-		{
-			SV_ClientPrintf (svs.clients+(n-1), level, "%s", msg);
-		}
-	}
+ 		SV_ClientPrintf (svs.clients+(n-1), level, "%s", msg);
 	else
 		Com_Printf ("%s", msg);
 }
@@ -260,7 +254,7 @@ void PF_Configstring (int index, char *val)
 		MSG_WriteChar (&sv.multicast, svc_configstring);
 		MSG_WriteShort (&sv.multicast, index);
 		MSG_WriteString (&sv.multicast, val);
-		//SV_Multicast (CVector(0,0,0), MULTICAST_ALL_R);
+		SV_Multicast (CVector(0,0,0), MULTICAST_ALL_R);
 	}
 }
 void PF_WriteChar (int c) {MSG_WriteChar (&sv.multicast, c);}
@@ -340,6 +334,7 @@ short PF_IsPlayerLocal(int playerNum)
 	return NET_IsLocalAddress(svs.clients[playerNum].netchan.remote_address);
 }
 
+
 client_t *GetLocalClient()
 {
 	for (int i = 0; i < maxclients->value; i++)
@@ -349,7 +344,6 @@ client_t *GetLocalClient()
 			return &svs.clients[i];
 		}
 	}
-
 	return NULL;
 }
 
@@ -422,9 +416,8 @@ void SV_UnloadDLLs (void)
 //
 //	shuts down the DLLs (if loaded) and then reloads DLLs for a new game.
 ///////////////////////////////////////////////////////////////////////////////
-void SV_AutoSave();
+
 void CS_Init(game_import_t &import);
-char*	dk_GetModelSkinName(int modelIndex);
 
 void	SV_InitNewGame (void)
 {
@@ -510,7 +503,6 @@ void	SV_InitNewGame (void)
 	import.dk_GetFrameName = dk_GetFrameName;
 	import.dk_GetAnimSequences = dk_GetAnimSequences;
 	import.dk_GetModelSkinIndex = dk_GetModelSkinIndex;
-	import.dk_GetModelSkinName = dk_GetModelSkinName;
 	import.dk_ForceModelLoad = dk_ForceModelLoad;
 	import.dk_PreCacheModel = dk_PreCacheModel;
 
@@ -531,9 +523,9 @@ void	SV_InitNewGame (void)
 	import.FS_Gets = FS_Gets;
 	import.FS_GetBytesRead = FS_GetBytesRead;
 
-    	import.CIN_CamLocation = CIN_CamLocation;
-    	import.CIN_GCE_Interface = CIN_GCE_Interface;
-    	import.CIN_WorldPlayback = CIN_WorldPlayback;
+    import.CIN_CamLocation = CIN_CamLocation;
+    import.CIN_GCE_Interface = CIN_GCE_Interface;
+    import.CIN_WorldPlayback = CIN_WorldPlayback;
 	
 	import.SV_EmitSyncEntity = SV_EmitSyncEntity;
 
@@ -546,9 +538,7 @@ void	SV_InitNewGame (void)
 
 	import.TestMulticast = SV_TestMulticast;
 	import.TestUnicast = PF_TestUnicast;
-
-	//import.AutoSave = SV_AutoSave;
-	//CS_Init(import);
+	CS_Init(import);
 
 	//	Nelno:	Load up physics.dll, which will load other DLLs
 	ge = (game_export_t *)Sys_GetGameAPI (&import);

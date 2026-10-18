@@ -37,7 +37,7 @@ int SV_FindIndex (const char *name, int start, int max, qboolean create)
 		MSG_WriteChar (&sv.multicast, svc_configstring);
 		MSG_WriteShort (&sv.multicast, start+i);
 		MSG_WriteString (&sv.multicast, name);
-		//SV_Multicast (CVector(0,0,0), MULTICAST_ALL_R);
+		SV_Multicast (CVector(0,0,0), MULTICAST_ALL_R);
 	}
 	
 	return i;
@@ -199,12 +199,7 @@ void SV_SpawnServer (char *server, char *spawnpoint, server_state_t serverstate,
 
 	if (serverstate != ss_game)
 	{
-//		sv.models[1] = CM_LoadMap ("", false, &checksum);	// no real map
-		// SCG[6/12/00]: we need to pass in the filename here because 
-		// SCG[6/12/00]: CM_LoadMap needs it for demo maps....
-		Com_sprintf (sv.configstrings[CS_MODELS+1],sizeof(sv.configstrings[CS_MODELS+1]),
-			"demos/%s", server);
-		sv.models[1] = CM_LoadMap (sv.configstrings[CS_MODELS+1], false, &checksum);	// no real map
+		sv.models[1] = CM_LoadMap ("", false, &checksum);	// no real map
 	}
 	else
 	{
@@ -224,6 +219,12 @@ void SV_SpawnServer (char *server, char *spawnpoint, server_state_t serverstate,
 		value = CM_KeyValue (map_epairs, "episode");
 	if( value )
 		episode = atoi( value );
+	else
+	{
+		//	try to get it from map name
+		strcpy (mapname, sv.configstrings [CS_MODELS + 1] + 5);
+		episode = (int)mapname [1] - 48;
+	}
 
 	if (episode < 1 || episode > 9)
 	{
@@ -417,7 +418,33 @@ void SV_InitGame (void)
 		svs.clients[i].edict = ent;
 		memset (&svs.clients[i].lastcmd, 0, sizeof(svs.clients[i].lastcmd));
 	}
-		//F YOU GAMESPY!
+
+    //GAMESPY
+	if (maxclients->value > 1) //if we are multi-player
+	{
+        cvar_t	*ip, *port;
+		ip = Cvar_Get ("ip", "localhost", CVAR_NOSET);
+		port = Cvar_Get ("port", va("%i", PORT_SERVER), CVAR_NOSET);
+
+		if (goa_init((int)port->value - 10, "daikatana",ip->string, NULL) == 0)
+		{
+
+			//set the callback functions
+			goa_basic_callback = basic_callback;
+			goa_info_callback = info_callback;
+			goa_rules_callback = rules_callback;
+			goa_players_callback = players_callback;
+			//set the secret key, in a semi-obfuscated manner
+			goa_secret_key[0] = 'f';
+			goa_secret_key[1] = 'l';
+			goa_secret_key[2] = '8';
+			goa_secret_key[3] = 'a';
+			goa_secret_key[4] = 'Y';
+			goa_secret_key[5] = '7';
+			goa_secret_key[6] = '\0';
+		}
+
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -547,14 +574,11 @@ void SV_Map (qboolean attractloop, char *levelstring, qboolean loadgame)
 		Cvar_Set("sv_mapnum", "0");   // not an episode map
 
 	l = strlen(level);
-	if (l > 4 && !stricmp (level + l - 4, ".dem") )
+	if (l > 4 && !stricmp (level + l - 4, ".dm2") )
 	{
 		//	play a demo
 		SCR_BeginLoadingPlaque ();			// for local system
-		if (no_draw_plaque)
-			SV_BroadcastCommand ("changing noplaque\n");
-		else
-			SV_BroadcastCommand ("changing\n");
+		SV_BroadcastCommand ("changing\n");
 		SV_SpawnServer (level, spawnpoint, ss_demo, attractloop, loadgame);
 	}
 	else

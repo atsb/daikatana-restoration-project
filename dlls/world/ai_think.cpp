@@ -1416,10 +1416,10 @@ void AI_AddInitialTasksToGoal( userEntity_t *self, GOAL_PTR pGoal, int bStart )
 				break;
 			}
 
-            // NSS[6/7/00]:This will adjust a boss's health based on the number of clients connected when the boss goes into attack mode for the first time.
+            // NSS[6/7/00]:This adjusts a boss's health based on the number of clients connected when the boss goes into attack mode for the first time.
 			AdjustHealth_BasedOn_NOC(self);
 
-			// see if the AI can move to chase the target if necessary
+            // see if the AI can move to chase the target if necessary
             if ( !AI_CanMove( hook ) && !AI_IsVisible(self, pEnemy) && hook->type != TYPE_ROCKETMP)
             {
 				GOAL_Satisfied( pGoal );
@@ -1733,10 +1733,7 @@ void AI_AddInitialTasksToGoal( userEntity_t *self, GOAL_PTR pGoal, int bStart )
 				if (bItemVisible)
 				{
 					AI_AddNewTask( self, TASKTYPE_SIDEKICK_USEITEM, pAIData->pEntity );
-					if ( bStart )
-					{
-						SIDEKICK_StartUseItem( self );
-					}
+					if ( bStart ) SIDEKICK_StartUseItem( self );
 					break;
 				}
 			}
@@ -3244,6 +3241,7 @@ void AI_TaskThink( userEntity_t *self )
 		case TASKTYPE_DIE:
 		{
 			AI_Die( self );
+			
 			if ( self->nextthink <= gstate->time )
 			{
 				AI_SetNextThinkTime( self, 0.1f );
@@ -4592,7 +4590,7 @@ void AI_Update( userEntity_t *self )
 			com->Damage (self, self, self, zero_vector, zero_vector, hook->poison_damage, DAMAGE_POISON | DAMAGE_NO_BLOOD);
 			hook->poison_next_damage_time = hook->poison_interval;
 		}
-		//	poison expire
+		// poison expire
 		if (hook->poison_time <= 0)
 		{
 			hook->items &= ~IT_POISON;

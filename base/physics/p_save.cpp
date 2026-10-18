@@ -1,3 +1,4 @@
+#include <stddef.h>
 
 #include "p_global.h"
 #include "p_inventory.h"
@@ -144,10 +145,10 @@ void* P_GetFuncForIndex( int index )
 // SCG[11/19/99]: Save game crap
 // SCG[11/19/99]: ----------------------------------------------------------------
 
-#define	FOFS(x) (int)&(((edict_t *)0)->x)
-#define	STOFS(x) (int)&(((spawn_temp_t *)0)->x)
-#define	LLOFS(x) (int)&(((level_locals_t *)0)->x)
-#define	CLOFS(x) (int)&(((gclient_t *)0)->x)
+#define	FOFS(x) (int)offsetof(edict_t,x)
+#define	STOFS(x) (int)offsetof(spawn_temp_t,x)
+#define	LLOFS(x) (int)offsetof(level_locals_t,x)
+#define	CLOFS(x) (int)offsetof(gclient_t,x)
 
 #define FFL_SPAWNTEMP		1
 
@@ -281,7 +282,7 @@ field_t fields[] = {
 	{"velocity_cap",			FOFS(velocity_cap),				F_FLOAT},
 	{"percent_submerged",		FOFS(percent_submerged),		F_FLOAT},
 	{"submerged_func",			FOFS(submerged_func),			F_FUNC},
-	{"groundSurface",			FOFS(groundSurface),			F_RESTORE_AS_NULL},
+	{"groundSurface",			FOFS(groundSurface),			F_INT},
 	{"pMapAnimationToSequence",	FOFS(pMapAnimationToSequence),	F_RESTORE_AS_NULL},
 	{"winfo",					FOFS(winfo),					F_RESTORE_AS_NULL},
 	{"oldWinfo",				FOFS(oldWinfo),					F_RESTORE_AS_NULL},
@@ -828,38 +829,12 @@ void ReadClient (FILE *f, gclient_t *client)
 	}
 }
 
-#define SPAWNED_SUPERFLY_WITH_CLIENT	0x01
-#define SPAWNED_MIKIKO_WITH_CLIENT		0x02
 void P_CheckZapInventory(gclient_t *client)
 {
-	// we need to check for sidekicks here and if they do not exists, zero out the persistant flag
-	// also, check changelevel flags for need to spawn sidekicks and change the same flags as appropriate.
-	if( serverState.nLevelTransitionType == 1 )
-	{
-		userEntity_t *pSuperfly = com_FindEntity( "Superfly" );
-		userEntity_t *pMikiko = com_FindEntity( "Mikiko" );
-		
-		unsigned int nSidekickMask = ( game.serverflags & SFL_SIDEKICK_MASK );
-		if( ( pSuperfly == NULL ) && !( nSidekickMask & ( SFL_SPAWN_SUPERFLY | SFL_SPAWN_MIKIKOFLY ) ) )
-		{
-			client->pers.nSidekicksSpawnedWithClient &= ~SPAWNED_SUPERFLY_WITH_CLIENT;
-		}
-
-		if( ( pMikiko == NULL ) && !( nSidekickMask & SFL_SPAWN_MIKIKO ) )
-		{
-			client->pers.nSidekicksSpawnedWithClient &= ~SPAWNED_MIKIKO_WITH_CLIENT;
-		}
-	}
-	
 	if (serverState.nLevelTransitionType == 2)
 	{
 		client->pers.nWeaponFlags = client->pers.nCurrentWeaponFlag = 0;
-		// SCG[5/4/00]: This made it to RC14, but did not get checked in SS database untill today.
-		// SCG[5/4/00]: SS database label will be inaccurate for this file.
-		client->pers.nSidekicksSpawnedWithClient = 0;// SCG[4/3/00]: 
-
 		memset(client->pers.inventoryCrap,0,sizeof(client->pers.inventoryCrap));
-		memset(&client->pers.nAmmo[0],0,sizeof(client->pers.nAmmo));// cek[5-4-00]: zap ammo count too.
 	}
 }
 
@@ -1257,8 +1232,6 @@ void P_ReadLevel (char *filename)
 		gi.unlinkentity (ent);
 		// SCG[11/20/99]: Uh, this makes save games not work right...
 //		ent->inuse = false;
-		ent->client = game.clients + i;
-		ent->client->pers.bConnected = false;
 	}
 
 //	// fire any cross-level triggers here

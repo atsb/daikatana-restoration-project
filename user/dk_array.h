@@ -431,7 +431,7 @@ void array<C>::Insert(C *item, int position) {
     newarray[position] = item;
 
     //copy over the items that are after the item.
-    for (i = position; i < num; i++) {
+    for (int i = position; i < num; i++) {
         newarray[i + 1] = items[i];
     }
 

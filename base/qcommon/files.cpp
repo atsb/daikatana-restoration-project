@@ -4,26 +4,7 @@
 #endif
 
 #include "qcommon.h"
-/* ATSB: how this ever worked is a mystery.  Maybe ancient Linux's
-had io.h as a standard?  No idea, but lets clean up this
-hacky s**t.
-*/
-#ifdef _WIN32
-    #include <io.h>
-#elif __linux__
-    #include <inttypes.h>
-    #include <unistd.h>
-    #define __int64 int64_t
-    #define _close close
-    #define _read read
-    #define _lseek64 lseek64
-    #define _O_RDONLY O_RDONLY
-    #define _open open
-    #define _lseeki64 lseek64
-    #define _lseek lseek
-    #define stricmp strcasecmp
-#endif
-
+#include <io.h>
 // define this to dissalow any data but the demo pak file
 //#define	NO_ADDONS
 
@@ -130,19 +111,8 @@ write files over areas they shouldn't.
 
 qboolean FS_IsFullInstall()
 {
-#ifdef _WIN32
 	HKEY	hKey;
-// changed by yokoyama for Japanese version // JPN
-#ifdef JPN
-	#ifndef DAIKATANA_DEMO // If Product
-		char	szRegistryPath[]="SOFTWARE\\EIDOS\\Daikatana";
-	#else //  if DAIKATANA_DEMO
-		char	szRegistryPath[]="SOFTWARE\\Eidos Interactive\\Daikatana";
-	#endif
-#else
-		char	szRegistryPath[]="SOFTWARE\\Eidos Interactive\\Daikatana";
-#endif
-
+	char	szRegistryPath[]="SOFTWARE\\Eidos Interactive\\Daikatana";
 	char	szValueName[]="Install Type";
 	int		nInstallType;
 	DWORD	dwType, dwSize;
@@ -163,12 +133,8 @@ qboolean FS_IsFullInstall()
 	}
 
 	return TRUE;
-#endif
-
-#ifndef _WIN32
-	return TRUE;
-#endif
 }
+
 ///////////////////////////////////////////////////////////////////////////////
 //	FS_Seek
 ///////////////////////////////////////////////////////////////////////////////
@@ -419,7 +385,7 @@ int FS_FOpenFile ( const char *filename, FILE **file)
 				{
 					if (!from_loadfile) 
 					{
-						Com_Error(ERR_FATAL, "## Direct load of compressed file - %s", filename);
+						_RPTF1(_CRT_ERROR, "## Direct load of compressed file - %s", filename);
 					}
 				}
 
@@ -631,7 +597,7 @@ int FS_FOpenFile ( const char *filename, FILE **file) {
 
 				if (compress_type) {
 					if (!from_loadfile) {
-						Com_Error(ERR_FATAL, "## Direct load of compressed file - %s", filename);
+						_RPTF1(_CRT_ERROR, "## Direct load of compressed file - %s", filename);
 					}
 				}
 
@@ -898,8 +864,6 @@ Filename are relative to the Daikatana search path
 a null buffer will just return the file length without loading
 ============
 */
-char Noel_Test[1024];
-
 int FS_LoadFile (const char *path, void **buffer)
 {
 	FILE	*h;
@@ -907,14 +871,14 @@ int FS_LoadFile (const char *path, void **buffer)
 	int		len;
 	buf = NULL;	// quiet compiler warning
 // look for it in the filesystem or pack files
-	sprintf(Noel_Test, path);
+
 
 	from_loadfile = 1;	
 	len = FS_FOpenFile (path, &h);
 	from_loadfile = 0;
 
 
-	if (h == NULL)
+	if (!h)
 	{
 		if (buffer)
 			*buffer = NULL;
@@ -1537,7 +1501,7 @@ void FS_InitFilesystem (void)
 #endif
 		fs_basedir = Cvar_Get ("basedir", ".", CVAR_NOSET);
 
-	FS_AddGameDirectory (va("%s/"BASEDIRNAME, fs_basedir->string) );
+	FS_AddGameDirectory (va("%s/%s", fs_basedir->string, BASEDIRNAME) );
 
 	Cmd_AddCommand ("path", FS_Path_f);
 	Cmd_AddCommand ("link", FS_Link_f);
@@ -1555,11 +1519,69 @@ void FS_InitFilesystem (void)
 	// SCG[3/16/00]: Check registry for installation type and if it's not a full install
 	// SCG[3/16/00]: add the cddir
 	
+	fs_cddir = Cvar_Get( "cddir", "", CVAR_NOSET );
+
+#ifndef DAIKATANA_DEMO
+	bIsFullInstall = FS_IsFullInstall();
+	if( ( bIsFullInstall == FALSE ) && ( fs_cddir->string[0] == 0 ) )
+	{
+		for( cDriveLetter = 'D'; cDriveLetter <= 'Z'; cDriveLetter++ )
+		{
+			szDrivePath[0] = cDriveLetter;
+			nDriveType = GetDriveType( szDrivePath );
+
+			if( nDriveType == DRIVE_CDROM )
+			{
+				sprintf( szTestCDPath, "%c:\\data\\pak2.pak", cDriveLetter );
+				if( _access( szTestCDPath, 0 ) == -1 )
+				{
+					bFoundCD = FALSE;
+				}	
+				else
+				{
+					bFoundCD = TRUE;
+					break;
+				}
+			}
+		}
+
+		if( bFoundCD == TRUE )
+		{
+			szDrivePath[2] = 0;
+			Cvar_ForceSet( "cddir", szDrivePath );
+
+			// SCG[3/23/00]: Try to load something off of the cd...
+			// SCG[3/23/00]: We will check for both .pak files.
+			sprintf( szTestCDPath, "%s\\data\\pak3.pak", szDrivePath );
+			if( _access( szTestCDPath, 0 ) == -1 )
+			{
+#ifdef _DEBUG
+				Com_DPrintf( "Could not find the Daikatana CD in Drive %s\n", szDrivePath );
+#else
+				Sys_Error( "Could not find the Daikatana CD in Drive %s", szDrivePath );
+#endif _DEBUG
+			}
+
+		}
+		else
+		{
+#ifdef _DEBUG
+			Com_DPrintf( "Could not locate the Daikatana CD\n" );
+#else
+			Sys_Error( "Could not locate the Daikatana CD" );
+#endif _DEBUG
+		}
+	}
+#endif DAIKATANA_DEMO
+
+	if (fs_cddir->string[0])
+		FS_AddGameDirectory (va("%s/%s", fs_cddir->string, BASEDIRNAME) );
+
 	//
 	// start up with baseq2 by default
 	//
-	FS_AddGameDirectory (va("%s/"BASEDIRNAME, fs_basedir->string) );
-	strcpy (fs_gamedir, va("%s/"BASEDIRNAME, fs_basedir->string));
+	FS_AddGameDirectory (va("%s/%s", fs_basedir->string, BASEDIRNAME) );
+	strcpy (fs_gamedir, va("%s/%s", fs_basedir->string, BASEDIRNAME));
 
 	// any set gamedirs will be freed up to here
 	fs_base_searchpaths = fs_searchpaths;

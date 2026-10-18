@@ -7,7 +7,7 @@
 # On my system, that directory is an SMB mount from hadron/kata
 echo "Updating daikatana runtime"
 DK_DIR=/usr/local/games/katana/daikatana
-SRC_DIR=bin/debug
+SRC_DIR=bin/debug-i386
 echo "Daikatana runtime dir: $DK_DIR"
 echo "Daikatana build dir:   $SRC_DIR"
 echo " "

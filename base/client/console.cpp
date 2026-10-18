@@ -1,8 +1,4 @@
 // console.c
-// added for Japanese version
-#ifdef JPN
-#include <windows.h>
-#endif // JPN
 
 #include "client.h"
 
@@ -23,9 +19,6 @@ void	*notify_font = NULL;
 static	int		con_fontHeight = 8;
 static	int		notify_fontHeight = 8;
 
-extern void		*scoreboard_font;
-static int		scoreboard_font_height = 24;
-
 #define		MAXCMDLINE	256
 extern	char	key_lines[32][MAXCMDLINE];
 extern	int		edit_line;
@@ -34,70 +27,15 @@ extern	int		key_linepos;
 //extern	cvar_t *sv_episode;
 //extern  cvar_t *sv_mapnum;
 
-extern scr_draw_progress;
+extern int scr_draw_progress;
 
 
 extern qboolean bGotLoadscreenName;
 
+int CIN_RunningWithView();
+
 #define CONSOLE_CURSOR  (95)  // ascii char that represents text-input cursor
 
-#ifdef JPN
-
-void ImeSetMode3(BOOL mode);
-extern HWND        cl_hwnd;
-
-
-//#ifdef CONSOLE
-
-HANDLE hConImeStr=NULL;
-char ImeBuffer[255];
-
-void ConSaveIme(char* lpStr)
-{
-	char *lpConImeStr;
-	int x;
-
-	if (hConImeStr)
-		LocalFree(hConImeStr);
-	hConImeStr = NULL;
-
-	if (!lpStr)
-		return;
-	x = lstrlen(lpStr);
-	if ( !(hConImeStr = LocalAlloc( LPTR, x+1)) )
-		goto exit2;
-	if ( !( lpConImeStr = (char*) LocalLock( hConImeStr ) ) )
-		goto exit1;
-	lstrcpy(lpConImeStr, lpStr);
-	LocalUnlock( hConImeStr );
-	return;
-	
-
-exit1:
-	LocalFree( hConImeStr );
-
-exit2:
-	return;
-}
-void ConSetIme(char* lpStr)
-{
-	if(lpStr == NULL)
-	{
-		strcpy(ImeBuffer,"");
-		return;
-	}
-
-	strncpy(ImeBuffer, lpStr, 255);
-}
-
-void ConAddChat()
-{
-	strcat(chat_buffer, ImeBuffer);
-	chat_bufferlen += strlen(ImeBuffer);
-
-}
-//#endif
-#endif // JPN
 
 ///////////////////////////////////////////////////////////////////////////////
 //	Con_InitFont
@@ -253,6 +191,9 @@ Con_ToggleConsole_f
 */
 void Con_ToggleConsole_f (void)
 {
+	if (cls.state != ca_active || !cl.refresh_prepped || CIN_RunningWithView())
+		return;
+
 	SCR_EndLoadingPlaque ();	// get rid of loading plaque
 
 	//	Nelno:	don't kill server in attract loop
@@ -301,6 +242,9 @@ void Con_ToggleConsole_f (void)
 
 void Con_ToggleQuickConsole_f (void)
 {
+	if (cls.state != ca_active || !cl.refresh_prepped || CIN_RunningWithView())
+		return;
+
 	SCR_EndLoadingPlaque ();	// get rid of loading plaque
 
 	//	Nelno:	don't kill server in attract loop
@@ -596,7 +540,7 @@ void Con_Init (void)
 //
 // register our commands
 //
-	con_notifytime = Cvar_Get ("con_notifytime", "6", CVAR_ARCHIVE);
+	con_notifytime = Cvar_Get ("con_notifytime", "3", 0);
     
 	Cmd_AddCommand ("toggleconsole", Con_ToggleConsole_f);
 	Cmd_AddCommand ("togglechat", Con_ToggleChat_f);
@@ -668,28 +612,6 @@ void Con_Print (char *txt)
 	while ( (c = *txt) )
 	{
 	// count word length
-// Encompass MarkMa 032999
-#ifdef	JPN		// JPN
-		for (l=0 ; l< con.linewidth ; l++)	{
-			if ( (unsigned char)txt[l] <= ' ')		// add "(unsigned char)" for bug 1497
-				break;
-			
-			if(IsDBCSLeadByte(txt[l]))	{
-				l++;
-				break;			
-			}
-		}
-
-	// word wrap
-		if(IsDBCSLeadByte(txt[l-1]))	{
-			if (l != con.linewidth && (con.x + l+1 >= con.linewidth) )
-				con.x = 0;
-		}
-		else	{
-			if (l != con.linewidth && (con.x + l+1 > con.linewidth) )
-				con.x = 0;
-		}
-#else	// JPN
 		for (l=0 ; l< con.linewidth ; l++)
 			if ( txt[l] <= ' ')
 				break;
@@ -697,8 +619,6 @@ void Con_Print (char *txt)
 	// word wrap
 		if (l != con.linewidth && (con.x + l > con.linewidth) )
 			con.x = 0;
-#endif	// JPN
-// Encompass MarkMa 032999
 
 		txt++;
 
@@ -730,26 +650,10 @@ void Con_Print (char *txt)
 
 		default:	// display character and advance
 			y = con.current % con.totallines;
-// Encompass MarkMa 032999
-#ifdef	JPN		// JPN
-			if(IsDBCSLeadByte(c))	{
-				con.text[y*con.linewidth+con.x] = c;
-				con.x++;
-				c = *txt;	txt++;
-			}
-			con.text[y*con.linewidth+con.x] = c;
-			con.x++;
-
-			if (con.x+1 >= con.linewidth)
-				con.x = 0;
-#else	// JPN
 			con.text[y*con.linewidth+con.x] = c | mask | con.ormask;
 			con.x++;
 			if (con.x >= con.linewidth)
 				con.x = 0;
-#endif	// JPN
-// Encompass MarkMa 032999
-
 			break;
 		}
 		
@@ -776,92 +680,6 @@ void Con_CenteredPrint (char *text)
 	strcat (buffer, "\n");
 	Con_Print (buffer);
 }
-
-#ifdef JPN
-//#ifdef CONSOLE
-extern void *menu_font_bright;
-
-void ConShowComposition() // DK_CONSOLE
-{
-	char *lpConImeStr;
-	DRAWSTRUCT drawStruct;
-	char *text;
-	int i;
-
-	if (!hConImeStr)
-		return;
-	if ( !( lpConImeStr = (char*) LocalLock( hConImeStr ) ) )
-		return;
-	
-	text = key_lines[edit_line];
-	
-	// add the cursor frame
-	text[key_linepos] = 10 + ((int)(cls.realtime >> 8)&1);
-	
-	// fill out remainder with spaces
-	//for (i=key_linepos+1 ; i< con.linewidth ; i++)
-	//	text[i] = ' ';
-		
-	//	prestep if horizontally scrolling
-	for (i=0; key_linepos - i >	con.linewidth - 10; )
-	{
-		if (IsDBCSLeadByte(text[i]))
-			i++;
-		i++;
-	}
-	text += i;
-/*	//key_linepos;	  viddef.width
-
-        //we are editing the text.  Copy the text, removing the portion that is off the left of the field.
-        buffer256 print; //we dont use operator= here because it will call the constructor and interpret text as the format string.
-        print = text.Right(num_chars_off_left);
-
-        //Determine how much of the text is visible.
-        int32 num_visible_chars = re.FontNumCharsInWidth(print, font_normal, w - 2 * INPUT_FIELD_SPACE_LEFT, 0);
-
-        //truncate the string we will print.
-        print.NewEnding(num_visible_chars, "");
-
-        //print the string.
-        //M_DrawString(norm_x + INPUT_FIELD_SPACE_LEFT, norm_y + 5, print, font_normal, false, false);
-
-        //
-        //draw the insertion bar.
-        //
-        
-        //truncate the string at the insertion bar position.
-        //int.NewEnding(insertion_bar_position - num_chars_off_left, "");*/
-
-        //get the width of that string.
-	int32 bar_offset = re.StringWidth(text, con_font, key_linepos - i);
-
-
-	drawStruct.nFlags = 0;
-	drawStruct.szString = lpConImeStr;
-	drawStruct.nXPos = bar_offset; //0;
-	drawStruct.nYPos = viddef.height - con_fontHeight;
-	drawStruct.pImage = menu_font_bright;//con_font;
-	re.DrawString( drawStruct );
-
-	// get the width of the composition string
-	int len_imetext = re.StringWidth(lpConImeStr,menu_font_bright, -1);
-	// show the caret after the composition
-	bar_offset += len_imetext;
-    
-	//
-    //draw the insertion bar.
-    //
-	drawStruct.nFlags = 0;
-	drawStruct.szString = key_lines[edit_line] +  key_linepos;
-	drawStruct.nXPos = bar_offset; //0;
-	drawStruct.nYPos = viddef.height - con_fontHeight;
-	drawStruct.pImage = con_font;
-	re.DrawString( drawStruct );
-
-	LocalUnlock( hConImeStr);
-}
-//#endif
-#endif // JPN
 
 /*
 ==============================================================================
@@ -894,42 +712,6 @@ void Con_DrawInput (void)
 		Con_InitFont ();
 
 	text = key_lines[edit_line];
-
-#ifdef JPN
-	if (cls.key_dest == key_game)
-		cls.key_dest = key_console;		// Enable IME during console
-/* // changed by yokoyama
-	if (!hConImeStr)
-		// add the cursor frame
-		text[key_linepos] = 10 + ((int)(cls.realtime >> 8)&1);
-	else
-		text[key_linepos] = ' ';
-*/
-// added by yokoyama
-    // blinking cursor text entry
-	if (!hConImeStr)
-	{
-		if ( (int)(cls.realtime >> 8) & 1)
-			text[key_linepos] = CONSOLE_CURSOR;				 // ascii/font chararacter
-		else
-			text[key_linepos] = 0;
-	}
-	else
-		text[key_linepos] = ' ';
-
-
-	// fill out remainder with spaces
-	for (i=key_linepos+1 ; i< con.linewidth ; i++)
-		text[i] = ' ';
-
-	for (i=0; key_linepos - i >	con.linewidth - 10; )
-	{
-		if (IsDBCSLeadByte(text[i]))
-			i++;
-		i++;
-	}
-	text += i;
-#else // JPN	
 	
 	// add the cursor frame
 	//text[key_linepos] = 10 + ((int)(cls.realtime >> 8)&1);
@@ -947,8 +729,7 @@ void Con_DrawInput (void)
 	//	prestep if horizontally scrolling
 	if (key_linepos >= con.linewidth)
 		text += 1 + key_linepos - con.linewidth;
-
-#endif //JPN
+		
 	// draw it
 //	y = con.vislines - lineHeight;
 
@@ -996,12 +777,6 @@ void Con_DrawInput (void)
 
 	// remove cursor
 	key_lines[edit_line][key_linepos] = 0;
-#ifdef JPN //JPN
-//#ifdef CONSOLE
-	// show IME composition windows
-	ConShowComposition();
-//#endif
-#endif // JPN
 }
 
 
@@ -1013,24 +788,16 @@ Draws the last few lines of output transparently over the game top
 ================
 */
 
-int					notify_text_bottom;
-extern float		scr_centertime_off;
-
 #define C_TEXTENTRY_X      (52)
 #define C_TEXTENTRY_Y      (5)
 
 #define C_TEXTENTRY_WIDTH  (566)
 #define C_TEXTENTRY_HEIGHT (32)
 
-bool	bDrewNotify;
+bool bDrewNotify;
 void Con_DrawNotify (void)
 {
 	bDrewNotify = false;
-
-	notify_text_bottom = 0;
-	float fAlpha = 1.0;
-	if (scr_centertime_off > 0)
-		fAlpha = 0.3;
 
 //	int		x, v;
 	int		v;
@@ -1051,7 +818,7 @@ void Con_DrawNotify (void)
 	  v = 0;
 	else
     v = C_TEXTENTRY_HEIGHT;  // position Y underneath chat graphic
-	
+
 	for (i = con.current - NUM_CON_TIMES + 1; i <= con.current; i++)
 	{
 		if (i < 0)
@@ -1068,40 +835,18 @@ void Con_DrawNotify (void)
 			continue;
 
 		text = con.text + (i % con.totallines)*con.linewidth;
-		qboolean talk = FALSE;
-		if (text[0] == '\t')
-		{	
-			talk = TRUE;
-			text[con.linewidth - 1] = '\0';
-			text++;
-		}
-		else
-		{
-			text[con.linewidth - 1] = '\0';
-		}
 
-		drawStruct.nFlags = DSFLAG_BLEND|DSFLAG_ALPHA;
-		drawStruct.fAlpha = fAlpha;
+		text[con.linewidth - 1] = '\0';
+		drawStruct.nFlags = DSFLAG_BLEND;
 		drawStruct.szString = text;
 		drawStruct.nXPos = 0;
 		drawStruct.nYPos = v;
-		if (talk)
-		{
-			v += scoreboard_font_height;
-			drawStruct.pImage = scoreboard_font;
-		}
-		else
-		{
-			v += notify_fontHeight;
-			drawStruct.pImage = notify_font;
-		}
-
+		drawStruct.pImage = notify_font;
 		re.DrawString( drawStruct );
 		bDrewNotify = true;
-//		v += notify_fontHeight;
-	}
 
-	notify_text_bottom = v;
+		v += notify_fontHeight;
+	}
 
 
 	if (cls.key_dest == key_message)
@@ -1158,17 +903,11 @@ void Con_DrawNotify (void)
 
 //		skip = 0;
 		s = chat_buffer;
-#ifdef JPN
-		// check length of actual graphics string instead of string length
-//		while ( (scr_string_width = re.StringWidth(s, notify_font, -1)) > C_TEXTENTRY_WIDTH )
-		while ( (re.StringWidth(s, notify_font, -1)) > (C_TEXTENTRY_WIDTH - re.StringWidth(ImeBuffer, notify_font, -1) - 20) )
-      s++;
-#else // JPN
+
 		// check length of actual graphics string instead of string length
 //		while ( (scr_string_width = re.StringWidth(s, notify_font, -1)) > C_TEXTENTRY_WIDTH )
 		while ( (re.StringWidth(s, notify_font, -1)) > C_TEXTENTRY_WIDTH )
       s++;
-#endif // JPN
 
   	/*
 	  scr_string_width = re.StringWidth(s, notify_font, -1);
@@ -1196,43 +935,6 @@ void Con_DrawNotify (void)
 		re.DrawString( drawStruct );
 
 
-#ifdef JPN // if (!hConImeStr)
-	  // blinking cursor text entry
-		char	tempstr[32];
-		char    sIme[300];
-
-		if(strlen(ImeBuffer) > 0)
-		{
-			strcpy(sIme, "„");
-			strcat(sIme, ImeBuffer);
-			//strcat(sIme, "ƒ");
-
-
-
-			// for IME
-			drawStruct.nFlags   = DSFLAG_BLEND;
-			drawStruct.szString = sIme;
-			drawStruct.nXPos    = C_TEXTENTRY_X + re.StringWidth(s, notify_font, -1) + 10;
-			drawStruct.nYPos    = C_TEXTENTRY_Y;     // always position Y within chat graphic
-			drawStruct.pImage   = notify_font;//notify_font;
-
-			re.DrawString( drawStruct );
-
-		}
-
-	if (!hConImeStr)
-	{
-  	  if ( (int)(cls.realtime >> 8) & 1)
-		  Com_sprintf( tempstr, sizeof(tempstr) ,"%c\n", CONSOLE_CURSOR);
-	  else
-	      Com_sprintf( tempstr, sizeof(tempstr), "\n");
-
-  }
-	else
-		Com_sprintf( tempstr, sizeof(tempstr), "\n");
-
-
-#else // JPN
 	  // blinking cursor text entry
 		char	tempstr[32];
 	  if ( (int)(cls.realtime >> 8) & 1)
@@ -1241,8 +943,6 @@ void Con_DrawNotify (void)
 		else
 //      sprintf( tempstr, "\n");
       Com_sprintf( tempstr, sizeof(tempstr), "\n");
-
-#endif // JPN
 
 		drawStruct.nFlags = DSFLAG_BLEND;
 		drawStruct.szString = tempstr;
@@ -1332,27 +1032,59 @@ short Con_DrawConsolePic(int x, int y, int w, int h, qboolean bLoading)
 
 	loadscreen = Cvar_Get ("cl_loadscreen", "con", 0);
 
-	scale_x = (viddef.width / 640.0);
-	scale_y = (viddef.height / 480.0);
-	width_256 = (int)(256.0 * scale_x);
+	if (bLoading)
+	{
+		/*
+		 * Loading artwork keeps the original 4:3 presentation geometry.
+		 * On widescreen displays it is uniformly scaled until the logical
+		 * 640x480 canvas fills the display horizontally; the excess vertical
+		 * area is cropped symmetrically rather than stretching the artwork.
+		 * 4:3 displays retain the original one-to-one geometry.
+		 */
+		scale_x = viddef.width / 640.0;
+		scale_y = viddef.height / 480.0;
+		if ((viddef.width / (float)viddef.height) > (640.0f / 480.0f))
+		{
+			scale_x = viddef.width / 640.0;
+			scale_y = scale_x;
+		}
+		else
+		{
+			if (scale_y < scale_x)
+				scale_x = scale_y;
+			scale_y = scale_x;
+		}
+	}
+	else
+	{
+		scale_x = viddef.width / 640.0;
+		scale_y = viddef.height / 480.0;
+		if (scale_y < scale_x)
+			scale_x = scale_y;
+		scale_y = scale_x;
+	}
+	width_256 = (int)(256.0 * scale_x + 0.5);
 //		width_128 = (int)(128.0 * scale_x);
 	pic1_x = 0;
 	pic2_x = width_256;
 //		pic3_x = pic2_x + width_256;
-	height = (int)(224.0 * scale_y);
+	height = (int)(224.0 * scale_y + 0.5);
 //		height = (int)(256.0 * scale_y);	// SCG[8/26/99]: Test
 
-	drawStruct.nFlags = ( DSFLAG_SCALE | DSFLAG_PALETTE | DSFLAG_NOMIP ) ;
+	drawStruct.nFlags = ( DSFLAG_SCALE | DSFLAG_PALETTE | DSFLAG_NOMIP | DSFLAG_NO_N64FILTER ) ;
 	drawStruct.fScaleX = scale_x;
 	drawStruct.fScaleY = scale_y;
 
-	drawStruct.nYPos = 0;
+	int32 draw_offset_x = (int32)((viddef.width - 640.0 * scale_x) * 0.5);
+	int32 draw_offset_y = (int32)((viddef.height - 480.0 * scale_y) * 0.5);
+
+	drawStruct.nYPos = draw_offset_y + (int)(y * scale_y + 0.5);
 
 	int index = 0;
 
 	for( int i = 0; i < 2; i++ )
 	{
-		drawStruct.nXPos = 0;    // reset
+		drawStruct.nXPos = draw_offset_x + (int)(x * scale_x + 0.5);
 
 		for( int j = 0; j < 3; j++ )
 		{
@@ -1362,8 +1094,10 @@ short Con_DrawConsolePic(int x, int y, int w, int h, qboolean bLoading)
 			drawStruct.nXPos += width_256; // slide over
 		}
 
-		drawStruct.nYPos = height;  // next row
+		drawStruct.nYPos += height;
 	}
+
+	/* Loading artwork intentionally fills the display on widescreen. */
 	return result;
 }
 
@@ -1394,7 +1128,6 @@ Draws the console with the solid background
 ================
 */
 extern qboolean no_draw_plaque;
-int CIN_RunningWithView();
 void Con_DrawConsole (float frac)
 {
 	DRAWSTRUCT drawStruct;
@@ -1404,7 +1137,7 @@ void Con_DrawConsole (float frac)
 	int				row;
 	int				lines;
 //	char			version[64];
-//	char			tempstr[128];
+	char			tempstr[128];
 
   lines = viddef.height * frac;
 	if (lines <= 0)
@@ -1466,14 +1199,13 @@ void Con_DrawConsole (float frac)
 //	if (con.mode == CON_LOADING)
 //		return;
 
-	if( Cvar_VariableValue( "console" ) == 0 )
-	{
-		return;
-	}
-
 // draw the text
 	if (con_pic_result == CON_PIC_LOAD_PLAQUE)
 		return;
+
+	if (con.mode == CON_LOADING)
+		return;
+
 //	if (scr_draw_progress)
 //		return;
 
@@ -1513,7 +1245,6 @@ void Con_DrawConsole (float frac)
 	if (con.display != con.current)
 	{
 	// draw arrows to show the buffer is backscrolled
-		char tempstr[1024];// yes, it's huge.. but better than too small.
 		for (x = 0; x < con.linewidth; x ++)
 		{
 			tempstr[x] = '^';
@@ -1563,16 +1294,3 @@ void Con_DrawConsole (float frac)
 	// draw the input prompt, user text, and cursor if desired
 	Con_DrawInput ();
 }
-#ifdef JPN
-void ImeSetMode3(BOOL mode)
-{
-	HIMC hIMC;
-
-    if ( !( hIMC = ImmGetContext( cl_hwnd ) ) )
-        return;
-
-	ImmSetOpenStatus(hIMC, mode);
-
-	ImmReleaseContext(cl_hwnd, hIMC);
-}
-#endif // JPN

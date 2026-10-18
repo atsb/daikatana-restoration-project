@@ -1,5 +1,8 @@
 #include "gl_local.h"
 
+#include <new>
+#include <vector>
+
 particle_def_t	r_particledefs[NUM_PARTICLETYPES];
 int	r_num_particle_defs;
 
@@ -157,6 +160,450 @@ void R_InitParticles()
 	}
 }
 
+struct particle_worker_vertex_t
+{
+	float x, y, z;
+	float s, t;
+	float r, g, b, a;
+};
+
+struct particle_worker_point_t
+{
+	float x, y, z;
+	float r, g, b, a;
+};
+
+struct particle_worker_job_t
+{
+	const particle_t *particles;
+	int num_particles;
+	const particle_t *comparticles;
+	int num_comparticles;
+	CVector r_origin;
+	CVector vpn;
+	CVector vup;
+	CVector vright;
+	CVector regular_rain_forward;
+	CVector regular_rain_right;
+	CVector complex_rain_forward;
+	CVector complex_rain_right;
+	qboolean regular_points;
+};
+
+static SDL_Thread *particle_worker_thread = NULL;
+static SDL_Semaphore *particle_worker_start = NULL;
+static SDL_Semaphore *particle_worker_done = NULL;
+static qboolean particle_worker_exit = false;
+static qboolean particle_worker_job_active = false;
+static qboolean particle_worker_ready = false;
+static qboolean particle_worker_failed = false;
+static byte particle_worker_regular_rain_generated = FALSE;
+static byte particle_worker_complex_rain_generated = FALSE;
+static particle_worker_job_t particle_worker_job;
+static std::vector<particle_worker_vertex_t> particle_worker_particles;
+static std::vector<particle_worker_point_t> particle_worker_points;
+static std::vector<particle_worker_vertex_t> particle_worker_comparticles;
+
+static void R_ParticleWorkerPrepareRegularTriangles(void)
+{
+	int i;
+	for (i = 0; i < particle_worker_job.num_particles; ++i)
+	{
+		const particle_t *p = &particle_worker_job.particles[i];
+		const particle_def_t *def = &r_particledefs[p->type];
+		CVector up, right, origin, org;
+		float scale;
+		float alpha;
+		particle_worker_vertex_t *v = &particle_worker_particles[i * 3];
+
+		scale = (p->origin.x - particle_worker_job.r_origin.x) * particle_worker_job.vpn.x +
+			(p->origin.y - particle_worker_job.r_origin.y) * particle_worker_job.vpn.y +
+			(p->origin.z - particle_worker_job.r_origin.z) * particle_worker_job.vpn.z;
+
+		if (p->type == PARTICLE_RAIN)
+		{
+			up = particle_worker_job.regular_rain_forward;
+			right = particle_worker_job.regular_rain_right;
+
+			if (scale < 0)
+			{
+				if (scale > -20)
+					scale = -1;
+				else
+					scale = -1 + scale * 0.004;
+			}
+			else
+			{
+				if (scale < 20)
+					scale = 1;
+				else
+					scale = 1 + scale * 0.004;
+			}
+			if (p->pscale)
+				scale = scale * p->pscale;
+			alpha = p->alpha * 1.0 / scale;
+		}
+		else
+		{
+			up = particle_worker_job.vup * def->fScale;
+			right = particle_worker_job.vright * def->fScale;
+
+			if (scale < 20)
+				scale = 1;
+			else
+				scale = 1 + scale * 0.004;
+
+			if (p->pscale)
+				scale = scale * p->pscale;
+			alpha = p->alpha;
+		}
+
+		if (p->pscale > 1.0)
+			scale = p->pscale;
+		else
+		{
+			if (scale < 20)
+				scale = 1;
+			else
+				scale = 1 + scale * 0.004;
+		}
+
+		org = (up + right) * scale;
+		org.Multiply(0.33);
+		origin = p->origin - org;
+
+		v[0].x = origin.x;
+		v[0].y = origin.y;
+		v[0].z = origin.z;
+		v[0].s = def->s1;
+		v[0].t = def->t1;
+		v[0].r = p->color_rgb.x;
+		v[0].g = p->color_rgb.y;
+		v[0].b = p->color_rgb.z;
+		v[0].a = alpha;
+
+		v[1].x = origin.x + up.x * scale;
+		v[1].y = origin.y + up.y * scale;
+		v[1].z = origin.z + up.z * scale;
+		v[1].s = def->s2;
+		v[1].t = def->t1;
+		v[1].r = p->color_rgb.x;
+		v[1].g = p->color_rgb.y;
+		v[1].b = p->color_rgb.z;
+		v[1].a = alpha;
+
+		v[2].x = origin.x + right.x * scale;
+		v[2].y = origin.y + right.y * scale;
+		v[2].z = origin.z + right.z * scale;
+		v[2].s = def->s1;
+		v[2].t = def->t2;
+		v[2].r = p->color_rgb.x;
+		v[2].g = p->color_rgb.y;
+		v[2].b = p->color_rgb.z;
+		v[2].a = alpha;
+	}
+}
+
+static void R_ParticleWorkerPreparePoints(void)
+{
+	int i;
+	for (i = 0; i < particle_worker_job.num_particles; ++i)
+	{
+		const particle_t *p = &particle_worker_job.particles[i];
+		particle_worker_point_t *v = &particle_worker_points[i];
+		v->x = p->origin.x;
+		v->y = p->origin.y;
+		v->z = p->origin.z;
+		v->r = p->color_rgb.x;
+		v->g = p->color_rgb.y;
+		v->b = p->color_rgb.z;
+		v->a = p->alpha;
+	}
+}
+
+static void R_ParticleWorkerPrepareComplex(const particle_t *particles, int count,
+	std::vector<particle_worker_vertex_t> &vertices,
+	const CVector &rain_forward_local, const CVector &rain_right_local)
+{
+	int i;
+	for (i = 0; i < count; ++i)
+	{
+		const particle_t *p = &particles[i];
+		const particle_def_t *def = &r_particledefs[p->type];
+		CVector up, right, origin, org;
+		float scale;
+		float alpha;
+		particle_worker_vertex_t *v = &vertices[i * 3];
+
+		scale = (p->origin.x - particle_worker_job.r_origin.x) * particle_worker_job.vpn.x +
+			(p->origin.y - particle_worker_job.r_origin.y) * particle_worker_job.vpn.y +
+			(p->origin.z - particle_worker_job.r_origin.z) * particle_worker_job.vpn.z;
+
+		if (p->type == PARTICLE_RAIN)
+		{
+			up = rain_forward_local * (def->fScale * 0.8);
+			right = rain_right_local * (def->fScale * 0.8);
+
+			if (scale < 10)
+				scale = 2.0;
+			else
+				scale = def->fScale;
+			alpha = p->alpha * 1.0 / scale;
+		}
+		else
+		{
+			up = particle_worker_job.vup * def->fScale;
+			right = particle_worker_job.vright * def->fScale;
+
+			if (p->pscale > 1.0)
+				scale = p->pscale;
+			else
+			{
+				if (scale < 20)
+					scale = 1;
+				else
+					scale = 1 + scale * 0.004;
+			}
+			alpha = p->alpha;
+		}
+
+		org = (up + right) * scale;
+		org.Multiply(0.33);
+		origin = p->origin - org;
+
+		v[0].x = origin.x;
+		v[0].y = origin.y;
+		v[0].z = origin.z;
+		v[0].s = def->s1;
+		v[0].t = def->t1;
+		v[0].r = p->color_rgb.x;
+		v[0].g = p->color_rgb.y;
+		v[0].b = p->color_rgb.z;
+		v[0].a = alpha;
+
+		v[1].x = origin.x + up.x * scale;
+		v[1].y = origin.y + up.y * scale;
+		v[1].z = origin.z + up.z * scale;
+		v[1].s = def->s2;
+		v[1].t = def->t1;
+		v[1].r = p->color_rgb.x;
+		v[1].g = p->color_rgb.y;
+		v[1].b = p->color_rgb.z;
+		v[1].a = alpha;
+
+		v[2].x = origin.x + right.x * scale;
+		v[2].y = origin.y + right.y * scale;
+		v[2].z = origin.z + right.z * scale;
+		v[2].s = def->s1;
+		v[2].t = def->t2;
+		v[2].r = p->color_rgb.x;
+		v[2].g = p->color_rgb.y;
+		v[2].b = p->color_rgb.z;
+		v[2].a = alpha;
+	}
+}
+
+static int SDLCALL R_ParticleWorkerMain(void *unused)
+{
+	(void)unused;
+
+	for (;;)
+	{
+		SDL_WaitSemaphore(particle_worker_start);
+
+		if (particle_worker_exit)
+			break;
+
+		particle_worker_failed = false;
+		try
+		{
+			if (particle_worker_job.regular_points)
+				R_ParticleWorkerPreparePoints();
+			else if (particle_worker_job.num_particles > 0)
+				R_ParticleWorkerPrepareRegularTriangles();
+
+			if (particle_worker_job.num_comparticles > 0)
+				R_ParticleWorkerPrepareComplex(particle_worker_job.comparticles,
+					particle_worker_job.num_comparticles,
+					particle_worker_comparticles,
+					particle_worker_job.complex_rain_forward,
+					particle_worker_job.complex_rain_right);
+
+		}
+		catch (...)
+		{
+			particle_worker_failed = true;
+		}
+
+		SDL_SignalSemaphore(particle_worker_done);
+	}
+
+	return 0;
+}
+
+void R_ParticleWorkerInit(void)
+{
+	if (particle_worker_thread != NULL)
+		return;
+
+	particle_worker_start = SDL_CreateSemaphore(0);
+	particle_worker_done = SDL_CreateSemaphore(0);
+	if (particle_worker_start == NULL || particle_worker_done == NULL)
+	{
+		if (particle_worker_start != NULL)
+			SDL_DestroySemaphore(particle_worker_start);
+		if (particle_worker_done != NULL)
+			SDL_DestroySemaphore(particle_worker_done);
+		particle_worker_start = NULL;
+		particle_worker_done = NULL;
+		return;
+	}
+
+	particle_worker_exit = false;
+	particle_worker_ready = false;
+	particle_worker_failed = false;
+	particle_worker_job_active = false;
+	particle_worker_regular_rain_generated = FALSE;
+	particle_worker_complex_rain_generated = FALSE;
+
+	particle_worker_thread = SDL_CreateThread(R_ParticleWorkerMain,
+		"DaikatanaParticleWorker", NULL);
+	if (particle_worker_thread == NULL)
+	{
+		SDL_DestroySemaphore(particle_worker_start);
+		SDL_DestroySemaphore(particle_worker_done);
+		particle_worker_start = NULL;
+		particle_worker_done = NULL;
+		return;
+	}
+}
+
+void R_ParticleWorkerShutdown(void)
+{
+	if (particle_worker_thread == NULL)
+		return;
+
+	if (particle_worker_job_active)
+		R_ParticleWorkerWait();
+
+	particle_worker_exit = true;
+	SDL_SignalSemaphore(particle_worker_start);
+	SDL_WaitThread(particle_worker_thread, NULL);
+	particle_worker_thread = NULL;
+
+	SDL_DestroySemaphore(particle_worker_start);
+	SDL_DestroySemaphore(particle_worker_done);
+	particle_worker_start = NULL;
+	particle_worker_done = NULL;
+	particle_worker_job_active = false;
+	particle_worker_ready = false;
+}
+
+void R_ParticleWorkerBegin(void)
+{
+	int total_tri_vertices;
+
+	if (particle_worker_thread == NULL)
+		return;
+	if (particle_worker_job_active)
+		R_ParticleWorkerWait();
+	if ((r_newrefdef.rdflags & RDF_NOWORLDMODEL) != 0 || !r_drawparticleflag->value)
+		return;
+
+	if (r_newrefdef.num_particles == 0 &&
+		r_newrefdef.num_comparticles == 0)
+		return;
+
+	particle_worker_job.particles = r_newrefdef.particles;
+	particle_worker_job.num_particles = (gl_ext_pointparameters->value && qglPointParameterfEXT) ?
+		r_newrefdef.num_particles : r_newrefdef.num_particles;
+	particle_worker_job.comparticles = r_newrefdef.comparticles;
+	particle_worker_job.num_comparticles = r_drawcomparticles->value ? r_newrefdef.num_comparticles : 0;
+	particle_worker_job.r_origin = r_origin;
+	particle_worker_job.vpn = vpn;
+	particle_worker_job.vup = vup;
+	particle_worker_job.vright = vright;
+	particle_worker_job.regular_points = (gl_ext_pointparameters->value && qglPointParameterfEXT) ? true : false;
+
+	if (!particle_worker_job.regular_points && particle_worker_job.num_particles > 0 &&
+		!particle_worker_regular_rain_generated)
+	{
+		GL_GenerateRainVectors(r_newrefdef.vieworg, 0);
+		particle_worker_regular_rain_generated = TRUE;
+	}
+	particle_worker_job.regular_rain_forward = rain_forward;
+	particle_worker_job.regular_rain_right = rain_right;
+
+	if (particle_worker_job.num_comparticles > 0 &&
+		!particle_worker_complex_rain_generated)
+	{
+		GL_GenerateRainVectors(r_newrefdef.vieworg, 0);
+		particle_worker_complex_rain_generated = TRUE;
+	}
+	particle_worker_job.complex_rain_forward = rain_forward;
+	particle_worker_job.complex_rain_right = rain_right;
+
+	try
+	{
+		if (particle_worker_job.regular_points)
+			particle_worker_points.resize(particle_worker_job.num_particles);
+		else
+		{
+			total_tri_vertices = particle_worker_job.num_particles * 3;
+			particle_worker_particles.resize(total_tri_vertices);
+		}
+
+		particle_worker_comparticles.resize(particle_worker_job.num_comparticles * 3);
+	}
+	catch (const std::bad_alloc &)
+	{
+		particle_worker_ready = false;
+		particle_worker_failed = true;
+		particle_worker_job_active = false;
+		return;
+	}
+
+	particle_worker_ready = true;
+	particle_worker_job_active = true;
+	SDL_SignalSemaphore(particle_worker_start);
+}
+
+void R_ParticleWorkerWait(void)
+{
+	if (!particle_worker_job_active)
+		return;
+
+	SDL_WaitSemaphore(particle_worker_done);
+	particle_worker_job_active = false;
+	if (particle_worker_failed)
+		particle_worker_ready = false;
+}
+
+static void R_DrawPreparedTriangles(const std::vector<particle_worker_vertex_t> &vertices,
+	int count, qboolean reset_color)
+{
+	if (count <= 0)
+		return;
+
+	qglEnableClientState(GL_VERTEX_ARRAY);
+	qglVertexPointer(3, GL_FLOAT, sizeof(particle_worker_vertex_t), &vertices[0].x);
+
+	qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	qglTexCoordPointer(2, GL_FLOAT, sizeof(particle_worker_vertex_t), &vertices[0].s);
+
+	qglEnableClientState(GL_COLOR_ARRAY);
+	qglColorPointer(4, GL_FLOAT, sizeof(particle_worker_vertex_t), &vertices[0].r);
+
+	qglDrawArrays(GL_TRIANGLES, 0, count * 3);
+
+	qglDisableClientState(GL_COLOR_ARRAY);
+	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	qglDisableClientState(GL_VERTEX_ARRAY);
+
+	if (reset_color)
+		qglColor4f(1, 1, 1, 1);
+}
+
 void GL_GenerateRainVectors (const CVector &p_origin, int type)
 {
 	float dist;
@@ -225,6 +672,8 @@ void GL_DrawComplexParticles( int num_particles, const particle_t particles[] )
 		bRainVectorsGenerated = TRUE;
 	}
 
+	qglBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+
 //	GL_SetState( GLSTATE_TEXTURE_2D | GLSTATE_BLEND | GLSTATE_DEPTH_TEST );
     nStateFlags = GLSTATE_PRESET1 | GLSTATE_BLEND;
     nStateFlags &= ~( GLSTATE_DEPTH_MASK | GLSTATE_CULL_FACE | GLSTATE_CULL_FACE_FRONT );
@@ -234,6 +683,9 @@ void GL_DrawComplexParticles( int num_particles, const particle_t particles[] )
 
 	GL_TexEnv( GL_MODULATE );
 	GL_Bind( r_particletexture->texnum );	
+	R_TextureFilterBeginBase(r_particletexture);
+
+	qglBegin( GL_TRIANGLES );
 
 	for ( p = particles, i=0 ; i < num_particles ; i++,p++)
 	{
@@ -282,7 +734,6 @@ void GL_DrawComplexParticles( int num_particles, const particle_t particles[] )
 
 //scale *= 1.5;
 
-		qglBegin( GL_TRIANGLES );
 		qglColor4f( p->color_rgb.x, p->color_rgb.y, p->color_rgb.z, alpha );
 
 		// SCG[11/15/99]: Begin addidtion for centering particle
@@ -303,10 +754,12 @@ void GL_DrawComplexParticles( int num_particles, const particle_t particles[] )
 		qglVertex3f( origin.x + right.x * scale, 
 					 origin.y + right.y * scale, 
 					 origin.z + right.z * scale);
-		qglEnd ();
 	}
 
+	qglEnd ();
+
 	qglColor4f( 1, 1, 1, 1 );
+	R_TextureFilterEnd();
 
 	GL_TexEnv (GL_REPLACE);
 }
@@ -333,28 +786,59 @@ void R_DrawParticles (void)
 		return;
 	}
 
-	if ( gl_ext_pointparameters->value && qglPointParameterfEXT )
+	qglBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+
+	if (gl_ext_pointparameters->value && qglPointParameterfEXT &&
+		(gl_texture_filter == NULL || gl_texture_filter->value != 2.0f))
 	{
 		int i;
-		const particle_t *p;
 
-		GL_SetState( GLSTATE_BLEND | GLSTATE_DEPTH_TEST );
-
-		qglPointSize( gl_particle_size->value );
-
-		qglBegin( GL_POINTS );
-		for ( i = 0, p = r_newrefdef.particles; i < r_newrefdef.num_particles; i++, p++ )
+		R_ParticleWorkerWait();
+		if (!particle_worker_ready || particle_worker_job.num_particles != r_newrefdef.num_particles)
 		{
-			qglColor4f( p->color_rgb.x, p->color_rgb.y, p->color_rgb.z, p->alpha );
-
-			qglVertex3fv( p->origin );
+			GL_SetState(GLSTATE_BLEND | GLSTATE_DEPTH_TEST);
+			qglPointSize(gl_particle_size->value);
+			qglBegin(GL_POINTS);
+			for (i = 0; i < r_newrefdef.num_particles; ++i)
+			{
+				const particle_t *p = &r_newrefdef.particles[i];
+				qglColor4f(p->color_rgb.x, p->color_rgb.y, p->color_rgb.z, p->alpha);
+				qglVertex3fv(p->origin);
+			}
+			qglEnd();
+			return;
 		}
-		qglEnd();
 
+		GL_SetState(GLSTATE_BLEND | GLSTATE_DEPTH_TEST);
+		qglPointSize(gl_particle_size->value);
+		qglEnableClientState(GL_VERTEX_ARRAY);
+		qglVertexPointer(3, GL_FLOAT, sizeof(particle_worker_point_t), &particle_worker_points[0].x);
+		qglEnableClientState(GL_COLOR_ARRAY);
+		qglColorPointer(4, GL_FLOAT, sizeof(particle_worker_point_t), &particle_worker_points[0].r);
+		qglDrawArrays(GL_POINTS, 0, particle_worker_job.num_particles);
+		qglDisableClientState(GL_COLOR_ARRAY);
+		qglDisableClientState(GL_VERTEX_ARRAY);
 	}
 	else
 	{
-		GL_DrawParticles( r_newrefdef.num_particles, r_newrefdef.particles );
+		R_ParticleWorkerWait();
+		if (!particle_worker_ready || particle_worker_job.num_particles != r_newrefdef.num_particles)
+		{
+			GL_DrawParticles(r_newrefdef.num_particles, r_newrefdef.particles);
+			return;
+		}
+
+		{
+			unsigned int nStateFlags = GLSTATE_PRESET1 | GLSTATE_BLEND;
+			nStateFlags &= ~GLSTATE_DEPTH_MASK;
+			GL_SetState(nStateFlags);
+		}
+		GL_TexEnv(GL_MODULATE);
+		GL_Bind(r_particletexture->texnum);
+		R_TextureFilterBeginBase(r_particletexture);
+		R_DrawPreparedTriangles(particle_worker_particles, particle_worker_job.num_particles, false);
+		R_TextureFilterEnd();
+		GL_TexEnv(GL_REPLACE);
 	}
 }
 
@@ -374,7 +858,29 @@ void R_DrawComplexParticles (void)
 	if (!r_drawparticleflag->value || !r_drawcomparticles->value)
 		return; 
 
-	GL_DrawComplexParticles( r_newrefdef.num_comparticles, r_newrefdef.comparticles );
+	if (r_newrefdef.num_comparticles == 0)
+		return;
+
+	qglBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+
+	R_ParticleWorkerWait();
+	if (!particle_worker_ready || particle_worker_job.num_comparticles != r_newrefdef.num_comparticles)
+	{
+		GL_DrawComplexParticles(r_newrefdef.num_comparticles, r_newrefdef.comparticles);
+		return;
+	}
+
+	{
+		unsigned int nStateFlags = GLSTATE_PRESET1 | GLSTATE_BLEND;
+		nStateFlags &= ~(GLSTATE_DEPTH_MASK | GLSTATE_CULL_FACE | GLSTATE_CULL_FACE_FRONT);
+		GL_SetState(nStateFlags);
+	}
+	GL_TexEnv(GL_MODULATE);
+	GL_Bind(r_particletexture->texnum);
+	R_TextureFilterBeginBase(r_particletexture);
+	R_DrawPreparedTriangles(particle_worker_comparticles, particle_worker_job.num_comparticles, true);
+	R_TextureFilterEnd();
+	GL_TexEnv(GL_REPLACE);
 }
 
 
@@ -400,6 +906,8 @@ void GL_DrawParticles( int num_particles, const particle_t particles[] )
 		bRainVectorsGenerated = TRUE;
 	}
 
+	qglBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+
 //	GL_SetState( GLSTATE_TEXTURE_2D | GLSTATE_BLEND | GLSTATE_DEPTH_TEST );
     nStateFlags = GLSTATE_PRESET1 | GLSTATE_BLEND;
     nStateFlags &= ~GLSTATE_DEPTH_MASK;
@@ -408,6 +916,9 @@ void GL_DrawParticles( int num_particles, const particle_t particles[] )
 	GL_TexEnv( GL_MODULATE );
 
 	GL_Bind(r_particletexture->texnum);
+	R_TextureFilterBeginBase(r_particletexture);
+
+	qglBegin( GL_TRIANGLES );
 
 	for ( p = particles, i=0 ; i < num_particles ; i++,p++)
 	{
@@ -474,7 +985,6 @@ void GL_DrawParticles( int num_particles, const particle_t particles[] )
 
 //		scale *= 1.5;
 
-		qglBegin( GL_TRIANGLES );
 		qglColor4f( p->color_rgb.x, p->color_rgb.y, p->color_rgb.z, alpha );
 
 		// SCG[11/15/99]: Begin addidtion for centering particle
@@ -495,8 +1005,9 @@ void GL_DrawParticles( int num_particles, const particle_t particles[] )
 		qglVertex3f( origin.x + right.x * scale, 
 					 origin.y + right.y * scale, 
 					 origin.z + right.z * scale);
-		qglEnd ();
 	}
 
+	qglEnd ();
+	R_TextureFilterEnd();
 	GL_TexEnv( GL_REPLACE );
 }

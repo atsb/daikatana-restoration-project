@@ -1,7 +1,0 @@
-LIBRARY AudioImp_Aureal3d.dll
-EXPORTS
-	GetPluginDesc			  @1
-	GetNumPlugins			  @2
-
-;	GetAudioImp               @2 PRIVATE          ; object creation
-

@@ -44,7 +44,7 @@ long exp_level[] =
 
 
 int calcStatLevel( userEntity_t *self );
-typedef	(*func_t)(edict_t *);
+typedef void (*func_t)(edict_t *);
 /* ***************************** define types ****************************** */
 
 //#define _DEBUG_CLIENT
@@ -64,7 +64,6 @@ typedef	(*func_t)(edict_t *);
 
 #define BOOST_BLINKTIME   (5.0)
 
-static qboolean do_motd = FALSE;
 
 void SetTeam(userEntity_t *ent)
 {
@@ -158,6 +157,8 @@ void Client_Load( FILE *f, struct edict_s *ent );
 ////////////////////////////////////////////////////////////////
 //	globals
 ////////////////////////////////////////////////////////////////
+
+static qboolean do_motd = FALSE;
 
 int				cur_clients;
 DEATHTYPE		client_deathtype;
@@ -259,13 +260,13 @@ void Client_InitClientModel ( userEntity_t *self )
 	memset(m_name, 0, sizeof(m_name));  // reset
     strncpy(m_name, Info_ValueForKey(self->client->pers.userinfo, "modelname"), sizeof(m_name)-1);
 
-//#ifdef DM_DEMO
+#ifdef DM_DEMO
     // verify that the model is one of the main character models, for NOW
     if (!strstr(m_name,"models/global/m_hiro.dkm"))
       if (!strstr(m_name,"models/global/m_mikiko.dkm"))
         if (!strstr(m_name,"models/global/m_superfly.dkm"))
           strcpy(m_name,"models/global/m_hiro.dkm");                    // default model name 
-//#endif
+#endif
 
 
 
@@ -622,11 +623,7 @@ __inline static void CLIENT_SelectAnimationPerWeaponType( userEntity_t *self, ch
 	{
 		return;
 	}
-	if( self->waterlevel > 2)
-	{
-		sprintf(pszAnimation,"swim");
-		return;
-	}
+
 	int nStrLength = strlen( pszAnimation );
 	switch( pWeaponInfo->nWeaponType )
 	{
@@ -1494,7 +1491,7 @@ void Client_DropInventory(userEntity_t *self)
 			}
 
 			// cek[7-19-00]: if there is ammo or it doesn't use ammo....drop it.
-			if ( ammo_count || !winfo->ammo_per_use)
+			if ( ammo_count || !winfo->ammo_per_use )
 			{
 				
 				if(! (winfo->flags & WFL_NODROP) )
@@ -1576,9 +1573,6 @@ void client_warp_appear(userEntity_t *self)
 //*****************************************************************************
 //*****************************************************************************
 
-///////////////////////////////////////////////////////////////////////////////
-//	Client_NoTarget
-///////////////////////////////////////////////////////////////////////////////
 void Client_NoClip( userEntity_t *self )
 {
 	char	*msg;
@@ -2127,6 +2121,16 @@ void Client_Use (userEntity_t *self)
 			}
 			else 
 			{
+/*
+				if( bNeedsKey )
+				{
+					userEntity_t *pKey = com->FindEntity( tr.ent->keyname );
+					if (pKey)
+						gstate->centerprint( self, 2.0, "%s %s.\n", tongue_world[T_MUST_HAVE_KEY],pKey->netname );
+					else
+						gstate->centerprint( self, 2.0, "%s",tongue_world[T_NOT_PROPER_KEY] );
+				}
+*/
 				Client_PlayUseStruggleSound( self, tr.ent );
 			}
 		}
@@ -2404,13 +2408,6 @@ void	Client_CheckWaterDamage (userEntity_t *self)
 		return;
 	}
 
-	if(_stricmp(hook->cur_sequence->animation_name,"swim") != 0 && self->waterlevel > 2)
-	{
-		char pszAnimation[128];
-		CLIENT_SelectAnimationPerWeaponType( self, pszAnimation );
-		AI_ForceSequence(self,pszAnimation,FRAME_LOOP);
-	}
-
 	//NSS[11/29/99]: Took out the early out with god mode because we need to reset water damage if in god mode.
     if ( self->input_entity->health <= 0 || self->input_entity->movetype == MOVETYPE_NOCLIP || (hook->dflags & DFL_LLAMA))
 	{
@@ -2446,22 +2443,14 @@ void	Client_CheckWaterDamage (userEntity_t *self)
 
 	if (!bNoDrown)	// no suit and not holding trident
 	{
-		// check for freezing in episode 3 (not in dm)
-		if (!deathmatch->value)
+		// check for freezing in episode 3
+		if ((self->input_entity->watertype & CONTENTS_WATER) && (gstate->episode == 3) && (self->input_entity->waterlevel > 0))
 		{
-			if ((self->input_entity->watertype & CONTENTS_WATER) && (gstate->episode == 3) && (self->input_entity->waterlevel > 0))
-			{
-				if ((gstate->time >= ihook->freezeTime) && (gstate->time >= ihook->freezeStart))
-					ihook->freezeLevel += 0.15;
-			}
-			else
-				ihook->freezeStart = gstate->time + 4;
+			if ((gstate->time >= ihook->freezeTime) && (gstate->time >= ihook->freezeStart))
+				ihook->freezeLevel += 0.15;
 		}
 		else
-		{
 			ihook->freezeStart = gstate->time + 4;
-		}
-
 		///////////////////////////////////////////////////////////////////////
 		//	Not wearing an EnviroSuit
 		///////////////////////////////////////////////////////////////////////
@@ -2828,6 +2817,9 @@ void Client_DeathThink (userEntity_t *self)
 void AlertClientOfSidekickDeath(byte gibbed)
 // a sidekick has died, so the game is over for the main player
 {
+  if (sv_no_sidekicks && sv_no_sidekicks->value > 0.0f)
+    return;
+
   userEntity_t *client_entity = &gstate->g_edicts[1];	
   playerHook_t *phook = AI_GetPlayerHook( client_entity );
 
@@ -2862,8 +2854,8 @@ void AlertClientOfSidekickDeath(byte gibbed)
 ///////////////////////////////////////////////////////////////////////////////
 
 //	info_warp_destination spawnflags
-// SCG[6/27/00]: #define		INFOWARP_SKIPTO		1
-// SCG[6/27/00]: #define		INFOWARP_GLOW		2
+#define		INFOWARP_SKIPTO		1
+#define		INFOWARP_GLOW		2
 
 void	Client_WarpThink (userEntity_t *self)
 {
@@ -3563,53 +3555,35 @@ void Client_CheckPowerUps (userEntity_t *self)
 	// poison
 	////////////////////////////////////////
         //play sound and message after last poisoning is complete -KRH
-	if( ( hook->exp_flags & EXP_POISON ) && hook->poison_time <= 0.2)
+	if( hook->exp_flags & EXP_POISON && hook->poison_time <= gstate->time - 0.2)
 	{
 		//	poison expiration sound and message
 		gstate->StartEntitySound (self, CHAN_VOICE, gstate->SoundIndex("global/a_poisonfade.wav"), 1.0f, ATTN_NORM_MIN,ATTN_NORM_MAX);
-
-		gstate->cs.BeginSendString();
-		gstate->cs.SendSpecifierID(RESOURCE_ID_FOR_STRING(tongue_world,T_POWERUPS_POISON_EXPIRE),0);
-		gstate->cs.Unicast(self,CS_print_center,2.0);
-		gstate->cs.EndSendString();
-
+//		gstate->sprint (self, "%s.\n",tongue_world[T_POWERUPS_POISON_EXPIRE]);
+		gstate->centerprint(self, 2.0, "%s",tongue_world[T_POWERUPS_POISON_EXPIRE]);
 		hook->exp_flags &= ~EXP_POISON;
 	}
-
 	if( hook->items & IT_POISON )
 	{
 		//	do damage
-		if (hook->poison_next_damage_time <= 0)
+		if (hook->poison_next_damage_time <= gstate->time)
 		{
 			//NSS[11/18/99]:Flash the client's screen green... they be a poisoned little bugger!
 			CVector Color;
 			Color.Set(0.10,0.65,0.10);
 			com->FlashClient(self, 0.35f,Color.x ,Color.y ,Color.z , 0.05f );
 
-			gstate->cs.BeginSendString();
-			gstate->cs.SendSpecifierID(RESOURCE_ID_FOR_STRING(tongue_world,T_PLAYER_POISON),0);
-			gstate->cs.Unicast(self,CS_print_center,2.0);
-			gstate->cs.EndSendString();
+			gstate->centerprint (self,3.0,"%s", tongue_world[T_PLAYER_POISON]);
 
 			client_deathtype = POISON;
 			com->Damage (self, self, self, zero_vector, zero_vector, hook->poison_damage, DAMAGE_POISON | DAMAGE_NO_BLOOD);
-			hook->poison_next_damage_time = hook->poison_interval;
+			hook->poison_next_damage_time = gstate->time + hook->poison_interval;
 		}
 		//	poison expire
-		if (hook->poison_time <= 0)
+		if (hook->poison_time < gstate->time)
 		{
 			hook->items &= ~IT_POISON;
-			hook->poison_time = 0.0f;
-			hook->poison_interval = 0.0f;
-			hook->poison_next_damage_time = 0.0f;
 		}
-		else
-		{
-			hook->poison_time -= 0.1f;
-//			hook->poison_interval -= 0.1;
-			hook->poison_next_damage_time -= 0.1f;
-		}
-
 	}
 
 	////////////////////////////////////////
@@ -3643,10 +3617,7 @@ void Client_CheckPowerUps (userEntity_t *self)
 		if( hook->invulnerability_time <= 3.0 && ( hook->exp_flags & EXP_MANASKULL ) )
 		{
 			//	megashield expiration sound and message
-			gstate->cs.BeginSendString();
-			gstate->cs.SendSpecifierID(RESOURCE_ID_FOR_STRING(tongue_world,T_POWERUPS_MANASKULL_EXPIRE),0);
-			gstate->cs.Unicast(self,CS_print_center,2.0);
-			gstate->cs.EndSendString();
+			gstate->centerprint(self, 2.0, "%s",tongue_world[T_POWERUPS_MANASKULL_EXPIRE]);
 			gstate->StartEntitySound (self, CHAN_AUTO, gstate->SoundIndex("artifacts/manaskullfade.wav"), 1.0f, ATTN_NORM_MIN,ATTN_NORM_MAX);
 			hook->exp_flags &= ~EXP_MANASKULL;
 		}
@@ -3749,11 +3720,7 @@ void Client_CheckPowerUps (userEntity_t *self)
             {
                 //	wraithorb expiration sound and message
                 gstate->StartEntitySound (self, CHAN_AUTO, gstate->SoundIndex("artifacts/wraithorbburnout.wav"), 1.0f, ATTN_NORM_MIN,ATTN_NORM_MAX);
-
-				gstate->cs.BeginSendString();
-				gstate->cs.SendSpecifierID(RESOURCE_ID_FOR_STRING(tongue_world,T_POWERUPS_WRAITHORB_EXPIRE),0);
-				gstate->cs.Unicast(self,CS_print_center,2.0);
-				gstate->cs.EndSendString();
+			    gstate->centerprint(self, 2.0, "%s",tongue_world[T_POWERUPS_WRAITHORB_EXPIRE]);
             }
 		}
 	}
@@ -3981,8 +3948,6 @@ void award_exps(userEntity_t *self,userEntity_t *other, int manual_bonus)
 		if (dm_use_skill_system->value)
 		{
 			self->record.exp += exp_bonus;  // add exps
-#pragma message("cek[7-18-00]: remove ----------------------------------------------------------------------------------------------------")
-			gstate->Con_Dprintf("%d exp awarded to %s.  Total now %d.\n",exp_bonus,self->netname,self->record.exp);
 			recalc_level(self);
 		}
 	}
@@ -4242,53 +4207,48 @@ void Client_PlayDeathTaunt( userEntity_t *self )
 		if (!weapName)
 			return;
 
-		if (strcmp(weapName, "weapon_daikatana") == 0)
+		switch(gstate->episode)
 		{
-			pFilename = "global/dmsg_daikatana.wav";
-		}
-		else
-		{
-			switch(gstate->episode)
-			{
-			case 1:
-				if( strcmp( weapName, "weapon_disruptor" ) == 0 )			pFilename = "e1/dmsg_1_1.wav";
-				else if( strcmp( weapName, "weapon_gashands" ) == 0 )		pFilename = "e1/dmsg_1_7.wav";
-				else if( strcmp( weapName, "weapon_ionblaster" ) == 0 )		pFilename = "e1/dmsg_1_2.wav";
-				else if( strcmp( weapName, "weapon_c4" ) == 0 )				pFilename = "e1/dmsg_1_3.wav";
-				else if( strcmp( weapName, "weapon_shotcycler" ) == 0 )		pFilename = "e1/dmsg_1_4.wav";
-				else if( strcmp( weapName, "weapon_sidewinder" ) == 0 )		pFilename = "e1/dmsg_1_5.wav";
-				else if( strcmp( weapName, "weapon_shockwave" ) == 0 )		pFilename = "e1/dmsg_1_6.wav";
-				break;
-			case 2:
-				if( strcmp( weapName, "weapon_discus" ) == 0 )				pFilename = "e2/dmsg_2_1.wav";
-				else if( strcmp( weapName, "weapon_venomous" ) == 0 )		pFilename = "e2/dmsg_2_2.wav";
-				else if( strcmp( weapName, "weapon_sunflare" ) == 0 )		pFilename = "e2/dmsg_2_3.wav";
-				else if( strcmp( weapName, "weapon_hammer" ) == 0 )			pFilename = "e2/dmsg_2_4.wav";
-				else if( strcmp( weapName, "weapon_trident" ) == 0 )		pFilename = "e2/dmsg_2_5.wav";
-				else if( strcmp( weapName, "weapon_zeus" ) == 0 )			pFilename = "e2/dmsg_2_6.wav";
-				break;
-			case 3:
-				if( strcmp( weapName, "weapon_silverclaw" ) == 0 )			pFilename = "e3/dmsg_3_1.wav";
-				else if( strcmp( weapName, "weapon_bolter" ) == 0 )			pFilename = "e3/dmsg_3_2.wav";
-				else if( strcmp( weapName, "weapon_stavros" ) == 0 )		pFilename = "e3/dmsg_3_3.wav";
-				else if( strcmp( weapName, "weapon_ballista" ) == 0 )		pFilename = "e3/dmsg_3_4.wav";
-				else if( strcmp( weapName, "weapon_wyndrax" ) == 0 )		pFilename = "e3/dmsg_3_5.wav";
-				else if( strcmp( weapName, "weapon_nightmare" ) == 0 )		pFilename = "e3/dmsg_3_6.wav";
-				break;
-			case 4:
-				if( strcmp( weapName, "weapon_glock" ) == 0 )				pFilename = "e4/dmsg_4_1.wav";
-				else if( strcmp( weapName, "weapon_slugger" ) == 0 )		pFilename = "e4/dmsg_4_2.wav";
-				else if( strcmp( weapName, "weapon_kineticore" ) == 0 )		pFilename = "e4/dmsg_4_3.wav";
-				else if( strcmp( weapName, "weapon_ripgun" ) == 0 )			pFilename = "e4/dmsg_4_4.wav";
-				else if( strcmp( weapName, "weapon_novabeam" ) == 0 )		pFilename = "e4/dmsg_4_5.wav";
-				else if( strcmp( weapName, "weapon_metamaser" ) == 0 )		pFilename = "e4/dmsg_4_6.wav";
-				break;
-			default:
-				pFilename = NULL;
-			}
+		case 1:
+			if( strcmp( weapName, "weapon_disruptor" ) == 0 )			pFilename = "e1/dmsg_1_1.wav";//"e1/we_dg_h.wav";
+			else if( strcmp( weapName, "weapon_gashands" ) == 0 )		pFilename = "e1/dmsg_1_7.wav";//"e1/we_ug_bttd.wav";
+			else if( strcmp( weapName, "weapon_ionblaster" ) == 0 )		pFilename = "e1/dmsg_1_2.wav";//"e1/we_ib_i.wav";
+			else if( strcmp( weapName, "weapon_c4" ) == 0 )				pFilename = "e1/dmsg_1_3.wav";//"e1/we_cv_wam.wav";
+			else if( strcmp( weapName, "weapon_shotcycler" ) == 0 )		pFilename = "e1/dmsg_1_4.wav";//"e1/we_sc6_sd.wav";
+			else if( strcmp( weapName, "weapon_sidewinder" ) == 0 )		pFilename = "e1/dmsg_1_5.wav";//"e1/we_sw_pgtw.wav";
+			else if( strcmp( weapName, "weapon_shockwave" ) == 0 )		pFilename = "e1/dmsg_1_6.wav";//"e1/we_shw_s.wav";
+			break;
+		case 2:
+			if( strcmp( weapName, "weapon_discus" ) == 0 )				pFilename = "e2/dmsg_2_1.wav";//"e2/we_dod_uf.wav";
+			else if( strcmp( weapName, "weapon_venomous" ) == 0 )		pFilename = "e2/dmsg_2_2.wav";//"e2/we_v_bm.wav";
+			else if( strcmp( weapName, "weapon_sunflare" ) == 0 )		pFilename = "e2/dmsg_2_3.wav";//"e2/we_sf_cc.wav";
+			else if( strcmp( weapName, "weapon_hammer" ) == 0 )			pFilename = "e2/dmsg_2_4.wav";//"e2/we_hoh_t.wav";
+			else if( strcmp( weapName, "weapon_trident" ) == 0 )		pFilename = "e2/dmsg_2_5.wav";//"e2/we_pt_s.wav";
+			else if( strcmp( weapName, "weapon_zeus" ) == 0 )			pFilename = "e2/dmsg_2_6.wav";//"e2/we_eoz_kbz.wav";
+			break;
+		case 3:
+			if( strcmp( weapName, "weapon_silverclaw" ) == 0 )			pFilename = "e3/dmsg_3_1.wav";//"e3/we_sc_clah.wav";
+			else if( strcmp( weapName, "weapon_bolter" ) == 0 )			pFilename = "e3/dmsg_3_2.wav";//"e3/we_bol_ttt.wav";
+			else if( strcmp( weapName, "weapon_stavros" ) == 0 )		pFilename = "e3/dmsg_3_3.wav";//"e3/we_ss_t.wav";
+			else if( strcmp( weapName, "weapon_ballista" ) == 0 )		pFilename = "e3/dmsg_3_4.wav";//"e3/we_bal_tth.wav";
+			else if( strcmp( weapName, "weapon_wyndrax" ) == 0 )		pFilename = "e3/dmsg_3_5.wav";//"e3/we_ww_hv.wav";
+			else if( strcmp( weapName, "weapon_nightmare" ) == 0 )		pFilename = "e3/dmsg_3_6.wav";//"e3/we_nn_dbtd.wav";
+			break;
+		case 4:
+			if( strcmp( weapName, "weapon_glock" ) == 0 )				pFilename = "e4/dmsg_4_1.wav";//"e4/we_g_smg.wav";
+			else if( strcmp( weapName, "weapon_slugger" ) == 0 )		pFilename = "e4/dmsg_4_2.wav";//"e4/we_sl_s.wav";
+			else if( strcmp( weapName, "weapon_kineticore" ) == 0 )		pFilename = "e4/dmsg_4_3.wav";//"e4/we_k_iib.wav";
+			else if( strcmp( weapName, "weapon_ripgun" ) == 0 )			pFilename = "e4/dmsg_4_4.wav";//"e4/we_r_sid.wav";
+			else if( strcmp( weapName, "weapon_novabeam" ) == 0 )		pFilename = "e4/dmsg_4_5.wav";//"e4/we_n_bmu.wav";
+			else if( strcmp( weapName, "weapon_metamaser" ) == 0 )		pFilename = "e4/dmsg_4_6.wav";//"e4/we_m_b.wav";
+			break;
+		default:
+			pFilename = NULL;
 		}
 
 	// cek[1-25-00]: added for delayed deathmatch taunts
+//	float			ftauntTime;
+//	int				ntauntIndex;
 		if( pFilename != NULL )
 		{
 			playerHook_t *aHook = AI_GetPlayerHook( pAttacker );
@@ -4296,8 +4256,18 @@ void Client_PlayDeathTaunt( userEntity_t *self )
 
 			nSoundIndex = gstate->SoundIndex( pFilename );
 
-			bool doAttacker = atoi(Info_ValueForKey(pAttacker->client->pers.userinfo,"dm_taunts")) > 0;
-			bool doSelf = atoi(Info_ValueForKey(self->client->pers.userinfo,"dm_taunts")) > 0;
+			bool doAttacker = true;
+			bool doSelf = true;
+			if (pAttacker->client)
+			{
+				char *value = Info_ValueForKey(pAttacker->client->pers.userinfo, "dm_taunts");
+				doAttacker = (!value || !*value || atoi(value) > 0);
+			}
+			if (self->client)
+			{
+				char *value = Info_ValueForKey(self->client->pers.userinfo, "dm_taunts");
+				doSelf = (!value || !*value || atoi(value) > 0);
+			}
 
 			if (aHook && doAttacker)
 			{
@@ -4310,6 +4280,8 @@ void Client_PlayDeathTaunt( userEntity_t *self )
 				tHook->ftauntTime = gstate->time + TAUNT_DELAY;
 				tHook->ntauntIndex = nSoundIndex;
 			}
+//			gstate->StartEntitySound( self, CHAN_VOICE, nSoundIndex, 1.0, 100, 100 );
+//			gstate->StartEntitySound( pAttacker, CHAN_VOICE, nSoundIndex, 1.0, 100, 100 );
 		}
 	}
 }
@@ -4350,29 +4322,24 @@ void Client_DeathMessage (userEntity_t *self)
 	{
 		if (client_deathtype)
 		{
+            char deathmsg[80];
+
+			if (client_deathtype == 1)
+				Com_sprintf(deathmsg, sizeof(deathmsg),"%s%s",com->ProperNameOf(self), tongue_deathmsg_self[client_deathtype - 1]);
+			else
+				Com_sprintf(deathmsg, sizeof(deathmsg),"%s %s",com->ProperNameOf(self), tongue_deathmsg_self[client_deathtype - 1]);
+
+			// got yourself killed, lose a frag
 			self->record.frags--;
 			hook->died++;
 
-			gstate->cs.BeginSendString();
-			if (client_deathtype == 1)
-				gstate->cs.SendSpecifierStr("%s%s",2);
-			else
-				gstate->cs.SendSpecifierStr("%s %s",2);
-
-			gstate->cs.SendString(com->ProperNameOf(self));
-			gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_deathmsg_self,client_deathtype - 1));
-			gstate->cs.Unicast(self,CS_print_center, 2.0);
-			gstate->cs.Multicast(CS_print_normal);
-			gstate->cs.EndSendString();
-
-			// play the telefrag sound...only in english!
-#ifdef TONGUE_ENGLISH
-			if (client_deathtype == TELEFRAG)
-			{
-				hook->ftauntTime = gstate->time + TAUNT_DELAY;
-				hook->ntauntIndex = gstate->SoundIndex( "global/dmsg_telefragged.wav" );;
-			}
-#endif
+			// cek[1-25-00] : actually send the message...
+			gstate->bprint(deathmsg);
+			// centerprint it to the player too...
+			gstate->centerprint(self,2.0,deathmsg);
+			// lose some of your experience too dumbass
+			//self->record.exp -= 0.10 * self->record.exp;
+			//recalc_level(self);
 		}
 		// player killed himself
 		else 
@@ -4449,14 +4416,15 @@ void Client_DeathMessage (userEntity_t *self)
 			self->record.frags--;
 			hook->died++;
 
-			gstate->cs.BeginSendString();
-			gstate->cs.SendSpecifierStr("%s %s",2);
-			gstate->cs.SendString(com->ProperNameOf(self));
-			gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_deathmsg_self,T_DEATHMSGSELF_C4));
-			gstate->cs.Unicast(self,CS_print_center, 2.0);
-			gstate->cs.Multicast(CS_print_normal);
-			gstate->cs.EndSendString();
+			// lose some of your experience too dumbass
+			//self->record.exp -= 0.10 * self->record.exp;
+			//recalc_level(self);
 
+			char msg[80];
+			Com_sprintf(msg, sizeof(msg),"%s %s", com->ProperNameOf(self), tongue_deathmsg_self[T_DEATHMSGSELF_C4]);
+			gstate->bprint(msg);
+			// centerprint it to the player too...
+			gstate->centerprint(self,2.0,msg);
 		}
 		// player was killed by a player owned object  (ala c4)
 		else 
@@ -5127,24 +5095,19 @@ void	dll_ClientUserinfoChanged(edict_t *ent, char *userinfo)
 
 	s = Info_ValueForKey (userinfo, "name");  // set name
 
+	StripInvalidChars(s,16);  // insure valid name
+
+	//	MEM_MALLOC is okay because before it gets freed at level end,
+	//	it gets copied over to client_persistDAta [x].netName
 	if (ent->netname)
 	{
 		gstate->X_Free(ent->netname);
 		ent->netname = NULL;
 	}
-
-	if( !(s == NULL || s[0] == NULL ) )
-	{
-		StripInvalidChars(s,16);  // insure valid name
-
-		//	MEM_MALLOC is okay because before it gets freed at level end,
-		//	it gets copied over to client_persistDAta [x].netName
-		ent->netname = (char *)gstate->X_Malloc(16, MEM_TAG_COM_MISC);
-		strncpy (ent->netname, s, 16);
-		ent->netname [15] = 0x00;
-		strncpy (ent->client->pers.netname, s, sizeof(ent->client->pers.netname)-1);
-	}
-
+	ent->netname = (char *)gstate->X_Malloc(16, MEM_TAG_COM_MISC);
+	strncpy (ent->netname, s, 16);
+	ent->netname [15] = 0x00;
+	strncpy (ent->client->pers.netname, s, sizeof(ent->client->pers.netname)-1);
 	
 	if (deathmatch->value)
 	{
@@ -5340,12 +5303,6 @@ void FetchSpecialData( userEntity_t *pEnt, client_persistant_s	*pPersistant )
 	}
 }
 
-typedef struct
-{
-    weapon_t    weapon;
-
-    int     mode;
-}weaponPulse_t;
 void DoAmmoInit( userEntity_t *pEnt, int nIndex, int count, char *szClassName )
 {
 	ammoGiveTake_t give;
@@ -5363,7 +5320,7 @@ void DoAmmoInit( userEntity_t *pEnt, int nIndex, int count, char *szClassName )
 
 			if (ammoc)
 			{
-				give.count = (count >> 16) & 0X00007FFF;
+				give.count = (count >> 16) & 0X0000FFFF;
 				ammoc->command((userInventory_t *)ammoc, "give_ammo", &give);			
 			}
 
@@ -5560,46 +5517,41 @@ void FetchSidekickEntData( edict_t *pClientEnt, edict_t *pSidekickEnt, int nType
 
 	if( pPersistant->nHealth )
 	{
-		pEnt->health					= pPersistant->nHealth;
+		pEnt->health				= pPersistant->nHealth;
 
-		pEnt->armor_val					= pPersistant->nArmorVal;
-		pEnt->armor_abs					= pPersistant->nArmorAbs;
+		pEnt->armor_val				= pPersistant->nArmorVal;
+		pEnt->armor_abs				= pPersistant->nArmorAbs;
 
-		pEnt->team						= pPersistant->nTeam;
+		pEnt->team					= pPersistant->nTeam;
 
-		pHook->items					= pPersistant->nItems;
-		pHook->exp_flags				= pPersistant->nExpFlags;
-		pHook->invulnerability_time		= pPersistant->fInvulnerabilityTime;
-		pHook->envirosuit_time			= pPersistant->fEnvirosuitTime;
-		pHook->wraithorb_time			= pPersistant->fWraithorbTime;
+		pHook->items				= pPersistant->nItems;
+		pHook->exp_flags			= pPersistant->nExpFlags;
+		pHook->invulnerability_time	= pPersistant->fInvulnerabilityTime;
+		pHook->envirosuit_time		= pPersistant->fEnvirosuitTime;
+		pHook->wraithorb_time		= pPersistant->fWraithorbTime;
 // SCG[1/4/00]: 		pHook->oxylung_time			= pPersistant->fOxylungTime;
 
-		pHook->base_power				= pPersistant->fBasePower;
-		pHook->base_attack				= pPersistant->fBaseAttack;
-		pHook->base_speed				= pPersistant->fBaseSpeed;
-		pHook->base_acro				= pPersistant->fBaseAcro;
-		pHook->base_vita				= pPersistant->fBaseVita;
+		pHook->base_power			= pPersistant->fBasePower;
+		pHook->base_attack			= pPersistant->fBaseAttack;
+		pHook->base_speed			= pPersistant->fBaseSpeed;
+		pHook->base_acro			= pPersistant->fBaseAcro;
+		pHook->base_vita			= pPersistant->fBaseVita;
 									
-		pHook->power_boost				= pPersistant->fBoostPower;
-		pHook->attack_boost				= pPersistant->fBoostAttack;
-		pHook->speed_boost				= pPersistant->fBoostSpeed;
-		pHook->acro_boost				= pPersistant->fBoostAcro;
-		pHook->vita_boost				= pPersistant->fBoostVita;
+		pHook->power_boost			= pPersistant->fBoostPower;
+		pHook->attack_boost			= pPersistant->fBoostAttack;
+		pHook->speed_boost			= pPersistant->fBoostSpeed;
+		pHook->acro_boost			= pPersistant->fBoostAcro;
+		pHook->vita_boost			= pPersistant->fBoostVita;
 
-		pHook->power_boost_time			= pPersistant->fTimePower;
-		pHook->attack_boost_time		= pPersistant->fTimeAttack;
-		pHook->speed_boost_time			= pPersistant->fTimeSpeed;
-		pHook->acro_boost_time			= pPersistant->fTimeAcro;
-		pHook->vita_boost_time			= pPersistant->fTimeVita;
+		pHook->power_boost_time		= pPersistant->fTimePower;
+		pHook->attack_boost_time	= pPersistant->fTimeAttack;
+		pHook->speed_boost_time		= pPersistant->fTimeSpeed;
+		pHook->acro_boost_time		= pPersistant->fTimeAcro;
+		pHook->vita_boost_time		= pPersistant->fTimeVita;
 
-		pHook->poison_time				= pPersistant->fPoisonTime;
-		pHook->poison_next_damage_time	= pPersistant->fPoisonNextDamage;
-		pHook->poison_damage			= pPersistant->fPoisonDamage;
-		pHook->poison_interval			= pPersistant->fPoisonInterval;
+		pEnt->s.angles				= pPersistant->vAngles;
 
-		pEnt->s.angles					= pPersistant->vAngles;
-
-		pHook->ai_flags					= pPersistant->nAIFlags;
+		pHook->ai_flags				= pPersistant->nAIFlags;
 
 		FetchPersistantWeaponData( pEnt, pPersistant );
 	}
@@ -5883,10 +5835,7 @@ void dll_PutClientInServer(userEntity_t *self)
 
 	// SCG[10/22/99]: this clears the timers for poisoning, powerups, temporary 
 	// SCG[10/22/99]: attribute boosts and other misc. timers
-	if( gstate->nLevelTransitionType != 1 )
-	{
-		Client_InitTimers( self );
-	}
+	Client_InitTimers( self );
 
 	// SCG[10/22/99]: this sets all of the base attributes for the player
 	// SCG[10/22/99]: ( health, attributes, etc.. )
@@ -5983,12 +5932,25 @@ void dll_PutClientInServer(userEntity_t *self)
 		CVector vOrigin, vAngles;
 		unsigned int nSidekickMask = gstate->game->serverflags & SFL_SIDEKICK_MASK;
 
+		if (sv_no_sidekicks && sv_no_sidekicks->value > 0.0f)
+		{
+			nSidekickMask = 0;
+			gstate->game->serverflags &= ~SFL_SIDEKICK_MASK;
+			self->client->pers.nSidekicksSpawnedWithClient &= ~(SPAWNED_SUPERFLY_WITH_CLIENT | SPAWNED_MIKIKO_WITH_CLIENT);
+		}
+
 		pSuperfly = AIINFO_GetSuperfly();
 		if( pSuperfly == NULL )
 		{
 			pSuperfly = AIINFO_GetMikikofly();
 		}
 		pMikiko = AIINFO_GetMikiko();
+
+		if (sv_no_sidekicks && sv_no_sidekicks->value > 0.0f)
+		{
+			pSuperfly = NULL;
+			pMikiko = NULL;
+		}
 
 		playerHook_t *pSuperflyHook = NULL;
 		playerHook_t *pMikikoHook = NULL;
@@ -6080,12 +6042,6 @@ void dll_PutClientInServer(userEntity_t *self)
 				gstate->LinkEntity( pSuperfly );
 			}
 
-			pSuperflyHook = ( playerHook_t * ) pSuperfly->userHook;
-			if( pSuperflyHook != NULL )
-			{
-				pSuperflyHook->dflags &= ~DFL_LLAMA;
-			}
-
 			self->client->pers.nSidekicksSpawnedWithClient |= SPAWNED_SUPERFLY_WITH_CLIENT;
 		}
 		else
@@ -6142,12 +6098,6 @@ void dll_PutClientInServer(userEntity_t *self)
 				gstate->LinkEntity( pMikiko );
 			}
 
-			pMikikoHook = ( playerHook_t * ) pMikiko->userHook;
-			if( pMikikoHook != NULL )
-			{
-				pMikikoHook->dflags &= ~DFL_LLAMA;
-			}
-
 			self->client->pers.nSidekicksSpawnedWithClient |= SPAWNED_MIKIKO_WITH_CLIENT;
 		}
 		else
@@ -6193,23 +6143,19 @@ void dll_PutClientInServer(userEntity_t *self)
 	userEntity_t *pEnt;
 
 	func_t func;
-
-	if( gstate->nLevelTransitionType == 1 )
+	for( int i = 0; gstate->game->transients[i].className[0] != NULL; i++ )
 	{
-		for( int i = 0; gstate->game->transients[i].className[0] != NULL; i++ )
+		pEnt = gstate->SpawnEntity();
+		pEnt->s.origin = self->s.origin + gstate->game->transients[i].vOffset;
+		pEnt->className = gstate->game->transients[i].className;
+		pEnt->spawnflags = gstate->game->transients[i].spawnflags;
+		func = ( func_t ) com->FindSpawnFunction( pEnt->className );
+		if( func == NULL )
 		{
-			pEnt = gstate->SpawnEntity();
-			pEnt->s.origin = self->s.origin + gstate->game->transients[i].vOffset;
-			pEnt->className = gstate->game->transients[i].className;
-			pEnt->spawnflags = gstate->game->transients[i].spawnflags;
-			func = ( func_t ) com->FindSpawnFunction( pEnt->className );
-			if( func == NULL )
-			{
-				continue;
-			}
-			func( pEnt );		
-			pEnt->health = gstate->game->transients[i].health;
+			continue;
 		}
+		func( pEnt );		
+		pEnt->health = gstate->game->transients[i].health;
 	}
 /*
 	// SCG[1/19/00]: check for savegems and inform client if necessary
@@ -6271,8 +6217,6 @@ void dll_PutClientInServer(userEntity_t *self)
 	recalc_level(self);
 	CTFGiveControlCard(self);
 	COOP_SpawnHacks(self);
-
-	self->client->do_autosave = TRUE;
 }
 
 ///////////////////////////////////////////
@@ -6453,6 +6397,7 @@ void ClientBeginDeathmatch (userEntity_t* self)
 		gstate->centerprint(self, 5.0, "motd:%s\n", string);
 		do_motd = false;
 	}
+
 	// locate ent at a spawn point
 	dll_PutClientInServer (self);
 
@@ -6967,13 +6912,14 @@ void	dll_ClientThink (userEntity_t *self, usercmd_t *ucmd, pmove_t *pm)
 
 	if (self->client && self->client->pers.nCurrentWeaponFlag && self->curWeapon && !self->client->ps.weapon)
 	{
-		self->client->pers.nCurrentWeaponFlag = 0;
 		weaponInfo_t	*pWeaponInfo;
 
 		if ( pWeaponInfo = com->FindRegisteredWeapon( self->curWeapon->name ) )
 		{
 			pWeaponInfo->select_func( self );
 		}
+
+		self->client->pers.nCurrentWeaponFlag = 0;
 	}
 
 	if ( (ihook->dflags & DFL_LLAMA) || (ihook->items & IT_MANASKULL) )
@@ -7002,19 +6948,11 @@ void	dll_ClientThink (userEntity_t *self, usercmd_t *ucmd, pmove_t *pm)
 		self->client->ps.rdflags &= ~RDF_NOCHEATING;
 	}
 
-	if (self->client->do_autosave && !gstate->bCinematicPlaying && !ihook->camera)
-	{
-		self->client->do_autosave = FALSE;
-
-		if (!deathmatch->value)
-			gstate->gi->AutoSave();
-	}
-
     AI_DecreaseJustFired( ihook );
 
 	gstate->level->current_entity = self;
 	client = self->client;
-/*
+
 	if (gstate->level->intermissiontime)
 	{
 		client->ps.pmove.pm_type = PM_FREEZE;
@@ -7031,7 +6969,7 @@ void	dll_ClientThink (userEntity_t *self, usercmd_t *ucmd, pmove_t *pm)
 
 		return;
 	}
-	else */if (ctf->value)
+	else if (ctf->value)
 	{
 		if (CTFClientThink(self))
 			return;
@@ -7366,8 +7304,8 @@ void dll_SetStats( userEntity_t *ent )
 	ent->client->ps.stats[STAT_INVISIBLE]      = (hook->items & IT_WRAITHORB);
 	ent->client->ps.stats[STAT_INVULNERABLE] = (hook->items & IT_MANASKULL) || (hook->dflags & DFL_LLAMA);
 	
-	//	set up this to work in deathmatch
-	if( (gstate->episode > 1 ) || deathmatch->value )
+	//	FIXME:	display actual daikatana power level
+	if( gstate->episode > 1 )
 	{
 		int dkExp = ent->record.dkexp;
 

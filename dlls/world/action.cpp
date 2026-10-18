@@ -6,9 +6,6 @@
 //
 // ==========================================================================
 
-#include <ctype.h>
-#include <iostream>
-
 #ifdef CHECK_SYNTAX
 
 #include <crtdbg.h>
@@ -804,11 +801,7 @@ static void SCRIPTACTION_Verify()
 // ----------------------------------------------------------------------------
 CScriptAction *SCRIPTACTION_Lookup( const char *szScriptActionName )
 {
-#ifdef _WIN32
 	char *pszTemp = _strlwr( _strdup(szScriptActionName) );
-#else
-	char *pszTemp = _strlwr( strdup(szScriptActionName) );
-#endif
 
 	void *pValue = NULL;
     mapStringToScriptAction.Lookup(pszTemp, pValue);
@@ -831,11 +824,7 @@ CScriptAction *SCRIPTACTION_Lookup( const char *szScriptActionName )
 // ----------------------------------------------------------------------------
 static void SCRIPTACTION_Add( const char *szScriptActionName, CScriptAction *pScriptAction )
 {
-#ifdef _WIN32
 	char *pszTemp = _strlwr( _strdup(szScriptActionName) );
-#else
-	char *pszTemp = _strlwr( strdup(szScriptActionName) );
-#endif
 
     CScriptAction *pTempScriptAction = SCRIPTACTION_Lookup( pszTemp );
 	if ( pTempScriptAction )
@@ -905,11 +894,7 @@ static void SCRIPTACTION_Destroy()
 // ----------------------------------------------------------------------------
 CWhenUsedCommand *WHENUSECOMMAND_Lookup( const char *szUniqueID )
 {
-#ifdef _WIN32
 	char *pszTemp = _strlwr( _strdup(szUniqueID) );
-#else
-	char *pszTemp = _strlwr( strdup(szUniqueID) );
-#endif
 
 	void *pValue = NULL;
     mapUniqueIDToWhenUsedCommand.Lookup(pszTemp, pValue);
@@ -932,11 +917,7 @@ CWhenUsedCommand *WHENUSECOMMAND_Lookup( const char *szUniqueID )
 // ----------------------------------------------------------------------------
 static void WHENUSEDCOMMAND_Add( const char *szUniqueID, CWhenUsedCommand *pWhenUsedCommand )
 {
-#ifdef _WIN32
 	char *pszTemp = _strlwr( _strdup(szUniqueID) );
-#else
-	char *pszTemp = _strlwr( strdup(szUniqueID) );
-#endif
 
     CWhenUsedCommand *pTempCommand = WHENUSECOMMAND_Lookup( pszTemp );
 	if ( pTempCommand )
@@ -1008,11 +989,7 @@ userEntity_t *UNIQUEID_Lookup( const char *szUniqueID )
 		return NULL;
 	}
 
-#ifdef _WIN32
 	char *pszTemp = _strlwr( _strdup(szUniqueID) );
-#else
-	char *pszTemp = _strlwr( strdup(szUniqueID) );
-#endif
 
 	void *pValue = NULL;
     mapUniqueIDToEntity.Lookup(pszTemp, pValue);
@@ -1044,11 +1021,7 @@ userEntity_t *UNIQUEID_Lookup( const char *szUniqueID )
 // ----------------------------------------------------------------------------
 void UNIQUEID_Add( const char *szUniqueID, userEntity_t *pEntity )
 {
-#ifdef _WIN32
 	char *pszTemp = _strlwr( _strdup(szUniqueID) );
-#else
-	char *pszTemp = _strlwr( strdup(szUniqueID) );
-#endif
 
 	userEntity_t *pTempEntity = UNIQUEID_Lookup( pszTemp );
 #ifdef WIN32
@@ -1090,11 +1063,7 @@ void UNIQUEID_Remove( const char *szUniqueID )
 /*
 	if ( szUniqueID )
 	{
-#ifdef _WIN32
-	char *pszTemp = _strlwr( _strdup(szUniqueID) );
-#else
-	char *pszTemp = _strlwr( strdup(szUniqueID) );
-#endif
+		char *pszTemp = _strlwr( _strdup(szUniqueID) );
 		mapUniqueIDToEntity.RemoveKey( pszTemp );
 	    free( pszTemp );
 	}
@@ -1114,11 +1083,7 @@ void UNIQUEID_RemoveEnt( userEntity_t *self )
 {
 	if ( self->szUniqueID )
 	{
-#ifdef _WIN32
 		char *pszTemp = _strlwr( _strdup(self->szUniqueID) );
-#else
-		char *pszTemp = _strlwr( strdup(self->szUniqueID) );
-#endif
 		mapUniqueIDToEntity.RemoveKey( pszTemp );
 	    free( pszTemp );
 

@@ -1,3 +1,4 @@
+#include <stddef.h>
 // ==========================================================================
 //
 //  File:
@@ -43,7 +44,7 @@ typedef	struct	monitorHook_s
 	CVector			Old_Player_Angles;
 } monitorHook_t;
 
-#define	MONITORHOOK(x) (int)&(((monitorHook_t *)0)->x)
+#define	MONITORHOOK(x) (int)offsetof(monitorHook_t,x)
 field_t monitor_hook_fields[] = 
 {
 	{"delay",				MONITORHOOK(delay),				F_FLOAT},

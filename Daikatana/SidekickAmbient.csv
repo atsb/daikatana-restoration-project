@@ -1,0 +1,9 @@
+,wait time,random factor
+random walk,15,0.05
+look around,10,0.05
+loop up,10,0.05
+look down,10,0.05
+say something,50,0.05
+kick something,70,0.05
+whistle,60,0.05
+animate,120,0.05

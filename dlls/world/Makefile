@@ -30,7 +30,7 @@ CXX			= $(STD_CXX)
 CXXFLAGS	= $(STD_CXXFLAGS) -fPIC -w -I$(WORLD_DIR) -I$(USER_DIR) \
 			-I$(DK__DIR) -I$(LIBENT_DIR) -I$(OS_DIR)
 LDFLAGS		= $(STD_LDFLAGS) $(SHARED) $(SONAME)$(WORLD_SONAME)
-LIBS		= $(STD_LIBS) $(IONCOMMON)
+LIBS		= $(STD_LIBS) $(IONCOMMON) -lSDL3_net
 
 #-----------------------------------------------------------------------------
 # Files

@@ -151,13 +151,13 @@ void S_Init (void* hWnd)
 		ai.Cmd_AddCommand("soundlist", S_SoundList);
 		ai.Cmd_AddCommand("soundinfo", S_SoundInfo_f);
 		ai.Cmd_AddCommand("s_stats",S_Status_f);
-// SCG[6/28/00]: 		ai.Cmd_AddCommand("s_show_3d_providers",S_Show3dProviders_f);
-// SCG[6/28/00]: 		ai.Cmd_AddCommand("show3d",S_Display3dProviders);
-// SCG[6/28/00]: 		ai.Cmd_AddCommand("test3d",S_Test3dProvider);
+		ai.Cmd_AddCommand("s_show_3d_providers",S_Show3dProviders_f);
+		ai.Cmd_AddCommand("show3d",S_Display3dProviders);
+		ai.Cmd_AddCommand("test3d",S_Test3dProvider);
 		ai.Cmd_AddCommand("music",S_PlayMusic_f);
 		ai.Cmd_AddCommand("soundreload",S_Reload_f);
 		ai.Cmd_AddCommand("mp3",S_PlayMP3_f);
-// SCG[6/28/00]: 		ai.Cmd_AddCommand("s_setprovider",S_Set3dProvider_f);
+		ai.Cmd_AddCommand("s_setprovider",S_Set3dProvider_f);
 		
 		if (Sound_Init())
 		{
@@ -304,7 +304,7 @@ sfxcache_t* S_LoadSound (sfx_t* s)
 	
 	if (info.channels != 1)
 	{
-		ai.Com_DPrintf ("%s is a stereo sample\n",s->name);
+		ai.Com_Printf ("%s is a stereo sample\n",s->name);
 		ai.FS_FreeFile (data);
 		return NULL;
 	}
@@ -1198,7 +1198,7 @@ void S_StartMusic(char* name, int channel)
 	}
 	else
 	{
-		S_StartMP3( musicname, channel, s_music->value, 0 );
+		S_StartMP3( musicname, channel, s_music->value, 0, TRUE );
 	}
 }
 
@@ -1227,7 +1227,7 @@ void S_PlayMP3_f()
 	{
 		name = ai.GetArgv(1);
 		channel = atoi( ai.GetArgv(2) );
-		S_StartMP3( name, channel,1.0, 1 );
+		S_StartMP3( name, channel,1.0, 1, TRUE );
 	}
 }
 
@@ -1293,14 +1293,8 @@ void S_CheckForWAVText(sfx_t *sfx)
 		
 		ai.FS_Read(&txt[0],file_len,fhandle);
 		
-#ifndef JPN // changed by yokoyama : BUGFIX:NO.9
 		ai.SCR_SubtitlePrint(txt,display_seconds);  // signal subtitle print / seconds to display
-#else
-		if(display_seconds > 5.0)
-			ai.SCR_SubtitlePrint(txt,display_seconds);
-		else
-			ai.SCR_SubtitlePrint(txt,5.0);  // signal subtitle print / seconds to display
-#endif
+		//ai.SCR_SubtitlePrint(txt,5.0);  // signal subtitle print / seconds to display
 	}
 	
 }
@@ -1340,14 +1334,8 @@ void S_CheckForMP3Text(char *name, long datarate, long length)
 		
 		ai.FS_Read(&txt[0],txtfile_len,fhandle);
 
-#ifndef JPN // changed by yokoyama : BUGFIX:NO.9
 		ai.SCR_SubtitlePrint(txt,display_seconds);  // signal subtitle print / seconds to display
-#else
-		if(display_seconds > 5.0)
-			ai.SCR_SubtitlePrint(txt,display_seconds);
-		else
-			ai.SCR_SubtitlePrint(txt,5.0);  // signal subtitle print / seconds to display
-#endif
+		//ai.SCR_SubtitlePrint(txt,5.0);            // signal subtitle print / seconds to display
 	}
 }
 

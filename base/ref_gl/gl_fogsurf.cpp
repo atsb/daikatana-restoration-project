@@ -356,6 +356,8 @@ void R_DrawFogSurfaces()
 					GL_MBind( GL_TEXTURE1_SGIS, gl_state.lightmap_textures + lmtex );
 				}
 				
+				R_TextureFilterBeginLightmapped( image, 128.0f, 128.0f );
+
 				for( pPoly = pSurf->polys; pPoly; pPoly = pPoly->next )
 				{
 					qglBegin (GL_TRIANGLE_FAN);
@@ -368,6 +370,8 @@ void R_DrawFogSurfaces()
 					qglEnd ();
 				}
 			}
+
+			R_TextureFilterEnd();
 		}
 	}
 	else

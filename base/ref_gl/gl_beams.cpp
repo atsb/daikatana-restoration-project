@@ -260,6 +260,7 @@ void	beam_DrawSegmentedBeam (beam_t *beam)
 	if (beam->texIndex >= 0)
 	{
 		GL_Bind (r_beamTextures [beam->texIndex]->texnum);
+		R_TextureFilterBeginBase( r_beamTextures [beam->texIndex] );
 	}
 	else
 	{
@@ -279,6 +280,7 @@ void	beam_DrawSegmentedBeam (beam_t *beam)
 		beam_DrawSegmentedBeam_NoFade (beam, radius, rgbColor);
 
 	qglEnd ();
+	R_TextureFilterEnd();
 
 	qglColor4f (1.0, 1.0, 1.0, 1.0);
 
@@ -315,6 +317,7 @@ void	beam_DrawSingleSegment (beam_t *beam)
 	if (beam->texIndex >= 0)
 	{
 		GL_Bind (r_beamTextures [beam->texIndex]->texnum);
+		R_TextureFilterBeginBase( r_beamTextures [beam->texIndex] );
 	}
 	else
 	{
@@ -371,6 +374,7 @@ void	beam_DrawSingleSegment (beam_t *beam)
 	qglVertex3fv (beamPoint3);
 
 	qglEnd ();
+	R_TextureFilterEnd();
 
 //	if (beam->texIndex < 0)
 //		qglEnable (GL_TEXTURE_2D);
@@ -477,6 +481,7 @@ void beam_DrawBeam (entity_t *e, image_t *lasertexture)
 	beamPoint1 = e->origin - beamRight;
 
 	GL_Bind (lasertexture->texnum);
+	R_TextureFilterBeginBase( lasertexture );
 
 //	this REALLY should just be done once for alpha entities, not for each beam!
 	GL_TexEnv (GL_MODULATE);
@@ -497,6 +502,7 @@ void beam_DrawBeam (entity_t *e, image_t *lasertexture)
 	qglVertex3fv (beamPoint3);
 
 	qglEnd ();
+	R_TextureFilterEnd();
 	GL_TexEnv (GL_REPLACE);
 }
 

@@ -1604,7 +1604,6 @@ typedef struct
 */
 
 //  Shawn:  global colors
-/*
 enum
 {
     GC_BLACK,
@@ -1625,7 +1624,6 @@ enum
     GC_WHITE,
     GC_NUMCOLORS
 };
-*/
 
 //#ifdef __cplusplus
 //}

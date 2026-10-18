@@ -19,6 +19,12 @@ CFG=physics - Win32 Debug
 !MESSAGE 
 !MESSAGE "physics - Win32 Release" (based on "Win32 (x86) Dynamic-Link Library")
 !MESSAGE "physics - Win32 Debug" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "physics - Win32 French" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "physics - Win32 German" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "physics - Win32 Italian" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "physics - Win32 Spanish" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "physics - Win32 Japanese" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "physics - Win32 German Debug" (based on "Win32 (x86) Dynamic-Link Library")
 !MESSAGE 
 
 # Begin Project
@@ -43,7 +49,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /G5 /MT /W3 /GX /O2 /I "..\..\user" /I "..\audio" /I "..\..\user\collection" /I "..\..\libent" /I "../dk_" /D "DAIKATANA_OEM" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
+# ADD CPP /nologo /G6 /MT /W3 /GX /O2 /I "..\..\user" /I "..\audio" /I "..\..\user\collection" /I "..\..\libent" /I "../dk_" /D "TONGUE_ENGLISH" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
 # SUBTRACT CPP /Fr
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
@@ -54,7 +60,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /dll /machine:I386
-# ADD LINK32 winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib IonCommonRelease.lib wsock32.lib /nologo /subsystem:windows /dll /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\..\libs"
+# ADD LINK32 winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib IonCommonRelease.lib  /nologo /subsystem:windows /dll /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\..\libs"
 # SUBTRACT LINK32 /debug
 
 !ELSEIF  "$(CFG)" == "physics - Win32 Debug"
@@ -71,7 +77,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /G5 /MTd /W3 /Gm /Gi /GX /ZI /Od /I "..\..\user" /I "..\audio" /I "..\..\user\collection" /I "..\..\libent" /I "../dk_" /D "DAIKATANA_OEM" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FR /YX"p_user.h" /FD /c
+# ADD CPP /nologo /G6 /MTd /W3 /Gi /GX /ZI /Od /I "..\..\user" /I "..\audio" /I "..\..\user\collection" /I "..\..\libent" /I "../dk_" /D "TONGUE_ENGLISH" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FR /YX"p_user.h" /FD /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
@@ -81,7 +87,191 @@ BSC32=bscmake.exe
 # SUBTRACT BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /dll /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 winmm.lib winspool.lib comdlg32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib wsock32.lib advapi32.lib kernel32.lib user32.lib gdi32.lib IonCommonDebug.lib imagehlp.lib /nologo /subsystem:windows /dll /map /debug /machine:I386 /nodefaultlib:"libcd.lib" /nodefaultlib:"libc.lib" /libpath:"..\..\libs"
+# ADD LINK32 winmm.lib winspool.lib comdlg32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib  advapi32.lib kernel32.lib user32.lib gdi32.lib IonCommonDebug.lib imagehlp.lib /nologo /subsystem:windows /dll /map /debug /machine:I386 /nodefaultlib:"libcd.lib" /nodefaultlib:"libc.lib" /libpath:"..\..\libs"
+
+!ELSEIF  "$(CFG)" == "physics - Win32 French"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "physics___Win32_French"
+# PROP BASE Intermediate_Dir "physics___Win32_French"
+# PROP BASE Ignore_Export_Lib 0
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir ".\French"
+# PROP Intermediate_Dir "French"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /G5 /MT /W3 /GX /O2 /I "..\..\user" /I "..\audio" /I "..\..\user\collection" /I "..\..\libent" /I "../dk_" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
+# SUBTRACT BASE CPP /Fr
+# ADD CPP /nologo /G5 /MT /W3 /GX /O2 /I "..\..\user" /I "..\audio" /I "..\..\user\collection" /I "..\..\libent" /I "../dk_" /D "TONGUE_FRENCH" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
+# SUBTRACT CPP /Fr
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+# ADD BASE RSC /l 0x409 /d "NDEBUG"
+# ADD RSC /l 0x409 /d "NDEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib IonCommonRelease.lib  libentRelease.lib /nologo /subsystem:windows /dll /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\..\libs"
+# SUBTRACT BASE LINK32 /debug
+# ADD LINK32 winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib  IonCommonFrench.lib /nologo /subsystem:windows /dll /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\..\libs"
+# SUBTRACT LINK32 /debug
+
+!ELSEIF  "$(CFG)" == "physics - Win32 German"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "physics___Win32_German"
+# PROP BASE Intermediate_Dir "physics___Win32_German"
+# PROP BASE Ignore_Export_Lib 0
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir ".\German"
+# PROP Intermediate_Dir "German"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /G5 /MT /W3 /GX /O2 /I "..\..\user" /I "..\audio" /I "..\..\user\collection" /I "..\..\libent" /I "../dk_" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
+# SUBTRACT BASE CPP /Fr
+# ADD CPP /nologo /G5 /MT /W3 /GX /O2 /I "..\..\user" /I "..\audio" /I "..\..\user\collection" /I "..\..\libent" /I "../dk_" /D "TONGUE_GERMAN" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
+# SUBTRACT CPP /Fr
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+# ADD BASE RSC /l 0x409 /d "NDEBUG"
+# ADD RSC /l 0x409 /d "NDEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib IonCommonRelease.lib  libentRelease.lib /nologo /subsystem:windows /dll /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\..\libs"
+# SUBTRACT BASE LINK32 /debug
+# ADD LINK32 winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib  IonCommonGerman.lib /nologo /subsystem:windows /dll /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\..\libs"
+# SUBTRACT LINK32 /debug
+
+!ELSEIF  "$(CFG)" == "physics - Win32 Italian"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "physics___Win32_Italian"
+# PROP BASE Intermediate_Dir "physics___Win32_Italian"
+# PROP BASE Ignore_Export_Lib 0
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir ".\Italian"
+# PROP Intermediate_Dir "Italian"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /G5 /MT /W3 /GX /O2 /I "..\..\user" /I "..\audio" /I "..\..\user\collection" /I "..\..\libent" /I "../dk_" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
+# SUBTRACT BASE CPP /Fr
+# ADD CPP /nologo /G5 /MT /W3 /GX /O2 /I "..\..\user" /I "..\audio" /I "..\..\user\collection" /I "..\..\libent" /I "../dk_" /D "TONGUE_ITALIAN" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
+# SUBTRACT CPP /Fr
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+# ADD BASE RSC /l 0x409 /d "NDEBUG"
+# ADD RSC /l 0x409 /d "NDEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib IonCommonRelease.lib  libentRelease.lib /nologo /subsystem:windows /dll /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\..\libs"
+# SUBTRACT BASE LINK32 /debug
+# ADD LINK32 winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib  IonCommonItalian.lib /nologo /subsystem:windows /dll /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\..\libs"
+# SUBTRACT LINK32 /debug
+
+!ELSEIF  "$(CFG)" == "physics - Win32 Spanish"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "physics___Win32_Spanish"
+# PROP BASE Intermediate_Dir "physics___Win32_Spanish"
+# PROP BASE Ignore_Export_Lib 0
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir ".\Spanish"
+# PROP Intermediate_Dir "Spanish"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /G5 /MT /W3 /GX /O2 /I "..\..\user" /I "..\audio" /I "..\..\user\collection" /I "..\..\libent" /I "../dk_" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
+# SUBTRACT BASE CPP /Fr
+# ADD CPP /nologo /G5 /MT /W3 /GX /O2 /I "..\..\user" /I "..\audio" /I "..\..\user\collection" /I "..\..\libent" /I "../dk_" /D "TONGUE_SPANISH" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
+# SUBTRACT CPP /Fr
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+# ADD BASE RSC /l 0x409 /d "NDEBUG"
+# ADD RSC /l 0x409 /d "NDEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib IonCommonRelease.lib  libentRelease.lib /nologo /subsystem:windows /dll /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\..\libs"
+# SUBTRACT BASE LINK32 /debug
+# ADD LINK32 winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib  IonCommonSpanish.lib /nologo /subsystem:windows /dll /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\..\libs"
+# SUBTRACT LINK32 /debug
+
+!ELSEIF  "$(CFG)" == "physics - Win32 Japanese"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "physics___Win32_Japanese"
+# PROP BASE Intermediate_Dir "physics___Win32_Japanese"
+# PROP BASE Ignore_Export_Lib 0
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir ".\Japanese"
+# PROP Intermediate_Dir "Japanese"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /G5 /MT /W3 /GX /O2 /I "..\..\user" /I "..\audio" /I "..\..\user\collection" /I "..\..\libent" /I "../dk_" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
+# SUBTRACT BASE CPP /Fr
+# ADD CPP /nologo /G5 /MT /W3 /GX /O2 /I "..\..\user" /I "..\audio" /I "..\..\user\collection" /I "..\..\libent" /I "../dk_" /D "TONGUE_JAPANESE" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
+# SUBTRACT CPP /Fr
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+# ADD BASE RSC /l 0x409 /d "NDEBUG"
+# ADD RSC /l 0x409 /d "NDEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib IonCommonRelease.lib  libentRelease.lib /nologo /subsystem:windows /dll /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\..\libs"
+# SUBTRACT BASE LINK32 /debug
+# ADD LINK32 winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib  IonCommonJapanese.lib /nologo /subsystem:windows /dll /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\..\libs"
+# SUBTRACT LINK32 /debug
+
+!ELSEIF  "$(CFG)" == "physics - Win32 German Debug"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "physics___Win32_German_Debug"
+# PROP BASE Intermediate_Dir "physics___Win32_German_Debug"
+# PROP BASE Ignore_Export_Lib 0
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir ".\German_Debug"
+# PROP Intermediate_Dir "German_Debug"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /G5 /MT /W3 /GX /O2 /I "..\..\user" /I "..\audio" /I "..\..\user\collection" /I "..\..\libent" /I "../dk_" /D "TONGUE_GERMAN" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
+# SUBTRACT BASE CPP /Fr
+# ADD CPP /nologo /G5 /MTd /W3 /GX /ZI /Od /I "..\..\user" /I "..\audio" /I "..\..\user\collection" /I "..\..\libent" /I "../dk_" /D "TONGUE_GERMAN" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FAs /Fr /YX /FD /c
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+# ADD BASE RSC /l 0x409 /d "NDEBUG"
+# ADD RSC /l 0x409 /d "NDEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib  IonCommonGerman.lib /nologo /subsystem:windows /dll /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\..\libs"
+# SUBTRACT BASE LINK32 /debug
+# ADD LINK32 winmm.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib kernel32.lib user32.lib gdi32.lib  IonCommonGermanDebug.lib /nologo /subsystem:windows /dll /debug /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\..\libs"
 
 !ENDIF 
 
@@ -89,6 +279,12 @@ LINK32=link.exe
 
 # Name "physics - Win32 Release"
 # Name "physics - Win32 Debug"
+# Name "physics - Win32 French"
+# Name "physics - Win32 German"
+# Name "physics - Win32 Italian"
+# Name "physics - Win32 Spanish"
+# Name "physics - Win32 Japanese"
+# Name "physics - Win32 German Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "*.c;*.cpp"
@@ -177,6 +373,18 @@ SOURCE=.\p_user.cpp
 !ELSEIF  "$(CFG)" == "physics - Win32 Debug"
 
 # ADD CPP /Yc"p_user.h"
+
+!ELSEIF  "$(CFG)" == "physics - Win32 French"
+
+!ELSEIF  "$(CFG)" == "physics - Win32 German"
+
+!ELSEIF  "$(CFG)" == "physics - Win32 Italian"
+
+!ELSEIF  "$(CFG)" == "physics - Win32 Spanish"
+
+!ELSEIF  "$(CFG)" == "physics - Win32 Japanese"
+
+!ELSEIF  "$(CFG)" == "physics - Win32 German Debug"
 
 !ENDIF 
 

@@ -8,7 +8,6 @@
 #include	"qcommon.h"
 #include	"qfiles.h"
 #include	"cmodel.h"
-#include	"client.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //	prototypes
@@ -43,6 +42,7 @@ byte	pvsrow[MAX_MAP_LEAFS/8];
 byte	phsrow[MAX_MAP_LEAFS/8];
 
 userEpair_t	*map_epairs;
+
 
 //	debugging
 byte	*visTest;
@@ -870,7 +870,7 @@ cmodel_t	*CM_LoadDemoMap (char *name, unsigned *checksum)
 	FloodAreaConnections ();
 
 // SCG[1/16/00]: 	sprintf (bspModel.mapName, "maps\\%s.dm2", fName);
-//	Com_sprintf (bspModel.mapName,sizeof(bspModel.mapName), "maps\\%s.dem", fName);
+	Com_sprintf (bspModel.mapName,sizeof(bspModel.mapName), "maps\\%s.dm2", fName);
 
 	return	bspModel.subModels;
 }
@@ -899,27 +899,32 @@ cmodel_t *CM_LoadMap (char *name, qboolean clientload, unsigned *checksum)
 
 	map_noareas = Cvar_Get ("map_noareas", "0", 0);
 
-	if( !stricmp( fExt, ".dem" ) )
-	{
-		CM_LoadDemoMap (name, checksum);
-
-		return bspModel.subModels;		// still have the right version
-	}
-
-	if( !strcmp( bspModel.mapName, name ) && (clientload || !Cvar_VariableValue ("flushmap")) )
+	if (!strcmp (bspModel.mapName, name) && (clientload || !Cvar_VariableValue ("flushmap")) )
 	{
 		*checksum = last_checksum;
 		
 		if (!clientload)
 		{
-			memset (bspModel.portalOpen, 0, sizeof (qboolean) * bspModel.numAreaPortals);
-			FloodAreaConnections ();				
+			if (!stricmp (fExt, ".dm2"))
+			{
+				//	set up some stuff so that server can init for a dmeo...  
+				//	gets freed when client calls CM_LoadMap later
+				CM_LoadDemoMap (name, checksum);
+			}
+			else
+			{
+				memset (bspModel.portalOpen, 0, sizeof (qboolean) * bspModel.numAreaPortals);
+				FloodAreaConnections ();				
+			}
 		}
+
+//		map_epairs = CM_EpairsForClass ((byte *)bspModel.entityChars, "worldspawn");
 
 		return	bspModel.subModels;		// still have the right version
 	}
 
 	// free old stuff
+//	X_Free(bspModel.hunkBase);
 	if( bspModel.hunkBase )
 	{
 		Hunk_Free (bspModel.hunkBase);

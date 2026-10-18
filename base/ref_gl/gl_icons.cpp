@@ -140,6 +140,6 @@ void GL_Boost_Icons_Display(void)
 
 	GL_SetFunc( GLSTATE_DEPTH_FUNC, GL_LEQUAL, -1 );
 
-	qglCullFace (GL_FRONT);
+	GL_SetCullFace(GL_FRONT);
 }
 

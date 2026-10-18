@@ -1,3 +1,4 @@
+#include <stdint.h>
 //////////////////////////////////////////////////////////////////////////////
 // cl_pv.c
 //
@@ -729,7 +730,7 @@ void CL_AddParticleVolumes( void )
 //
 //////////////////////////////////////////////////////////
 
-cpvolume_t *CL_AllocParticleVolume (int key)
+cpvolume_t *CL_AllocParticleVolume (uintptr_t key)
 {
 	int			i;
 	cpvolume_t	*pv = NULL;
@@ -761,7 +762,7 @@ cpvolume_t *CL_AllocParticleVolume (int key)
 //  Function: CL_RemoveParticleVolume
 //////////////////////////////////////////////////////////
 
-void CL_RemoveParticleVolume (int key)
+void CL_RemoveParticleVolume (uintptr_t key)
 {
 	cpvolume_t	*pv = NULL;
 	int			i;
@@ -794,7 +795,7 @@ void CL_RemoveParticleVolume (int key)
 //
 //////////////////////////////////////////////////////////
 
-void CL_GenerateVolumeParticles (int key, int type, CVector &mins, CVector &maxs, float dist, int flags)
+void CL_GenerateVolumeParticles (uintptr_t key, int type, CVector &mins, CVector &maxs, float dist, int flags)
 {
 	cpvolume_t	*pv;
 	

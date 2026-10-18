@@ -381,245 +381,6 @@ void R_PolysetSetUpForLineScan(fixed8_t startvertu, fixed8_t startvertv,
 R_PolysetCalcGradients
 ================
 */
-extern "C" unsigned long fpu_sp24_ceil_cw, fpu_ceil_cw, fpu_chop_cw;
-#if id386
-void R_PolysetCalcGradients( int skinwidth )
-{
-	static float xstepdenominv, ystepdenominv, t0, t1;
-	static float p01_minus_p21, p11_minus_p21, p00_minus_p20, p10_minus_p20;
-	static float one = 1.0F, negative_one = -1.0F;
-	static unsigned long t0_int, t1_int;
-
-
-	/*
-	p00_minus_p20 = r_p0[0] - r_p2[0];
-	p01_minus_p21 = r_p0[1] - r_p2[1];
-	p10_minus_p20 = r_p1[0] - r_p2[0];
-	p11_minus_p21 = r_p1[1] - r_p2[1];
-	*/
-
-	__asm mov eax, dword ptr [r_p0+0]
-	__asm mov ebx, dword ptr [r_p0+4]
-	__asm sub eax, dword ptr [r_p2+0]
-	__asm sub ebx, dword ptr [r_p2+4]
-	__asm mov p00_minus_p20, eax
-	__asm mov p01_minus_p21, ebx
-	__asm fild dword ptr p00_minus_p20
-	__asm fild dword ptr p01_minus_p21
-	__asm mov eax, dword ptr [r_p1+0]
-	__asm mov ebx, dword ptr [r_p1+4]
-	__asm sub eax, dword ptr [r_p2+0]
-	__asm sub ebx, dword ptr [r_p2+4]
-	__asm fstp p01_minus_p21
-	__asm fstp p00_minus_p20
-	__asm mov p10_minus_p20, eax
-	__asm mov p11_minus_p21, ebx
-	__asm fild dword ptr p10_minus_p20
-	__asm fild dword ptr p11_minus_p21
-	__asm fstp p11_minus_p21
-	__asm fstp p10_minus_p20
-
-	/*
-	xstepdenominv = 1.0 / (float)d_xdenom;
-
-	ystepdenominv = -xstepdenominv;
-	*/
-
-	/*
-	** put FPU in single precision ceil mode
-	*/
-	__asm fldcw word ptr [fpu_sp24_ceil_cw]
-//	__asm fldcw word ptr [fpu_ceil_cw]
-
-	__asm fild  dword ptr d_xdenom    ; d_xdenom
-	__asm fdivr one                   ; 1 / d_xdenom
-	__asm fst   xstepdenominv         ; 
-	__asm fmul  negative_one          ; -( 1 / d_xdenom )
-
-// ceil () for light so positive steps are exaggerated, negative steps
-// diminished,  pushing us away from underflow toward overflow. Underflow is
-// very visible, overflow is very unlikely, because of ambient lighting
-	/*
-	t0 = r_p0[4] - r_p2[4];
-	t1 = r_p1[4] - r_p2[4];
-	r_lstepx = (int)
-			ceil((t1 * p01_minus_p21 - t0 * p11_minus_p21) * xstepdenominv);
-	r_lstepy = (int)
-			ceil((t1 * p00_minus_p20 - t0 * p10_minus_p20) * ystepdenominv);
-	*/
-	__asm mov   eax, dword ptr [r_p0+16]
-	__asm mov   ebx, dword ptr [r_p1+16]
-	__asm sub   eax, dword ptr [r_p2+16]
-	__asm sub   ebx, dword ptr [r_p2+16]
-
-	__asm fstp  ystepdenominv       ; (empty)
-
-	__asm mov   t0_int, eax
-	__asm mov   t1_int, ebx
-	__asm fild  t0_int              ; t0
-	__asm fild  t1_int              ; t1 | t0
-	__asm fxch  st(1)               ; t0 | t1
-	__asm fstp  t0                  ; t1
-	__asm fst   t1                  ; t1
-	__asm fmul  p01_minus_p21       ; t1 * p01_minus_p21
-	__asm fld   t0                  ; t0 | t1 * p01_minus_p21
-	__asm fmul  p11_minus_p21       ; t0 * p11_minus_p21 | t1 * p01_minus_p21
-	__asm fld   t1                  ; t1 | t0 * p11_minus_p21 | t1 * p01_minus_p21
-	__asm fmul  p00_minus_p20       ; t1 * p00_minus_p20 | t0 * p11_minus_p21 | t1 * p01_minus_p21
-	__asm fld   t0                  ; t0 | t1 * p00_minus_p20 | t0 * p11_minus_p21 | t1 * p01_minus_p21
-	__asm fmul  p10_minus_p20       ; t0 * p10_minus_p20 | t1 * p00_minus_p20 | t0 * p11_minus_p21 | t1 * p01_minus_p21
-	__asm fxch  st(2)               ; t0 * p11_minus_p21 | t0 * p10_minus_p20 | t1 * p00_minus_p20 | t1 * p01_minus_p21
-	__asm fsubp st(3), st           ; t0 * p10_minus_p20 | t1 * p00_minus_p20 | t1 * p01_minus_p21 - t0 * p11_minus_p21
-	__asm fsubrp st(1), st          ; t1 * p00_minus_p20 - t0 * p10_minus_p20 | t1 * p01_minus_p21 - t0 * p11_minus_p21
-	__asm fxch  st(1)               ; t1 * p01_minus_p21 - t0 * p11_minus_p21 | t1 * p00_minus_p20 - t0 * p10_minus_p20
-	__asm fmul  xstepdenominv       ; r_lstepx | t1 * p00_minus_p20 - t0 * p10_minus_p20
-	__asm fxch  st(1)
-	__asm fmul  ystepdenominv       ; r_lstepy | r_lstepx
-	__asm fxch  st(1)               ; r_lstepx | r_lstepy
-	__asm fistp dword ptr [r_lstepx]
-	__asm fistp dword ptr [r_lstepy]
-
-	/*
-	** put FPU back into extended precision chop mode
-	*/
-	__asm fldcw word ptr [fpu_chop_cw]
-
-	/*
-	t0 = r_p0[2] - r_p2[2];
-	t1 = r_p1[2] - r_p2[2];
-	r_sstepx = (int)((t1 * p01_minus_p21 - t0 * p11_minus_p21) *
-			xstepdenominv);
-	r_sstepy = (int)((t1 * p00_minus_p20 - t0* p10_minus_p20) *
-			ystepdenominv);
-	*/
-	__asm mov eax, dword ptr [r_p0+8]
-	__asm mov ebx, dword ptr [r_p1+8]
-	__asm sub eax, dword ptr [r_p2+8]
-	__asm sub ebx, dword ptr [r_p2+8]
-	__asm mov   t0_int, eax
-	__asm mov   t1_int, ebx
-	__asm fild  t0_int              ; t0
-	__asm fild  t1_int              ; t1 | t0
-	__asm fxch  st(1)               ; t0 | t1
-	__asm fstp  t0                  ; t1
-	__asm fst   t1                  ; (empty)
-
-	__asm fmul  p01_minus_p21       ; t1 * p01_minus_p21
-	__asm fld   t0                  ; t0 | t1 * p01_minus_p21
-	__asm fmul  p11_minus_p21       ; t0 * p11_minus_p21 | t1 * p01_minus_p21
-	__asm fld   t1                  ; t1 | t0 * p11_minus_p21 | t1 * p01_minus_p21
-	__asm fmul  p00_minus_p20       ; t1 * p00_minus_p20 | t0 * p11_minus_p21 | t1 * p01_minus_p21
-	__asm fld   t0                  ; t0 | t1 * p00_minus_p20 | t0 * p11_minus_p21 | t1 * p01_minus_p21
-	__asm fmul  p10_minus_p20       ; t0 * p10_minus_p20 | t1 * p00_minus_p20 | t0 * p11_minus_p21 | t1 * p01_minus_p21
-	__asm fxch  st(2)               ; t0 * p11_minus_p21 | t0 * p10_minus_p20 | t1 * p00_minus_p20 | t1 * p01_minus_p21
-	__asm fsubp st(3), st           ; t0 * p10_minus_p20 | t1 * p00_minus_p20 | t1 * p01_minus_p21 - t0 * p11_minus_p21
-	__asm fsubrp st(1), st           ; t1 * p00_minus_p20 - t0 * p10_minus_p20 | t1 * p01_minus_p21 - t0 * p11_minus_p21
-	__asm fxch  st(1)               ; t1 * p01_minus_p21 - t0 * p11_minus_p21 | t1 * p00_minus_p20 - t0 * p10_minus_p20
-	__asm fmul  xstepdenominv       ; r_lstepx | t1 * p00_minus_p20 - t0 * p10_minus_p20
-	__asm fxch  st(1)
-	__asm fmul  ystepdenominv       ; r_lstepy | r_lstepx
-	__asm fxch  st(1)               ; r_lstepx | r_lstepy
-	__asm fistp dword ptr [r_sstepx]
-	__asm fistp dword ptr [r_sstepy]
-
-	/*
-	t0 = r_p0[3] - r_p2[3];
-	t1 = r_p1[3] - r_p2[3];
-	r_tstepx = (int)((t1 * p01_minus_p21 - t0 * p11_minus_p21) *
-			xstepdenominv);
-	r_tstepy = (int)((t1 * p00_minus_p20 - t0 * p10_minus_p20) *
-			ystepdenominv);
-	*/
-	__asm mov eax, dword ptr [r_p0+12]
-	__asm mov ebx, dword ptr [r_p1+12]
-	__asm sub eax, dword ptr [r_p2+12]
-	__asm sub ebx, dword ptr [r_p2+12]
-
-	__asm mov   t0_int, eax
-	__asm mov   t1_int, ebx
-	__asm fild  t0_int              ; t0
-	__asm fild  t1_int              ; t1 | t0
-	__asm fxch  st(1)               ; t0 | t1
-	__asm fstp  t0                  ; t1
-	__asm fst   t1                  ; (empty)
-
-	__asm fmul  p01_minus_p21       ; t1 * p01_minus_p21
-	__asm fld   t0                  ; t0 | t1 * p01_minus_p21
-	__asm fmul  p11_minus_p21       ; t0 * p11_minus_p21 | t1 * p01_minus_p21
-	__asm fld   t1                  ; t1 | t0 * p11_minus_p21 | t1 * p01_minus_p21
-	__asm fmul  p00_minus_p20       ; t1 * p00_minus_p20 | t0 * p11_minus_p21 | t1 * p01_minus_p21
-	__asm fld   t0                  ; t0 | t1 * p00_minus_p20 | t0 * p11_minus_p21 | t1 * p01_minus_p21
-	__asm fmul  p10_minus_p20       ; t0 * p10_minus_p20 | t1 * p00_minus_p20 | t0 * p11_minus_p21 | t1 * p01_minus_p21
-	__asm fxch  st(2)               ; t0 * p11_minus_p21 | t0 * p10_minus_p20 | t1 * p00_minus_p20 | t1 * p01_minus_p21
-	__asm fsubp st(3), st           ; t0 * p10_minus_p20 | t1 * p00_minus_p20 | t1 * p01_minus_p21 - t0 * p11_minus_p21
-	__asm fsubrp st(1), st           ; t1 * p00_minus_p20 - t0 * p10_minus_p20 | t1 * p01_minus_p21 - t0 * p11_minus_p21
-	__asm fxch  st(1)               ; t1 * p01_minus_p21 - t0 * p11_minus_p21 | t1 * p00_minus_p20 - t0 * p10_minus_p20
-	__asm fmul  xstepdenominv       ; r_lstepx | t1 * p00_minus_p20 - t0 * p10_minus_p20
-	__asm fxch  st(1)
-	__asm fmul  ystepdenominv       ; r_lstepy | r_lstepx
-	__asm fxch  st(1)               ; r_lstepx | r_lstepy
-	__asm fistp dword ptr [r_tstepx]
-	__asm fistp dword ptr [r_tstepy]
-
-	/*
-	t0 = r_p0[5] - r_p2[5];
-	t1 = r_p1[5] - r_p2[5];
-	r_zistepx = (int)((t1 * p01_minus_p21 - t0 * p11_minus_p21) *
-			xstepdenominv);
-	r_zistepy = (int)((t1 * p00_minus_p20 - t0 * p10_minus_p20) *
-			ystepdenominv);
-	*/
-	__asm mov eax, dword ptr [r_p0+20]
-	__asm mov ebx, dword ptr [r_p1+20]
-	__asm sub eax, dword ptr [r_p2+20]
-	__asm sub ebx, dword ptr [r_p2+20]
-
-	__asm mov   t0_int, eax
-	__asm mov   t1_int, ebx
-	__asm fild  t0_int              ; t0
-	__asm fild  t1_int              ; t1 | t0
-	__asm fxch  st(1)               ; t0 | t1
-	__asm fstp  t0                  ; t1
-	__asm fst   t1                  ; (empty)
-
-	__asm fmul  p01_minus_p21       ; t1 * p01_minus_p21
-	__asm fld   t0                  ; t0 | t1 * p01_minus_p21
-	__asm fmul  p11_minus_p21       ; t0 * p11_minus_p21 | t1 * p01_minus_p21
-	__asm fld   t1                  ; t1 | t0 * p11_minus_p21 | t1 * p01_minus_p21
-	__asm fmul  p00_minus_p20       ; t1 * p00_minus_p20 | t0 * p11_minus_p21 | t1 * p01_minus_p21
-	__asm fld   t0                  ; t0 | t1 * p00_minus_p20 | t0 * p11_minus_p21 | t1 * p01_minus_p21
-	__asm fmul  p10_minus_p20       ; t0 * p10_minus_p20 | t1 * p00_minus_p20 | t0 * p11_minus_p21 | t1 * p01_minus_p21
-	__asm fxch  st(2)               ; t0 * p11_minus_p21 | t0 * p10_minus_p20 | t1 * p00_minus_p20 | t1 * p01_minus_p21
-	__asm fsubp st(3), st           ; t0 * p10_minus_p20 | t1 * p00_minus_p20 | t1 * p01_minus_p21 - t0 * p11_minus_p21
-	__asm fsubrp st(1), st           ; t1 * p00_minus_p20 - t0 * p10_minus_p20 | t1 * p01_minus_p21 - t0 * p11_minus_p21
-	__asm fxch  st(1)               ; t1 * p01_minus_p21 - t0 * p11_minus_p21 | t1 * p00_minus_p20 - t0 * p10_minus_p20
-	__asm fmul  xstepdenominv       ; r_lstepx | t1 * p00_minus_p20 - t0 * p10_minus_p20
-	__asm fxch  st(1)
-	__asm fmul  ystepdenominv       ; r_lstepy | r_lstepx
-	__asm fxch  st(1)               ; r_lstepx | r_lstepy
-	__asm fistp dword ptr [r_zistepx]
-	__asm fistp dword ptr [r_zistepy]
-
-	__asm mov eax, r_sstepx
-	__asm mov ebx, r_tstepx
-	__asm shl eax, 16
-	__asm shl ebx, 16
-	__asm mov a_sstepxfrac, eax
-	__asm mov a_tstepxfrac, ebx
-
-	/*
-	a_ststepxwhole = skinwidth * (r_tstepx >> 16) + (r_sstepx >> 16);
-	*/
-	__asm mov ebx, r_tstepx
-	__asm mov ecx, r_sstepx
-	__asm sar ebx, 16
-	__asm mov eax, skinwidth
-	__asm mul ebx
-	__asm sar ecx, 16
-	__asm add eax, ecx
-	__asm mov a_ststepxwhole, eax
-}
-#else
 void R_PolysetCalcGradients (int skinwidth)
 {
 	float	xstepdenominv, ystepdenominv, t0, t1;
@@ -665,17 +426,11 @@ void R_PolysetCalcGradients (int skinwidth)
 	r_zistepy = (int)((t1 * p00_minus_p20 - t0 * p10_minus_p20) *
 			ystepdenominv);
 
-#if id386
-	a_sstepxfrac = r_sstepx << 16;
-	a_tstepxfrac = r_tstepx << 16;
-#else
-	a_sstepxfrac = r_sstepx & 0xFFFF;
+a_sstepxfrac = r_sstepx & 0xFFFF;
 	a_tstepxfrac = r_tstepx & 0xFFFF;
-#endif
 
 	a_ststepxwhole = skinwidth * (r_tstepx >> 16) + (r_sstepx >> 16);
 }
-#endif
 void R_PolysetCalcGradients_s (int skinwidth)
 {
 	float	xstepdenominv, ystepdenominv, t0, t1;
@@ -842,7 +597,7 @@ void R_PolysetDrawSpans8_33( spanpackage_t *pspanpackage)
 
 		if (lcount)
 		{
-			lpdest = pspanpackage->pdest;
+			lpdest = (byte *)pspanpackage->pdest;
 			lptex = pspanpackage->ptex;
 			lpz = pspanpackage->pz;
 			lsfrac = pspanpackage->sfrac;
@@ -953,7 +708,7 @@ void R_PolysetDrawSpans8_66(spanpackage_t *pspanpackage)
 
 		if (lcount)
 		{
-			lpdest = pspanpackage->pdest;
+			lpdest = (byte *)pspanpackage->pdest;
 			lptex = pspanpackage->ptex;
 			lpz = pspanpackage->pz;
 			lsfrac = pspanpackage->sfrac;
@@ -1068,7 +823,7 @@ void R_PolysetDrawSpans8_Opaque (spanpackage_t *pspanpackage)
 
 			iterations = 0;
 
-			lpdest = pspanpackage->pdest;
+			lpdest = (byte *)pspanpackage->pdest;
 			lptex = pspanpackage->ptex;
 			lpz = pspanpackage->pz;
 			lsfrac = pspanpackage->sfrac;
@@ -1174,7 +929,7 @@ void R_PolysetDrawSpans8_Opaque_s (spanpackage_t *pspanpackage)
 }
 
 #if !id386
-void R_PolysetDrawSpans8_Opaque_f (spanpackage_t *pspanpackage)
+extern "C" void R_PolysetDrawSpans8_Opaque_f (spanpackage_t *pspanpackage)
 {
 	R_PolysetDrawSpans8_Opaque (pspanpackage);
 }

@@ -1,3 +1,4 @@
+#include <stddef.h>
 //////////////////////////////////////////////////////////////////////
 //	Chase Cam Routines
 //
@@ -71,7 +72,7 @@ static	CVector cam_mins(-8, -8, -8);
 static	CVector cam_maxs(8, 8, 8);
 
 // SCG[11/20/99]: Save game stuff
-#define CAMERAHOOK(x) (int)&(((cameraHook_t *)0)->x)
+#define CAMERAHOOK(x) (int)offsetof(cameraHook_t,x)
 field_t camera_hook_fields[] = 
 {
 	{"pre_think",			CAMERAHOOK(pre_think),				F_FUNC},
@@ -1945,7 +1946,7 @@ void	camera_start (userEntity_t *target, int showMsg)
 	camera->flags = FL_CLIENT;
 	camera->svflags |= SVF_DEADMONSTER;
 	camera->owner = target;	// who started the camera
-
+	
 	camera->goalentity = target;	// entity the camera is following
 	camera->s.effects = 0;
 	camera->viewheight = 0;
@@ -2073,13 +2074,6 @@ void	camera_stop (userEntity_t *self, int showMsg)
 
 		if( camera->remove )
 		{
-			// free the allocated client struct
-			if (camera->client)
-			{
-				gstate->X_Free(camera->client);
-				camera->client = NULL;
-			}
-
 			camera->remove (camera);
 		}
 
@@ -2363,12 +2357,6 @@ void	camera_lock (userEntity_t *self)
 			phook->camera->velocity.Zero();
 		}
 	}
-}
-
-void camera_register_func(void)
-{
-	gstate->RegisterFunc("camera_hook_save",camera_hook_save);
-	gstate->RegisterFunc("camera_hook_load",camera_hook_load);
 }
 
 #if 0

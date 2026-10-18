@@ -13,22 +13,10 @@ Fax(714)549-0757
 ******/
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
-	#include <windows.h>
-	#include <winsock.h>
+    #include <windows.h>
 #else
-	#include <unistd.h>
-	#include <sys/types.h>
-	#include <sys/socket.h>
-	#include <stdio.h>
-	#include <stdlib.h>
-	#include <sys/types.h>
-	#include <sys/socket.h>
-	#include <netinet/in.h>
-	#include <netdb.h>
-	#include <arpa/inet.h>
-	#include <ctype.h>
-	#include <errno.h>
-	#include <sys/time.h>
+    #include <unistd.h>
+    #include <sys/time.h>
 #endif
 #ifdef __cplusplus
 extern "C" {
@@ -38,23 +26,11 @@ extern "C" {
 unsigned long current_time();
 void msleep(unsigned long msec);
 
-void SocketStartUp();
-void SocketShutDown();
-
-#ifndef SOCKET_ERROR 
-	#define SOCKET_ERROR (-1)
-#endif
-
-#ifndef INVALID_SOCKET 
-	#define INVALID_SOCKET (-1)
-#endif
 
 #ifdef _WIN32
-	#define strcasecmp _stricmp
+    #define strcasecmp _stricmp
 #else
-	char *_strdup(const char *src);
-	#define SOCKET int	
-	#define closesocket close
+    char *_strdup(const char *src);
 #endif
 
 #ifdef __cplusplus

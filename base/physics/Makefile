@@ -28,7 +28,7 @@ CXXFLAGS	= $(STD_CXXFLAGS) -fPIC -w -I$(USER_DIR) -I$(LIBENT_DIR) \
 			-I$(OS_DIR)
 LDFLAGS		= $(STD_LDFLAGS) $(RPATH)./dlls $(SHARED) \
 			$(SONAME)$(PHYSICS_SONAME)
-LIBS		= $(STD_LIBS) $(IONCOMMON) $(LIBENT)
+LIBS		= $(STD_LIBS) $(IONCOMMON) -lSDL3_net $(LIBENT)
 
 #-----------------------------------------------------------------------------
 # Files

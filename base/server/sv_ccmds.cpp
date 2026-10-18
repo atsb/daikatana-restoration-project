@@ -542,6 +542,20 @@ void SV_ReadServerFile (void)
 
 	ge->ReadGame (name);
 }
+// cek[6-16-00]: deferred autosave implementation.
+void SV_DoAutoSave()
+{
+	Com_DPrintf("SV_AutoSave()\n");
+
+	SV_WriteHeaderFile(NULL, true);
+	SV_WriteLevelFile();
+	SV_WriteServerFile(false);
+
+	// copy it off to the autosave slots
+	SV_CopySaveGame("current", "save0", false);
+	SV_CopySaveGame("current", "save1", false);
+}
+
 //=========================================================
 /*
 ==================
@@ -551,9 +565,7 @@ Puts the server in demo mode on a specific map/cinematic
 */
 void SV_DemoMap_f (void)
 {
-//	Nelno:	don't demo maps during development
-//	if (developer->value == 0)
-		SV_Map (true, GetArgv(1), false );
+	SV_Map (true, GetArgv(1), false );
 }
 
 // just took some stuff from the console command gamemap_f and separated it out so 
@@ -817,79 +829,53 @@ SV_Savegame_f
 */
 void PF_centerprint (edict_t *ent, float msg_time, char *fmt, ...);
 void SV_SendToLoaclHost(const char *s);
-byte  sv_savegem_count = 0;
+extern  byte  cl_savegem_count;     //  cl_main.cpp
 bool SCR_ScreenDisabled();
 client_t *GetLocalClient();
 
 bool SV_CanSave (client_t *cl, bool msg)
 {
-	// NULL passed into cl means to get the local client...
 	if (!cl)
-	{
 		cl = GetLocalClient();
+
+	if (!cl || !ge || !ge->CanSave)
+	{
+		if (msg)
+			Com_Printf ("You must be in a game to save.\n");
+		return false;
 	}
 
-	if ( !cl || !ge )
+	if ((sv.state != ss_game) || SCR_ScreenDisabled())
 	{
 		if (msg)
-			Com_Printf (TONGUE_SAVE_ERR_LOCAL);
-		return false;
-	}	
-		
-	if ( (sv.state != ss_game) )
-	{
-		if (msg)
-			Com_Printf (TONGUE_SAVE_ERR_INGAME);
+			Com_Printf ("You must be in a game to save.\n");
 		return false;
 	}
 	if (Cvar_VariableValue("deathmatch"))
 	{
 		if (msg)
-			Com_Printf (TONGUE_SAVE_ERR_DM);
+			Com_Printf ("Can't savegame in a deathmatch\n");
 		return false;
 	}
-	if(cl->edict->client->ps.rdflags & RDF_LETTERBOX)
+	if (!cl->edict || !cl->edict->client || (cl->edict->client->ps.rdflags & RDF_LETTERBOX))
 	{
 		if (msg)
-			Com_Printf (TONGUE_SAVE_ERR_CINE);
+			Com_Printf ("Can't savegame in a cinematic.\n");
 		return false;
 	}
 
-	return (cl->edict, msg);
+	return ge->CanSave(cl->edict, msg);
 }
 
 short SV_DoSaveGame(char *dir, char *comment)
 {
-/*
-	if ( (sv.state != ss_game))
-	{
-		Com_Printf ("You must be in a game to save.\n");
-		return 0;
-	}
-	if (Cvar_VariableValue("deathmatch"))
-	{
-		Com_Printf ("Can't savegame in a deathmatch\n");
-		return 0;
-	}
-	if(svs.clients[0].edict->client->ps.rdflags & RDF_LETTERBOX)
-	{
-		Com_Printf ("Can't savegame in a cinematic.\n");
-		return 0;
-	}
-	if (maxclients->value == 1 && svs.clients[0].edict->client->ps.stats[STAT_HEALTH] <= 0)
-	{
-		Com_Printf ("\nCan't savegame while dead!\n");
-		return 0;
-	}
-*/
 	if (!SV_CanSave(NULL, true))
 		return false;
-
 	if (Cvar_VariableValue("unlimited_saves") == 0.0)
 	{
-		sv_savegem_count--;	// so the count is updated fast.
+		cl_savegem_count--;	// so the count is updated fast.
 
-		// now, actually use it.  It'll send down a message with the correct count.
+		// now, actually use it.  It will send down a message with the correct count.
 		SV_SendToLoaclHost("item_savegem_use");
 	}
 
@@ -917,39 +903,14 @@ short SV_DoSaveGame(char *dir, char *comment)
 
 void SV_Savegame_f (void)
 {
-/*
-	if (cl_savegem_count < 1)//svs.clients[0].edict->client->ps.stats[STAT_SAVE_GEMS] < 1)
-	{
-		if (sv.state != ss_game)
-			Com_Printf ("%s\n",tongue[T_NO_SAVEGEMS]);
-		else
-			PF_centerprint(svs.clients[0].edict,2.0,tongue[T_NO_SAVEGEMS]);
-		return;
-	}
-	if ( (sv.state != ss_game) )
-	{
-		Com_Printf ("You must be in a game to save.\n");
-		return;
-	}
-	if (Cvar_VariableValue("deathmatch"))
-	{
-		Com_Printf ("Can't savegame in a deathmatch\n");
-		return;
-	}
-	if(svs.clients[0].edict->client->ps.rdflags & RDF_LETTERBOX)
-	{
-		Com_Printf ("Can't savegame in a cinematic.\n");
-		return;
-	}
-	if (maxclients->value == 1 && svs.clients[0].edict->client->ps.stats[STAT_HEALTH] <= 0)
-	{
-		Com_Printf ("\nCan't savegame while dead!\n");
-		return;
-	}
-*/
-
 	if (!SV_CanSave(NULL, true))
 		return;
+
+	if (Cvar_VariableValue("unlimited_saves") == 0.0)
+	{
+		cl_savegem_count--;
+		SV_SendToLoaclHost("item_savegem_use");
+	}
 
 	if (GetArgc() != 2)
 	{
@@ -974,21 +935,6 @@ void SV_Savegame_f (void)
 
 	SV_DoSaveGame(dir,NULL);
 }
-
-void SV_DoAutoSave()
-{
-	Com_DPrintf("SV_AutoSave()\n");
-
-	SV_WriteHeaderFile(NULL, true);
-	SV_WriteLevelFile ();
-	SV_WriteServerFile (false);
-
-	// copy it off to the autosave
-	SV_CopySaveGame ("current", "save0", false);
-	SV_CopySaveGame ("current", "save1", false);
-}
-
-
 //===============================================================
 /*
 ==================
@@ -1174,7 +1120,7 @@ void SV_ServerRecord_f (void)
 	//
 	// open the demo file
 	//
-	Com_sprintf (name, sizeof(name), "%s/demos/%s.dem", FS_Gamedir(), GetArgv(1));
+	Com_sprintf (name, sizeof(name), "%s/demos/%s.dm2", FS_Gamedir(), GetArgv(1));
 	Com_Printf ("recording to %s.\n", name);
 	FS_CreatePath (name);
 	svs.demofile = fopen (name, "wb");

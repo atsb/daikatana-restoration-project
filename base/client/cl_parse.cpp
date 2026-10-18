@@ -9,7 +9,8 @@
 #include    "cl_icons.h"
 //#include    "ClientEntityManager.h"
 #include    "p_user.h"
-
+#include    "client_string.h"
+#include    "l__language.h"
 
 #ifdef _DEBUG
 char *svc_strings[256] =
@@ -364,24 +365,7 @@ void CL_LoadClientinfo (clientinfo_t *ci, char *s)
 	//	get player's name out of client info string
 	//	player's name is everything up to the first backslash
 	strcpy (ci->name, s);
-
-// Encompass MarkMa 040599
-#ifdef	JPN	// JPN
-	char *s1 = s;
-	temp = NULL;
-	while (*s1)	{
-		if( *s1 == '\\')	{
-			temp = s1;
-			break;
-		}
-		if(IsDBCSLeadByte(*s1))		s1++;
-		s1++;
-	}
-#else	// JPN
 	temp = strstr (s, "\\");
-#endif	// JPN
-// Encompass MarkMa 040599
-
 	if (temp)
 	{
 		ci->name [temp - s] = 0x00;
@@ -395,25 +379,6 @@ void CL_LoadClientinfo (clientinfo_t *ci, char *s)
 	}
 	else
 	{
-// Encompass MarkMa 040599
-#ifdef	JPN	// JPN
-        // parse model name
-        temp = s;
-        i = 0;
-
-		while (*temp)	{
-			if( *temp == '\\')		break;
-			if(IsDBCSLeadByte(*temp))	{
-			    i++;
-				temp++;
-			}
-	        i++;
-			temp++;
-		}
-
-        *(s + i) = 0x00;
-        ci->model = re.RegisterModel (s, RESOURCE_EPISODE);
-#else	// JPN
 		// parse model name
 		strncpy(buf, s,512);
 		buf[511] = 0;
@@ -444,8 +409,6 @@ void CL_LoadClientinfo (clientinfo_t *ci, char *s)
 		
 		buf[i] = 0x00;
 		ci->skin = re.RegisterSkin(buf, RESOURCE_EPISODE);
-#endif	// JPN
-// Encompass MarkMa 040599
 		
 		s = temp + 1;  // advance pointer past slash
 		
@@ -455,6 +418,7 @@ void CL_LoadClientinfo (clientinfo_t *ci, char *s)
 		if (ci->character < 0 || ci->character > 2)
 			ci->character = 0; // Hrio default
 	}
+	
 }   
 
 
@@ -858,6 +822,7 @@ void CL_ParseStartSoundPacket(void)
 	}
 }       
 
+
 void CL_ParseSaveGem(void)
 // interpret svc_savegem server message
 {
@@ -877,173 +842,7 @@ void CL_ParseSaveGem(void)
 	}
 }
 
-void MoveToEnd(char **dst)
-{
-	char *findEnd = strchr(*dst,'\0');
-	*dst = findEnd;
-}
 
-char *MoveToSpecifier(char **fmt, bool &replacedSpecifier)
-{
-	char findChar = '%';
-	if (replacedSpecifier)
-		findChar = '\0';
-
-	char *findSpecifier = strchr(*fmt,findChar);
-	if (findSpecifier)
-	{
-		*fmt = findSpecifier;
-
-		// put the % back if it was replaced previously
-		if (replacedSpecifier)
-			*findSpecifier = '%';
-
-		// look ahead for the next findSpecifier and replace it if necessary
-		findSpecifier = strchr((*fmt+1),'%');
-		if (findSpecifier)
-		{
-			*findSpecifier = '\0';
-			replacedSpecifier = true;
-		}
-		else
-			replacedSpecifier = false;
-	}
-	else
-		*fmt = NULL;
-
-	return *fmt;
-}
-
-
-char *CS_StringForResourceID(long str_list_index);
-
-void CL_ParseClientString()
-{	
-	static char result[2048];
-	static char fmt[2048];
-	byte datatype = 0;
-	byte printtype = 0;
-	float msg_time = 0.0f;
-
-	// set up some the vars
-	bool replacedSpecifier = false;
-	memset(fmt,0,sizeof(fmt));
-
-	// read the format specifier (type and data)
-	datatype = MSG_ReadByte (&net_message);
-	switch(datatype)
-	{
-	case CS_data_str_resource:
-		strcpy(fmt,CS_StringForResourceID(MSG_ReadLong(&net_message)));
-		break;
-
-	case CS_data_str_literal:
-		strcpy(fmt,MSG_ReadString(&net_message));
-		break;
-
-	default:
-		Com_Error (ERR_DROP,"CL_ParseClientString: Bad format specifier type");
-		break;
-	};
-
-	// parse out the instructions
-	byte parmCount = 0, do_continue = 0;
-	int i = 0;
-	do
-	{
-		// reset the result and the pointers
-		memset(result,0,sizeof(result));
-		char *pResult = result;
-		char *pFmt = fmt;
-
-		// read the parameter count
-		parmCount = MSG_ReadByte (&net_message);
-
-		if (!parmCount)
-		{
-			strcpy(pResult,pFmt);
-		}
-		else
-		{
-			// the first specifier.  Move to the %blah and copy the stuff to the result buffer
-			MoveToSpecifier(&pFmt, replacedSpecifier);
-
-			// copy and move any stuff before the first %
-			if (pFmt != fmt)
-			{
-				strncpy(pResult, fmt, pFmt - fmt);
-				MoveToEnd(&pResult);
-			}
-
-			// loop through the rest of the parameters
-			for(i = 0; i < parmCount; i++)
-			{
-				// read the data type
-				datatype = MSG_ReadByte (&net_message);
-
-				// read the data and perform the sprintf into the result buffer
-				switch(datatype)
-				{
-				case CS_data_str_resource:
-					sprintf(pResult,pFmt,CS_StringForResourceID(MSG_ReadLong(&net_message)));
-					break;
-
-				case CS_data_str_literal:
-					sprintf(pResult,pFmt,MSG_ReadString(&net_message));
-					break;
-
-				case CS_data_integer:
-					sprintf(pResult,pFmt,MSG_ReadLong(&net_message));
-					break;
-
-				case CS_data_float:
-					sprintf(pResult,pFmt,MSG_ReadFloat(&net_message));
-					break;
-
-				default:
-					Com_Error (ERR_DROP,"CL_ParseClientString: Bad data type");
-					break;
-				};
-
-				// increment the pointers
-				MoveToSpecifier(&pFmt, replacedSpecifier);
-				MoveToEnd(&pResult);
-			}
-		}
-
-		do_continue = MSG_ReadByte(&net_message);
-		if (do_continue)
-		{
-			parmCount = 0;	// make sure stuff doesn't break if we forget to send the count!
-			// copy the results into the format if we're continuing
-			strcpy(fmt,result);
-		}
-	}
-	while(do_continue);
-
-	// read the print type
-	printtype = MSG_ReadByte (&net_message);
-	if (printtype == CS_print_center)
-	{
-		msg_time = MSG_ReadFloat(&net_message);
-	}
-
-	// all done... print the string
-	switch(printtype)
-	{
-	case CS_print_normal:
-		Com_Printf ("%s", result);
-		break;
-
-	case CS_print_center:
-		SCR_CenterPrint (result, msg_time);
-		break;
-
-	default:
-		Com_Error (ERR_DROP,"CL_ParseClientString: Bad print type");
-		break;
-	};
-}
 
 void CL_ClientRespawn(void)
 // interpret svc_clientrespawn server message
@@ -1061,6 +860,199 @@ void CL_ParseSidekickWeaponStatus();
 //=====================
 //CL_ParseServerMessage
 //=====================
+static char *CL_StringForResourceID(long str_list_index)
+{
+    unsigned long id = (unsigned long)str_list_index;
+    int list = (int)((id >> 16) & 0xffffUL);
+    int index = (int)(id & 0xffffUL);
+
+#define CS_ARRAY_ITEM(array) \
+    ((index >= 0 && index < (int)(sizeof(array) / sizeof((array)[0]))) ? (array)[index] : NULL)
+
+    switch (list)
+    {
+    case CS_RES_TONGUE:             return CS_ARRAY_ITEM(tongue);
+    case CS_RES_WEAPONS:            return CS_ARRAY_ITEM(tongue_weapons);
+    case CS_RES_ARMORS:             return CS_ARRAY_ITEM(tongue_armors);
+    case CS_RES_WORLD:              return CS_ARRAY_ITEM(tongue_world);
+    case CS_RES_DEATHMSG_DAIKATANA: return CS_ARRAY_ITEM(tongue_deathmsg_daikatana);
+    case CS_RES_DEATHMSG_SELF:      return CS_ARRAY_ITEM(tongue_deathmsg_self);
+    case CS_RES_DEATHMSG_WEAPON1:   return CS_ARRAY_ITEM(tongue_deathmsg_weapon1);
+    case CS_RES_DEATHMSG_WEAPON2:   return CS_ARRAY_ITEM(tongue_deathmsg_weapon2);
+    case CS_RES_DEATHMSG_WEAPON3:   return CS_ARRAY_ITEM(tongue_deathmsg_weapon3);
+    case CS_RES_DEATHMSG_WEAPON4:   return CS_ARRAY_ITEM(tongue_deathmsg_weapon4);
+    case CS_RES_CTF:                return CS_ARRAY_ITEM(tongue_ctf);
+    case CS_RES_DEATHTAG:           return CS_ARRAY_ITEM(tongue_deathtag);
+    default:
+        Com_Error(ERR_DROP, "CL_ParseClientString: bad string resource ID");
+        return "";
+    }
+#undef CS_ARRAY_ITEM
+}
+
+static void CL_AppendClientString(char *result, int resultSize, int *resultLen, const char *text)
+{
+    int available = resultSize - *resultLen - 1;
+    int len;
+    if (available <= 0)
+        return;
+    len = (int)strlen(text);
+    if (len > available)
+        len = available;
+    memcpy(result + *resultLen, text, len);
+    *resultLen += len;
+    result[*resultLen] = '\0';
+}
+
+static void CL_ParseClientString(void)
+{
+    char fmt[2048];
+    char result[2048];
+    char temp[1024];
+    byte datatype;
+    byte parmCount;
+    byte do_continue;
+    byte printtype;
+    float msg_time = 0.0f;
+    qboolean continueFormatting = FALSE;
+
+    memset(fmt, 0, sizeof(fmt));
+    memset(result, 0, sizeof(result));
+
+    datatype = MSG_ReadByte(&net_message);
+    if (datatype == CS_data_str_resource)
+    {
+        char *str = CL_StringForResourceID(MSG_ReadLong(&net_message));
+        Com_sprintf(fmt, sizeof(fmt), "%s", str ? str : "");
+    }
+    else if (datatype == CS_data_str_literal)
+    {
+        Com_sprintf(fmt, sizeof(fmt), "%s", MSG_ReadString(&net_message));
+    }
+    else
+    {
+        Com_Error(ERR_DROP, "CL_ParseClientString: bad format specifier type");
+        return;
+    }
+
+    do
+    {
+        int resultLen = 0;
+        const char *cursor = fmt;
+        int i;
+
+        memset(result, 0, sizeof(result));
+
+        parmCount = MSG_ReadByte(&net_message);
+        if (!parmCount)
+        {
+            CL_AppendClientString(result, sizeof(result), &resultLen, cursor);
+        }
+        else
+        {
+            for (i = 0; i < parmCount; i++)
+            {
+                const char *specifier = strchr(cursor, '%');
+                const char *specifierEnd;
+                char formatPart[64];
+                int literalLen;
+
+                if (!specifier)
+                {
+                    Com_Error(ERR_DROP, "CL_ParseClientString: missing format specifier");
+                    return;
+                }
+
+                literalLen = (int)(specifier - cursor);
+                if (literalLen > 0)
+                {
+                    char literal[2048];
+                    if (literalLen >= (int)sizeof(literal))
+                        literalLen = sizeof(literal) - 1;
+                    memcpy(literal, cursor, literalLen);
+                    literal[literalLen] = '\0';
+                    CL_AppendClientString(result, sizeof(result), &resultLen, literal);
+                }
+
+                specifierEnd = specifier + 1;
+                while (*specifierEnd && strchr("diouxXfFeEgGaAcsp", *specifierEnd) == NULL)
+                    specifierEnd++;
+                if (!*specifierEnd)
+                {
+                    Com_Error(ERR_DROP, "CL_ParseClientString: malformed format specifier");
+                    return;
+                }
+
+                {
+                    int formatLen = (int)(specifierEnd - specifier + 1);
+                    if (formatLen >= (int)sizeof(formatPart))
+                        formatLen = sizeof(formatPart) - 1;
+                    memcpy(formatPart, specifier, formatLen);
+                    formatPart[formatLen] = '\0';
+                }
+
+                datatype = MSG_ReadByte(&net_message);
+                memset(temp, 0, sizeof(temp));
+                switch (datatype)
+                {
+                case CS_data_str_resource:
+                    {
+                        char *value = CL_StringForResourceID(MSG_ReadLong(&net_message));
+                        Com_sprintf(temp, sizeof(temp), formatPart, value ? value : "");
+                    }
+                    break;
+                case CS_data_str_literal:
+                    Com_sprintf(temp, sizeof(temp), formatPart, MSG_ReadString(&net_message));
+                    break;
+                case CS_data_integer:
+                    Com_sprintf(temp, sizeof(temp), formatPart, MSG_ReadLong(&net_message));
+                    break;
+                case CS_data_float:
+                    Com_sprintf(temp, sizeof(temp), formatPart, MSG_ReadFloat(&net_message));
+                    break;
+                default:
+                    Com_Error(ERR_DROP, "CL_ParseClientString: bad data type");
+                    return;
+                }
+
+                CL_AppendClientString(result, sizeof(result), &resultLen, temp);
+                cursor = specifierEnd + 1;
+            }
+
+            CL_AppendClientString(result, sizeof(result), &resultLen, cursor);
+        }
+
+        do_continue = MSG_ReadByte(&net_message);
+        if (do_continue)
+        {
+            Com_sprintf(fmt, sizeof(fmt), "%s", result);
+            continueFormatting = TRUE;
+        }
+        else
+        {
+            continueFormatting = FALSE;
+        }
+    }
+    while (continueFormatting);
+
+    printtype = MSG_ReadByte(&net_message);
+    if (printtype == CS_print_center)
+        msg_time = MSG_ReadFloat(&net_message);
+
+    switch (printtype)
+    {
+    case CS_print_normal:
+        Com_Printf("%s", result);
+        break;
+    case CS_print_center:
+        SCR_CenterPrint(result, msg_time);
+        break;
+    default:
+        Com_Error(ERR_DROP, "CL_ParseClientString: bad print type");
+        break;
+    }
+}
+
 void CL_ParseServerMessage (void)
 {
 	int			cmd;

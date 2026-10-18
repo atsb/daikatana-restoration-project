@@ -26,7 +26,7 @@ BUILD_DIR	= $(IONCOMMON_BUILD)
 CXX			= $(STD_CXX)
 CXXFLAGS	= $(STD_CXXFLAGS) -fPIC -I $(DK__DIR)
 LDFLAGS		= $(STD_LDFLAGS) $(SHARED) $(SONAME)$(IONCOMMON_SONAME) 
-LIBS		= $(STD_LIBS)
+LIBS		= $(STD_LIBS) -lSDL3_net
 
 #-----------------------------------------------------------------------------
 # Files

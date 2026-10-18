@@ -1,3 +1,4 @@
+#include <stddef.h>
 /////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //	routines for handling monster paths that are hardcoded into levels
@@ -19,7 +20,7 @@ DllExport	void	monster_path_corner (userEntity_t *self);
 // defines
 ////////////////////////////////////////////////////////////////////////////////
 // SCG[11/20/99]: Save game stuff
-#define MPATHHOOK(x) (int)&(((mpathHook_t *)0)->x)
+#define MPATHHOOK(x) (int)offsetof(mpathHook_t,x)
 field_t mpath_hook_fields[] = 
 {
 	{"target",			MPATHHOOK(target),			F_LSTRING},

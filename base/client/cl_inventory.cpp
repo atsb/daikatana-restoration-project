@@ -105,19 +105,43 @@ void	inventory_ParseInventory (void)
 
 void CL_InitWeaponIcons()
 {
-	memset(&inventoryIcons,0,sizeof(inventoryIcons));
-	for (int i = 0; i < numInventoryIcons; i++)
+	int i;
+
+	/* Preserve the icon data received from the server.  The weapon-icon
+	   message can arrive before CL_PrepRefresh has registered all models.
+	   The old memset here erased the model indices/names, so the icons
+	   stayed empty until the next weapon-cycle message rebuilt them. */
+	for (i = 0; i < numInventoryIcons; i++)
 	{
-		inventoryIcons[i].modelindex = CL_ModelIndex( inventoryIcons[i].modelname );
-		if (inventoryIcons[i].modelindex != 0 )
-		{
+		if (inventoryIcons[i].modelindex != 0)
 			inventoryIcons[i].model = cl.model_draw[inventoryIcons[i].modelindex];
+		else if (inventoryIcons[i].modelname[0])
+		{
+			inventoryIcons[i].modelindex = CL_ModelIndex(inventoryIcons[i].modelname);
+			if (inventoryIcons[i].modelindex != 0)
+				inventoryIcons[i].model = cl.model_draw[inventoryIcons[i].modelindex];
+			else
+				inventoryIcons[i].model = NULL;
 		}
 		else
-		{
-			memset( &inventoryIcons[i], 0, sizeof( invenIcon_t ) );
-			inventoryIcons[i].count = -1;
-		}
+			inventoryIcons[i].model = NULL;
+	}
+}
+
+void CL_RefreshWeaponIconModels()
+{
+	int i;
+
+	if (inventory_mode != INVMODE_WEAPON_ICONS)
+		return;
+
+	/* Rebind the renderer-facing model pointers every frame.  This covers
+	   renderer/model-list refreshes without requiring another weapon-cycle
+	   network message. */
+	for (i = 0; i < numInventoryIcons; i++)
+	{
+		if (inventoryIcons[i].modelindex > 0 && inventoryIcons[i].modelindex < MAX_MODELS)
+			inventoryIcons[i].model = cl.model_draw[inventoryIcons[i].modelindex];
 	}
 }
 
@@ -157,15 +181,15 @@ void CL_ParseWeaponIcons(void)
 			inventoryIcons[i].model = NULL;
 		}
 
-		inventoryIcons[i].count = MSG_ReadShort(&net_message); // ammo count
-/*		count = MSG_ReadShort(&net_message);
+//		inventoryIcons[i].count = MSG_ReadShort(&net_message); // ammo count
+		count = MSG_ReadShort(&net_message);
 		if (count == -1)
 		{
 			if (inventoryIcons[i].count <= 0)
 				inventoryIcons[i].count = count;
 		}
 		else 
-			inventoryIcons[i].count = count;*/
+			inventoryIcons[i].count = count;
 	}
 
 	inventory_selected = MSG_ReadShort(&net_message); // which # is active

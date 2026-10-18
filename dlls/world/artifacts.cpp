@@ -1,3 +1,5 @@
+#include <stddef.h>
+#include <math.h>
 //////////////////////////////////////////////////////////////////////
 //	artifacts.cpp
 //
@@ -93,10 +95,10 @@ void item_purifier_check_for_all( userEntity_t *self );
 ///////////////////////////////////////////////////////////////////////////////
 //	defines
 ///////////////////////////////////////////////////////////////////////////////
-#define	IS_INSTAGIB				(deathmatch->value && dm_instagib->value)
-
 
 #define ARMOR_RESPAWN_TIME	30.0
+
+#define IS_INSTAGIB				(deathmatch->value && dm_instagib->value)
 
 #define BOOST_ACTIVE_TIME   30.0 // 30.0
 #define BOOST_RESPAWN_TIME  60.0 // 60.0
@@ -151,7 +153,7 @@ void item_purifier_check_for_all( userEntity_t *self );
 #define ITEM_RESP_COOP_REMOVEALL		0x0002		// item is removed from all players in coop
 #define ITEM_RESP_USE_ONCE				0X0004		// OK So I'm hacking a bit...
 
-#define	ITEMINFO(x) (int)&(((itemInfo_t *)0)->x)
+#define	ITEMINFO(x) (int)offsetof(itemInfo_t,x)
 field_t item_info_fields[] = 
 {
 	{"respawnFlags",		ITEMINFO(respawnFlags),			F_SHORT},
@@ -186,7 +188,7 @@ field_t item_info_fields[] =
 	{NULL, 0, F_INT}
 };
 
-#define	ITEMHOOK(x) (int)&(((itemHook_t *)0)->x)
+#define	ITEMHOOK(x) (int)offsetof(itemHook_t,x)
 field_t item_hook_fields[] = 
 {
 	{"respawnTime",			ITEMHOOK(respawnTime),			F_FLOAT},
@@ -416,8 +418,6 @@ void item_Spawn (userEntity_t *self, itemInfo_t *info, movetype_t moveType = MOV
 	float		speed;
 
 	self->netname = info->netName;
-	self->netNameID = info->netNameID;
-
 	self->userHook = (itemHook_t*)gstate->X_Malloc(sizeof(itemHook_t),MEM_TAG_HOOK);
 	ihook = (itemHook_t *) self->userHook;
 	
@@ -444,7 +444,7 @@ void item_Spawn (userEntity_t *self, itemInfo_t *info, movetype_t moveType = MOV
 				{
 					if (speed < -179)
 						speed = -179;
-					self->s.angle_delta.z = 180 - abs(speed);  // encoded..negatives are 0-179 positives are 180-360
+					self->s.angle_delta.z = 180 - fabs(speed);  // encoded..negatives are 0-179 positives are 180-360
 				}
 				else
 				{
@@ -463,7 +463,7 @@ void item_Spawn (userEntity_t *self, itemInfo_t *info, movetype_t moveType = MOV
 				{
 					if (speed < -179)
 						speed = -179;
-					self->s.angle_delta.x = 180 - abs(speed);	// encoded..negatives are 0-179 positives are 180-360
+					self->s.angle_delta.x = 180 - fabs(speed);	// encoded..negatives are 0-179 positives are 180-360
 				}
 				else
 				{
@@ -481,7 +481,7 @@ void item_Spawn (userEntity_t *self, itemInfo_t *info, movetype_t moveType = MOV
 				{
 					if (speed < -179)
 						speed = -179;
-					self->s.angle_delta.y = 180 - abs(speed);	// encoded..negatives are 0-179 positives are 180-360
+					self->s.angle_delta.y = 180 - fabs(speed);	// encoded..negatives are 0-179 positives are 180-360
 				}
 				else
 				{
@@ -564,18 +564,6 @@ void item_Spawn (userEntity_t *self, itemInfo_t *info, movetype_t moveType = MOV
 	gstate->LinkEntity (self);
 }
 
-void artifact_special_print(int EnumType, userEntity_t *receiver, char *format, int form_count, char ** tongue, int NetNameID)
-
-{
-		gstate->cs.BeginSendString();
-		gstate->cs.SendSpecifierStr(format,form_count);
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue,EnumType));
-		gstate->cs.SendStringID(NetNameID);
-		gstate->cs.Unicast(receiver,CS_print_center,2.0);
-		gstate->cs.EndSendString();
-
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // item_health_touch
@@ -616,16 +604,13 @@ void	item_health_touch (userEntity_t *self, userEntity_t *other, cplane_t *plane
 	if (other->flags & FL_CLIENT)
 	{
 		other->client->bonus_alpha = 0.25;
-		int Type = T_PICKUP_HEALTH;
 		
 		if (ihook->info->flags & ITEM_BOOSTBASEHEALTH)
-		{
-			Type = T_PICKUP_BOOST;
-		}
-		// NSS[6/23/00]:New print stuff
-		artifact_special_print(Type, other, "%s %s.\n", 2, tongue, self->netNameID);
+			gstate->centerprint (other, 2.0, "%s %s.\n", tongue[T_PICKUP_BOOST], self->netname);
+		else
+			gstate->centerprint (other, 2.0, "%s %s.\n", tongue[T_PICKUP_HEALTH], self->netname);
     }
-	
+
 	// call respawn last because it can remove the entity
 	//com->SetRespawn (self, ihook->respawnTime);
 	// NSS[3/4/00]:
@@ -652,27 +637,24 @@ void	item_health_25 (userEntity_t *self)
 	info->className = self->className;
 
 	// cek[1-3-99] added health vial for episode 3
-	//	info->netName = tongue[T_HEALTH_KIT];
+//	info->netName = tongue[T_HEALTH_KIT];
 	switch(gstate->episode)
 	{
 	default:
 	case 1:
 		info->netName = tongue[T_HEALTH_KIT];
-		info->netNameID = RESOURCE_ID_FOR_STRING(tongue,T_HEALTH_KIT);
 		break;
 	case 2:
 		info->netName = tongue[T_HEALTH_E2_VASE];
-		info->netNameID = RESOURCE_ID_FOR_STRING(tongue,T_HEALTH_E2_VASE);
 		break;
 	case 3:
 		info->netName = tongue[T_HEALTH_E3_FLASK];
-		info->netNameID = RESOURCE_ID_FOR_STRING(tongue,T_HEALTH_E3_FLASK);
 		break;
 	case 4:
 		info->netName = tongue[T_HEALTH_E4_BOX];
-		info->netNameID = RESOURCE_ID_FOR_STRING(tongue,T_HEALTH_E4_BOX);
 		break;
 	};
+
 //	info->netName = (gstate->episode != 3) ? tongue[T_HEALTH_KIT] : tongue[T_HEALTH_VIAL];
 	info->episodeIndependentModelName = "hlth.dkm";
 	info->touchFunc = item_health_touch;
@@ -698,7 +680,7 @@ void item_health_50(userEntity_t *self)
 {
 	itemInfo_t	*info;
 
-	if (IS_INSTAGIB || (deathmatch->value && !dm_allow_health->value ))
+	if (deathmatch->value && !dm_allow_health->value )
 	  return;
 
 	info = (itemInfo_t*)gstate->X_Malloc(sizeof(itemInfo_t), MEM_TAG_HOOK);
@@ -712,15 +694,12 @@ void item_health_50(userEntity_t *self)
 	default:
 	case 1:
 		info->netName = tongue[T_HEALTH_E1_PACK];
-		info->netNameID = RESOURCE_ID_FOR_STRING(tongue,T_HEALTH_E1_PACK);
 		break;
 	case 3:
 		info->netName = tongue[T_HEALTH_E3_CRATE];
-		info->netNameID = RESOURCE_ID_FOR_STRING(tongue,T_HEALTH_E3_CRATE);
 		break;
 	case 4:
 		info->netName = tongue[T_HEALTH_E4_BOX];
-		info->netNameID = RESOURCE_ID_FOR_STRING(tongue,T_HEALTH_E4_BOX);
 		break;
 	};
 
@@ -752,9 +731,6 @@ void	item_goldensoul (userEntity_t *self)
 	info = (itemInfo_t*)gstate->X_Malloc(sizeof(itemInfo_t), MEM_TAG_HOOK);
 	info->className = self->className;
 	info->netName = tongue[T_GOLDENSOUL];
-	info->netNameID = RESOURCE_ID_FOR_STRING(tongue,T_GOLDENSOUL);
-
-
 	info->touchFunc = item_health_touch;
 
 	info->mins.Set(-8, -8, -24);
@@ -801,9 +777,7 @@ void	item_wraithorb_touch (userEntity_t *self, userEntity_t *other, cplane_t *pl
 	if (other->flags & FL_CLIENT)
 	{
 		other->client->bonus_alpha = 0.25;
- 		
-		artifact_special_print(T_PICKUP_BOOST, other, "%s %s.\n", 2, tongue, self->netNameID);
-		//gstate->centerprint(other, 2.0, "%s %s.\n", tongue[T_PICKUP_BOOST], self->netname);
+        gstate->centerprint(other, 2.0, "%s %s.\n", tongue[T_PICKUP_BOOST], self->netname);
     }
 
 	if(!deathmatch->value)
@@ -871,15 +845,13 @@ void	item_wraithorb (userEntity_t *self)
 {
 	itemInfo_t	*info;
 
-	if (deathmatch->value && !dm_allow_powerups->value)
+	if (IS_INSTAGIB || (deathmatch->value && !dm_allow_health->value) || (deathmatch->value && !dm_allow_powerups->value))
 	  return;
 
 	info = (itemInfo_t*)gstate->X_Malloc(sizeof(itemInfo_t), MEM_TAG_HOOK);
 //	info = (itemInfo_t*) new itemInfo_t;
 	info->className = self->className;
 	info->netName = tongue[T_WRAITHORB];
-	info->netNameID = RESOURCE_ID_FOR_STRING(tongue,T_WRAITHORB);
-
 	info->touchFunc = item_wraithorb_touch;
 
 	info->mins.Set(-8, -8, -24);
@@ -981,8 +953,7 @@ void item_armor_touch (userEntity_t *self, userEntity_t *other, cplane_t *plane,
 		// screen flash
 		other->client->bonus_alpha = 0.25;
 
-		//gstate->centerprint (other, 2.0, "%s %s.\n", tongue[T_PICKUP_ARMOR_GOOD], self->netname);
-		artifact_special_print(T_PICKUP_ARMOR_GOOD, other, "%s %s.\n", 2, tongue, self->netNameID);
+		gstate->centerprint (other, 2.0, "%s %s.\n", tongue[T_PICKUP_ARMOR_GOOD], self->netname);
 //        gstate->sprint (other, "%s %s.\n", tongue[T_PICKUP_ARMOR_GOOD], self->netname);
 	}
 
@@ -1014,9 +985,6 @@ void	item_plasteel_armor (userEntity_t *self)
 	info = (itemInfo_t*)gstate->X_Malloc(sizeof(itemInfo_t), MEM_TAG_HOOK);
 	info->className = self->className;
 	info->netName = tongue_armors[T_ARMOR_PLASTEEL];
-	info->netNameID = RESOURCE_ID_FOR_STRING(tongue_armors,T_ARMOR_PLASTEEL);
-
-
 	info->episodeIndependentModelName = "ar1.dkm";
 	info->touchFunc = item_armor_touch;
 
@@ -1051,8 +1019,6 @@ void	item_chromatic_armor (userEntity_t *self)
 	info = (itemInfo_t*)gstate->X_Malloc(sizeof(itemInfo_t), MEM_TAG_HOOK);
 	info->className = self->className;
 	info->netName = tongue_armors[T_ARMOR_CHROMATIC];
-	info->netNameID = RESOURCE_ID_FOR_STRING(tongue_armors,T_ARMOR_CHROMATIC);
-
 	info->episodeIndependentModelName = "ar2.dkm";
 	info->touchFunc = item_armor_touch;
 
@@ -1086,9 +1052,7 @@ void	item_silver_armor (userEntity_t *self)
 
 	info = (itemInfo_t*)gstate->X_Malloc(sizeof(itemInfo_t), MEM_TAG_HOOK);
 	info->className = self->className;
-	info->netName	= tongue_armors[T_ARMOR_SILVER];
-	info->netNameID = RESOURCE_ID_FOR_STRING(tongue_armors,T_ARMOR_SILVER);
-
+	info->netName = tongue_armors[T_ARMOR_SILVER];
 	info->episodeIndependentModelName = "ar1.dkm";
 	info->touchFunc = item_armor_touch;
 
@@ -1123,8 +1087,6 @@ void	item_gold_armor (userEntity_t *self)
 	info = (itemInfo_t*)gstate->X_Malloc(sizeof(itemInfo_t), MEM_TAG_HOOK);
 	info->className = self->className;
 	info->netName = tongue_armors[T_ARMOR_GOLD];
-	info->netNameID = RESOURCE_ID_FOR_STRING(tongue_armors,T_ARMOR_GOLD);
-	
 	info->episodeIndependentModelName = "ar2.dkm";
 	info->touchFunc = item_armor_touch;
 
@@ -1159,8 +1121,6 @@ void	item_chainmail_armor (userEntity_t *self)
 	info = (itemInfo_t*)gstate->X_Malloc(sizeof(itemInfo_t), MEM_TAG_HOOK);
 	info->className = self->className;
 	info->netName = tongue_armors[T_ARMOR_CHAINMAIL];
-	info->netNameID = RESOURCE_ID_FOR_STRING(tongue_armors,T_ARMOR_CHAINMAIL);
-
 	info->episodeIndependentModelName = "ar1.dkm";
 	info->touchFunc = item_armor_touch;
 
@@ -1195,8 +1155,6 @@ void	item_black_adamant_armor (userEntity_t *self)
 	info = (itemInfo_t*)gstate->X_Malloc(sizeof(itemInfo_t), MEM_TAG_HOOK);
 	info->className = self->className;
 	info->netName = tongue_armors[T_ARMOR_BLACKADAMANT];
-	info->netNameID = RESOURCE_ID_FOR_STRING(tongue_armors,T_ARMOR_BLACKADAMANT);
-
 	info->episodeIndependentModelName = "ar2.dkm";
 	info->touchFunc = item_armor_touch;
 
@@ -1231,7 +1189,6 @@ void	item_kevlar_armor (userEntity_t *self)
 	info = (itemInfo_t*)gstate->X_Malloc(sizeof(itemInfo_t), MEM_TAG_HOOK);
 	info->className = self->className;
 	info->netName = tongue_armors[T_ARMOR_KEVLAR];
-	info->netNameID = RESOURCE_ID_FOR_STRING(tongue_armors,T_ARMOR_KEVLAR);
 	info->episodeIndependentModelName = "ar1.dkm";
 	info->touchFunc = item_armor_touch;
 
@@ -1268,8 +1225,6 @@ void	item_ebonite_armor (userEntity_t *self)
 	info = (itemInfo_t*)gstate->X_Malloc(sizeof(itemInfo_t), MEM_TAG_HOOK);
 	info->className = self->className;
 	info->netName = tongue_armors[T_ARMOR_EBONITE];
-	info->netNameID = RESOURCE_ID_FOR_STRING(tongue_armors,T_ARMOR_EBONITE);
-
 	info->episodeIndependentModelName = "ar2.dkm";
 	info->touchFunc = item_armor_touch;
 
@@ -1681,8 +1636,7 @@ int item_sidekick_megashield(userEntity_t *self, userEntity_t *item)
 
 void item_megashield_execute( userEntity_t *self, userEntity_t *user )
 {
-	artifact_special_print(T_PICKUP_ARMOR_GOOD, user, "%s %s.\n", 2, tongue, self->netNameID);
-//	gstate->centerprint (user, 2.0, "%s %s.\n", tongue[T_PICKUP_ARMOR_GOOD], self->netname);
+	gstate->centerprint (user, 2.0, "%s %s.\n", tongue[T_PICKUP_ARMOR_GOOD], self->netname);
 	
 	// NSS[3/2/00]:As long as we are not in deathmatch mode... let's do this...
 	if(!deathmatch->value && !coop->value)
@@ -1743,9 +1697,8 @@ void item_manaskull_execute( userEntity_t *self, userEntity_t *user )
 	if (!ohook)
 		return;
 
-	//gstate->centerprint (user, 2.0, "%s %s.\n", tongue[T_PICKUP_ARMOR_GOOD], self->netname);
-	artifact_special_print(T_PICKUP_ARMOR_GOOD, user, "%s %s.\n", 2, tongue, self->netNameID);
-	
+	gstate->centerprint (user, 2.0, "%s %s.\n", tongue[T_PICKUP_ARMOR_GOOD], self->netname);
+
 	// NSS[3/2/00]:As long as we are not in deathmatch mode... let's do this...
 	if(!deathmatch->value && !coop->value)
 	{
@@ -1964,16 +1917,14 @@ void create_boost_nucleus(userEntity_t *self, itemInfo_t *info, char * model_nam
 
 void	item_power_boost (userEntity_t *self)
 {
+	itemInfo_t	 *info;
+
 	if (IS_INSTAGIB || (deathmatch->value && !dm_allow_powerups->value))
 		return;
-
-	itemInfo_t	 *info;
 
 	info = (itemInfo_t*)gstate->X_Malloc(sizeof(itemInfo_t), MEM_TAG_HOOK);
 	info->className = self->className;
 	info->netName = tongue[T_USEBOOST_POWER];
-	info->netNameID = RESOURCE_ID_FOR_STRING(tongue,T_USEBOOST_POWER);
-
 	info->touchFunc = item_boost_touch;
 
 	info->mins.Set(-8, -8, -16);
@@ -2012,8 +1963,6 @@ void	item_attack_boost (userEntity_t *self)
 	info = (itemInfo_t*)gstate->X_Malloc(sizeof(itemInfo_t), MEM_TAG_HOOK);
 	info->className = self->className;
 	info->netName = tongue[T_USEBOOST_ATTACK];
-	info->netNameID = RESOURCE_ID_FOR_STRING(tongue,T_USEBOOST_ATTACK);
-	
 	info->touchFunc = item_boost_touch;
 
 	info->mins.Set(-8, -8, -16);
@@ -2053,8 +2002,6 @@ void	item_speed_boost (userEntity_t *self)
 	info = (itemInfo_t*)gstate->X_Malloc(sizeof(itemInfo_t), MEM_TAG_HOOK);
 	info->className = self->className;
 	info->netName = tongue[T_USEBOOST_SPEED];
-	info->netNameID = RESOURCE_ID_FOR_STRING(tongue,T_USEBOOST_SPEED);
-
 	info->touchFunc = item_boost_touch;
 
 	info->mins.Set(-8, -8, -16);
@@ -2094,8 +2041,6 @@ void	item_acro_boost (userEntity_t *self)
 	info = (itemInfo_t*)gstate->X_Malloc(sizeof(itemInfo_t), MEM_TAG_HOOK);
 	info->className = self->className;
 	info->netName = tongue[T_USEBOOST_ACRO];
-	info->netNameID = RESOURCE_ID_FOR_STRING(tongue,T_USEBOOST_ACRO);
-	
 	info->touchFunc = item_boost_touch;
 
 	info->mins.Set(-8, -8, -16);
@@ -2128,15 +2073,14 @@ void	item_acro_boost (userEntity_t *self)
 
 void	item_vita_boost (userEntity_t *self)
 {
-	if (IS_INSTAGIB || (deathmatch->value && !dm_allow_health->value) || (deathmatch->value && !dm_allow_powerups->value))
-		return;
-
 	itemInfo_t	*info;
+
+	if (deathmatch->value && !dm_allow_powerups->value)
+	  return;
 
 	info = (itemInfo_t*)gstate->X_Malloc(sizeof(itemInfo_t), MEM_TAG_HOOK);
 	info->className = self->className;
 	info->netName = tongue[T_USEBOOST_VITA];
-	info->netNameID = RESOURCE_ID_FOR_STRING(tongue,T_USEBOOST_VITA);
 	info->touchFunc = item_boost_touch;
 
 	info->mins.Set(-8, -8, -16);
@@ -2471,19 +2415,7 @@ void item_bombpart_touch (userEntity_t *self, userEntity_t *other, cplane_t *pla
 	if (other->flags & FL_CLIENT)
 	{
 		other->client->bonus_alpha = 0.25;
-#ifndef JPN // Original
 		gstate->centerprint (other, 2.0, "%s %s\n", tongue[T_BOMB_FOUND],self->netname);
-#else // 
- #ifdef MAN // for MAN
-		gstate->centerprint (other, 2.0, "%s %s\n", tongue[T_BOMB_FOUND],self->netname);
- #else
-  #ifdef TIW // for TIW
-		gstate->centerprint (other, 2.0, "%s %s\n", tongue[T_BOMB_FOUND],self->netname);
-  #else
-		gstate->centerprint (other, 2.0, "%s %s\n",self->netname, tongue[T_BOMB_FOUND]);
-  #endif // TIW
- #endif // MAN
-#endif // JPN
 	}
 
 	item_bomb_part_check_for_all( other );
@@ -2511,7 +2443,6 @@ void	item_sulphur (userEntity_t *self)
 	info = (itemInfo_t*)gstate->X_Malloc(sizeof(itemInfo_t), MEM_TAG_HOOK);
 	info->className = self->className;
 	info->netName = tongue[T_BOMB_INGREDIENT_1];
-	info->netNameID = RESOURCE_ID_FOR_STRING(tongue,T_BOMB_INGREDIENT_1);
 	info->touchFunc = item_bombpart_touch;
 
 	info->mins.Set(-16, -16, -24);
@@ -2542,7 +2473,6 @@ void	item_charcoal (userEntity_t *self)
 	info = (itemInfo_t*)gstate->X_Malloc(sizeof(itemInfo_t), MEM_TAG_HOOK);
 	info->className = self->className;
 	info->netName = tongue[T_BOMB_INGREDIENT_2];
-	info->netNameID = RESOURCE_ID_FOR_STRING(tongue,T_BOMB_INGREDIENT_2);
 	info->touchFunc = item_bombpart_touch;
 
 	info->mins.Set(-16, -16, -24);
@@ -2573,7 +2503,6 @@ void	item_saltpeter (userEntity_t *self)
 	info = (itemInfo_t*)gstate->X_Malloc(sizeof(itemInfo_t), MEM_TAG_HOOK);
 	info->className = self->className;
 	info->netName = tongue[T_BOMB_INGREDIENT_3];
-	info->netNameID = RESOURCE_ID_FOR_STRING(tongue,T_BOMB_INGREDIENT_3);
 	info->touchFunc = item_bombpart_touch;
 
 	info->mins.Set(-16, -16, -24);
@@ -2604,7 +2533,6 @@ void	item_bottle (userEntity_t *self)
 	info = (itemInfo_t*)gstate->X_Malloc(sizeof(itemInfo_t), MEM_TAG_HOOK);
 	info->className = self->className;
 	info->netName = tongue[T_BOMB_BOTTLE];
-	info->netNameID = RESOURCE_ID_FOR_STRING(tongue,T_BOMB_BOTTLE);
 	info->touchFunc = item_bombpart_touch;
 
 	info->mins.Set(-16, -16, -24);
@@ -2689,25 +2617,7 @@ void	item_book_use (struct userInventory_s *item, struct edict_s *user)
 					{
 						gstate->StartEntitySound(user, CHAN_VOICE, keyItem->soundIndex, 1.0f, ATTN_NORM_MIN, ATTN_NORM_MAX);
 					}
-// changed by yokoyama for Japanese version
-#ifndef JPN // Original
 					gstate->centerprint (user, 2.0, "%s %s!\n", tongue[T_BOOK_READ],keyItem->netname);
-					//artifact_special_print(T_BOOK_READ, user, "%s %s.\n", 2, tongue, ->netNameID);
-#else // for Japanese
- #ifdef MAN // for MAN
-					gstate->centerprint (user, 2.0, "%s %s!\n", tongue[T_BOOK_READ],keyItem->netname);
-					//artifact_special_print(T_BOOK_READ, user, "%s %s.\n", 2, tongue, ->netNameID);
- #else
-  #ifdef TIW // for TIW
-					gstate->centerprint (user, 2.0, "%s %s!\n", tongue[T_BOOK_READ],keyItem->netname);
-					//artifact_special_print(T_BOOK_READ, user, "%s %s.\n", 2, tongue, ->netNameID);
-  #else
-					gstate->centerprint (user, 2.0, "%s ‚ð%s!\n",keyItem->netname, tongue[T_BOOK_READ]);
-					//artifact_special_print(T_BOOK_READ, user, "%s %s.\n", 2, tongue, ->netNameID);
- 
-  #endif // TIW
- #endif // MAN
-#endif // JPN
 
 					// now use the target... most likely it's some type of trigger
 					gstate->targeter = user;
@@ -2724,26 +2634,11 @@ void	item_book_use (struct userInventory_s *item, struct edict_s *user)
 			}
 		}
 		gstate->centerprint (user, 2.0, "%s!\n",tongue[T_BOOK_NO_READ]);
-		//artifact_special_print(T_BOOK_NO_READ, user, "%s %s.\n", 2, tongue, self->netNameID);
- 
 			
 	}
 	else
 	{
-// changed by yokoyama for Japanese version
-#ifndef JPN // Original
-		gstate->centerprint (user, 2.0, "%s %s!\n", tongue[T_BOOK_READ],keyItem->netname);
-#else
- #ifdef MAN // for MAN
-		gstate->centerprint (user, 2.0, "%s %s!\n", tongue[T_BOOK_READ],keyItem->netname);
- #else
-  #ifdef TIW // for TIW
-		gstate->centerprint (user, 2.0, "%s %s!\n", tongue[T_BOOK_READ],keyItem->netname);
-  #else
-        gstate->centerprint (user, 2.0, "%s ‚ð%s!\n",keyItem->netname, tongue[T_BOOK_READ]);
-  #endif // TIW
- #endif // MAN
-#endif // JPN
+		gstate->centerprint (user, 2.0, "%s!\n", tongue[T_BOOK_READ],keyItem->netname);
 	}
 
 	return;
@@ -2968,24 +2863,7 @@ void item_add_to_inventory( userEntity_t *self, userEntity_t *other, cplane_t *p
 	if (other->flags & FL_CLIENT)
 	{
 		other->client->bonus_alpha = 0.25;
-// changed by yokoyama for Japanese version
-#ifndef JPN // Original
-		artifact_special_print(T_KEY_PICKUP, other, "%s %s.\n", 2, tongue, self->netNameID);
-		//gstate->centerprint( other, 2.0, "%s %s\n", tongue[T_KEY_PICKUP], self->netname );
-#else // JPN
- #ifdef MAN // for MAN
-		artifact_special_print(T_KEY_PICKUP, other, "%s %s.\n", 2, tongue, self->netNameID);
-		//gstate->centerprint( other, 2.0, "%s %s\n", tongue[T_KEY_PICKUP], self->netname );
- #else
-  #ifdef TIW // for TIW
-		artifact_special_print(T_KEY_PICKUP, other, "%s %s.\n", 2, tongue, self->netNameID);
-		//gstate->centerprint( other, 2.0, "%s %s\n", tongue[T_KEY_PICKUP], self->netname );
-  #else
-		artifact_special_print(T_KEY_PICKUP, other, "%s %s.\n", 2, tongue, self->netNameID);
-		//gstate->centerprint( other, 2.0, "%s %s\n", self->netname, tongue[T_KEY_PICKUP] );
-  #endif // TIW
- #endif // MAN
-#endif // JPN
+		gstate->centerprint( other, 2.0, "%s %s\n", tongue[T_KEY_PICKUP], self->netname );
 	}
 
 	if( strstr( self->className, "rune" ) )
@@ -3096,22 +2974,7 @@ void	item_key_touch (userEntity_t *self, userEntity_t *other, cplane_t *plane, c
 	if (other->flags & FL_CLIENT)
 	{
 		other->client->bonus_alpha = 0.25;
-// changed by yokoyama for Japanese version
-#ifndef JPN // Original
-		//gstate->centerprint (other, 2.0, "%s %s\n", tongue[T_KEY_PICKUP],self->netname);
-		artifact_special_print(T_KEY_PICKUP, other, "%s %s.\n", 2, tongue, self->netNameID);
-#else
- #ifdef MAN // for MAN
-
- #else
-  #ifdef TIW // for TIW
-
-  #else
-		artifact_special_print(T_KEY_PICKUP, other, "%s %s.\n", 2, tongue, self->netNameID);
-		//gstate->centerprint( other, 2.0, "%s %s\n", self->netname, tongue[T_KEY_PICKUP] );
-  #endif // TIW
- #endif // MAN
-#endif // JPN
+		gstate->centerprint (other, 2.0, "%s %s\n", tongue[T_KEY_PICKUP],self->netname);
 	}	
 
 	// never respawns
@@ -3128,8 +2991,7 @@ itemInfo_t *item_init( userEntity_t *self, int nNetName, CVector &vMins, CVector
 	info = (itemInfo_t*)gstate->X_Malloc(sizeof(itemInfo_t), MEM_TAG_HOOK);
 	info->className = self->className;
 	
- 	info->netName = tongue[nNetName];
-	info->netNameID = RESOURCE_ID_FOR_STRING(tongue,nNetName);
+ 	info->netName = tongue[nNetName]; 
 //	info->touchFunc = item_key_touch;
 	info->touchFunc = touch;
 
@@ -3365,15 +3227,15 @@ void item_trigon_keystone( userEntity_t *self )
 
 void item_megashield( userEntity_t *self )
 {
-	if (IS_INSTAGIB || (deathmatch->value && !dm_allow_health->value))
-		return;
 
 	itemInfo_t  *info;
+
+	if (IS_INSTAGIB || (deathmatch->value && !dm_allow_health->value))
+	  return;
 
 	info = (itemInfo_t*)gstate->X_Malloc(sizeof(itemInfo_t), MEM_TAG_HOOK);
 	info->className = self->className;
 	info->netName = tongue[T_MEGASHIELD];
-	info->netNameID = RESOURCE_ID_FOR_STRING(tongue,T_MEGASHIELD);
 	info->touchFunc = item_boost_touch;
 
 	info->mins.Set(-10, -10, 0);
@@ -3953,11 +3815,7 @@ void item_savegem_touch(userEntity_t *self, userEntity_t *other, cplane_t *plane
 
 		//	play pickup sound notification
 		gstate->StartEntitySound(other, CHAN_VOICE, ihook->soundPickupIndex, 1.0f, ATTN_NORM_MIN, ATTN_NORM_MAX);
-		gstate->cs.BeginSendString();
-		gstate->cs.SendSpecifierID(RESOURCE_ID_FOR_STRING(tongue,T_PICKUP_SAVEGEM),0);
-		gstate->cs.Unicast(other,CS_print_center,2.0);
-		gstate->cs.EndSendString();
-		//gstate->centerprint (other, 2.0, "%s!\n", tongue[T_PICKUP_SAVEGEM]);
+		gstate->centerprint (other, 2.0, "%s!\n", tongue[T_PICKUP_SAVEGEM]);
 
 		other->client->bonus_alpha = 0.25;  // flash alpha screen
 
@@ -3982,18 +3840,18 @@ void item_savegem_touch(userEntity_t *self, userEntity_t *other, cplane_t *plane
 ///////////////////////////////////////////////////////////////////////////////
 void item_savegem(userEntity_t *self)
 {
+	itemInfo_t *info;
+
 	if (unlimited_saves->value || deathmatch->value || (gstate->GetCvar("dedicated") > 0)) // ttd: allow for save gems in co-op mode
 	{
 		gstate->RemoveEntity(self);
 		return;
 	}
 
-	itemInfo_t *info;
 	info = (itemInfo_t*)gstate->X_Malloc(sizeof(itemInfo_t), MEM_TAG_HOOK);
 
 	info->className = self->className;
 	info->netName = tongue[T_SAVEGEM];
-	info->netNameID = RESOURCE_ID_FOR_STRING(tongue,T_SAVEGEM);
 	info->touchFunc = item_savegem_touch;
 
 	info->mins.Set(-8, -8, -24);  // ttd: adjust box

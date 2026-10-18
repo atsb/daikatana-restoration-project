@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include "qcommon.h"
 #include "memmgr.h"
 
@@ -151,7 +152,7 @@ int InitMemoryManager()
 	}
 
 	// setup header size
-	iHeaderSize = (int)((byte*)&pLargeHead->pMem[0]-(byte*)pLargeHead);
+	iHeaderSize = (int)offsetof(MemHeader, pMem);
 
 	// setup initial pointers
 	pLargeHead = pLargeFree = (Header*)pLargeHeap;
@@ -806,9 +807,9 @@ int InitMemoryManager()
 	z_chain.next = z_chain.prev = &z_chain;
 
 	bActive = true;
-#ifdef _WIN32
+
 	_CrtSetDbgFlag( _CRTDBG_DELAY_FREE_MEM_DF );
-#endif
+
 	total_count = 0;
 	return 0;
 }
@@ -861,9 +862,8 @@ int ShutdownMemoryManager()
 	Mem_Free_Tag( MEM_TAG_IMAGE );
 	Mem_Free_Tag( MEM_TAG_LAST );
 //	Mem_Free_Tag( MEM_TAG_AI );
-#ifdef _WIN32
+
     _CrtDumpMemoryLeaks();
-#endif
 	return 0;
 }
 

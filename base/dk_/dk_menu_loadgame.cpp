@@ -204,13 +204,12 @@ void CMenuSubLoadgame::Enter()
 	episode = -1;
 	memset( title, 0, MAX_TITLE );
 
-	float xScale = (viddef.width / 640.0);
-	float yScale = (viddef.height / 480.0);
+	float menu_scale = DKM_MenuScale();
 	picDrawStruct.nFlags = DSFLAG_SCALE;
-	picDrawStruct.fScaleX = (SCREEN_SHOT_WIDTH * xScale) / SCREEN_SHOT_IMAGE_WIDTH;
-	picDrawStruct.fScaleY = (SCREEN_SHOT_HEIGHT * yScale) / SCREEN_SHOT_IMAGE_HEIGHT;
-	picDrawStruct.nXPos = SCREEN_SHOT_LEFT * xScale;
-	picDrawStruct.nYPos = SCREEN_SHOT_TOP * yScale;
+	picDrawStruct.fScaleX = (SCREEN_SHOT_WIDTH * menu_scale) / SCREEN_SHOT_IMAGE_WIDTH;
+	picDrawStruct.fScaleY = (SCREEN_SHOT_HEIGHT * menu_scale) / SCREEN_SHOT_IMAGE_HEIGHT;
+	picDrawStruct.nXPos = DKM_MenuScreenX(SCREEN_SHOT_LEFT);
+	picDrawStruct.nYPos = DKM_MenuScreenY(SCREEN_SHOT_TOP);
 	picDrawStruct.pImage = re.RegisterPic( "pics/noscreen_avail.tga", NULL, NULL, RESOURCE_INTERFACE );
 
 	char file_filter[MAX_OSPATH];
@@ -281,7 +280,6 @@ void CMenuSubLoadgame::DrawForeground()
 	// SCG[11/9/99]: Draw the box containing the screenshot
 	screen_shot_box.DrawForeground();
 
-	GetPic();
 	re.DrawPic( picDrawStruct );
 
 	// SCG[11/10/99]: Draw the seperator
@@ -516,7 +514,7 @@ void CMenuSubLoadgame::FillGameInfo()
 //	Com_sprintf(curInfo->stats[GAME_STAT_ARMOR],MAX_STAT_LEN,"%d",(int)header->hiroArmor);
 //	Com_sprintf(curInfo->stats[GAME_STAT_LEVEL],MAX_STAT_LEN,"%d",(int)header->hiroLevel);
 
-	int health;
+	long health;
 	if (header->hiroHealth)
 	{
 		Com_sprintf(curInfo->stats[GAME_STAT_HEALTH],MAX_STAT_LEN,"%d",(int)header->hiroHealth);
@@ -573,22 +571,7 @@ void CMenuSubLoadgame::FillGameInfo()
 
 	time = header->time;
 	total = header->total;
-/*
-	char	string[128];
-	Com_sprintf(string,sizeof(string),"%s/save/%s/",FS_SaveGameDir(),cur_file);
 
-	if (FileExists(string,"shot.tga"))
-	{
-		Com_sprintf(string,sizeof(string),"save/%s/shot.tga",cur_file);
-		picDrawStruct.pImage = re.RegisterPic( string, NULL, NULL, RESOURCE_INTERFACE );
-	}
-	else
-		picDrawStruct.pImage = re.RegisterPic( "pics/noscreen_avail.tga", NULL, NULL, RESOURCE_INTERFACE );
-*/
-}
-
-void CMenuSubLoadgame::GetPic()
-{
 	char	string[128];
 	Com_sprintf(string,sizeof(string),"%s/save/%s/",FS_SaveGameDir(),cur_file);
 

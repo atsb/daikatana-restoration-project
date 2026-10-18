@@ -1,3 +1,4 @@
+#include <stdint.h>
 // r_misc.c
 
 #include "r_local.h"
@@ -77,8 +78,8 @@ void D_Patch (void)
 		Sys_MakeCodeWriteable ((int)D_DrawSpans16_f,
 						     (int)D_Spans16Patch_f - (int)D_DrawSpans16_f);
 
-		Sys_MakeCodeWriteable ((long)R_Surf8Start,
-						 (long)R_Surf8End - (long)R_Surf8Start);
+		Sys_MakeCodeWriteable ((uintptr_t)R_Surf8Start,
+						 (size_t)((uintptr_t)R_Surf8End - (uintptr_t)R_Surf8Start));
 
 //		Sys_MakeCodeWriteable ((long)R_Surf16Start,
 //						 (long)R_Surf16End - (long)R_Surf16Start);
@@ -254,7 +255,6 @@ void R_TransformFrustum (void)
 }
 
 
-#if !id386
 
 /*
 ================
@@ -263,59 +263,11 @@ TransformVector
 */
 void TransformVector (CVector &in, CVector &out)
 {
-	out[0] = DotProduct(in,vright);
-	out[1] = DotProduct(in,vup);
-	out[2] = DotProduct(in,vpn);		
+	out[0] = DotProduct(in, vright);
+	out[1] = DotProduct(in, vup);
+	out[2] = DotProduct(in, vpn);
 }
 
-#else
-
-__declspec( naked ) void TransformVector(CVector &vin, CVector &vout )
-{
-	__asm mov eax, dword ptr [esp+4]
-	__asm mov edx, dword ptr [esp+8]
-
-	__asm fld  dword ptr [eax+0]
-	__asm fmul dword ptr [vright+0]
-	__asm fld  dword ptr [eax+0]
-	__asm fmul dword ptr [vup+0]
-	__asm fld  dword ptr [eax+0]
-	__asm fmul dword ptr [vpn+0]
-
-	__asm fld  dword ptr [eax+4]
-	__asm fmul dword ptr [vright+4]
-	__asm fld  dword ptr [eax+4]
-	__asm fmul dword ptr [vup+4]
-	__asm fld  dword ptr [eax+4]
-	__asm fmul dword ptr [vpn+4]
-
-	__asm fxch st(2)
-
-	__asm faddp st(5), st(0)
-	__asm faddp st(3), st(0)
-	__asm faddp st(1), st(0)
-
-	__asm fld  dword ptr [eax+8]
-	__asm fmul dword ptr [vright+8]
-	__asm fld  dword ptr [eax+8]
-	__asm fmul dword ptr [vup+8]
-	__asm fld  dword ptr [eax+8]
-	__asm fmul dword ptr [vpn+8]
-
-	__asm fxch st(2)
-
-	__asm faddp st(5), st(0)
-	__asm faddp st(3), st(0)
-	__asm faddp st(1), st(0)
-
-	__asm fstp dword ptr [edx+8]
-	__asm fstp dword ptr [edx+4]
-	__asm fstp dword ptr [edx+0]
-
-	__asm ret
-}
-
-#endif
 
 
 /*
@@ -800,5 +752,142 @@ void R_ScreenShot_f (void)
 
 	free (buffer);
 	ri.Con_Printf (PRINT_ALL, "Wrote %s\n", picname);
-} 
+}
+
+// ============================================================================
+// Savegame screenshot support
+//
+// The common renderer API expects a 256x256, uncompressed 24-bit TGA image
+// to be captured and retained until SaveSavegameScreenShot() is called.
+// The software renderer's framebuffer is 16-bit RGB, so convert from the
+// active DirectDraw pixel masks using the same shift information used by the
+// normal software-renderer screenshot path above.
+// ============================================================================
+
+static byte *pSavegamePic = NULL;
+
+#define SAVEGAME_SCREENSHOT_WIDTH   256
+#define SAVEGAME_SCREENSHOT_HEIGHT  256
+#define SAVEGAME_TGA_HEADER_SIZE    18
+#define SAVEGAME_IMAGE_START        SAVEGAME_TGA_HEADER_SIZE
+#define SAVEGAME_IMAGE_SIZE         ((SAVEGAME_SCREENSHOT_WIDTH * SAVEGAME_SCREENSHOT_HEIGHT * 3) + SAVEGAME_TGA_HEADER_SIZE)
+
+static void SoftSavegameWritePixel(byte *dest, uint16 pixel)
+{
+    int red;
+    int green;
+    int blue;
+
+    red = ((pixel >> sw_state.rgb16.position.rgbRed) & sw_state.rgb16.depth.rgbRed) << sw_state.rgb16.remove.rgbRed;
+    green = ((pixel >> sw_state.rgb16.position.rgbGreen) & sw_state.rgb16.depth.rgbGreen) << sw_state.rgb16.remove.rgbGreen;
+    blue = ((pixel >> sw_state.rgb16.position.rgbBlue) & sw_state.rgb16.depth.rgbBlue) << sw_state.rgb16.remove.rgbBlue;
+
+    // TGA stores BGR with the default bottom-left image origin.
+    dest[0] = (byte)(blue & 0xff);
+    dest[1] = (byte)(green & 0xff);
+    dest[2] = (byte)(red & 0xff);
+}
+
+void GetSavegameScreenShot()
+{
+    int x;
+    int y;
+    int src_x;
+    int src_y;
+    int src_pitch;
+    byte *dest;
+    const uint16 *src_row;
+
+    // Match the renderer contract: one retained screenshot at a time.
+    if (pSavegamePic != NULL)
+    {
+        ri.X_Free(pSavegamePic);
+        pSavegamePic = NULL;
+    }
+
+    pSavegamePic = (byte *)ri.X_Malloc(SAVEGAME_IMAGE_SIZE, MEM_TAG_MISC);
+    if (pSavegamePic == NULL)
+        return;
+
+    memset(pSavegamePic, 0, SAVEGAME_TGA_HEADER_SIZE);
+    pSavegamePic[2] = 2;  // uncompressed true-color image
+    pSavegamePic[12] = SAVEGAME_SCREENSHOT_WIDTH & 255;
+    pSavegamePic[13] = SAVEGAME_SCREENSHOT_WIDTH >> 8;
+    pSavegamePic[14] = SAVEGAME_SCREENSHOT_HEIGHT & 255;
+    pSavegamePic[15] = SAVEGAME_SCREENSHOT_HEIGHT >> 8;
+    pSavegamePic[16] = 24;
+
+    if (vid.buffer == NULL || vid.width <= 0 || vid.height <= 0 ||
+        vid.width < SAVEGAME_SCREENSHOT_WIDTH ||
+        vid.height < SAVEGAME_SCREENSHOT_HEIGHT)
+    {
+        return;
+    }
+
+    src_pitch = vid.pixelwidth;
+    if (src_pitch < vid.width)
+        src_pitch = vid.width;
+
+    dest = pSavegamePic + SAVEGAME_IMAGE_START;
+
+    // Write the TGA from bottom row to top row, matching the software
+    // renderer's normal screenshot orientation.
+    for (y = 0; y < SAVEGAME_SCREENSHOT_HEIGHT; ++y)
+    {
+        src_y = vid.height - 1 - ((y * vid.height) / SAVEGAME_SCREENSHOT_HEIGHT);
+        src_row = (const uint16 *)(vid.buffer + src_y * vid.rowbytes);
+
+        for (x = 0; x < SAVEGAME_SCREENSHOT_WIDTH; ++x)
+        {
+            src_x = (x * vid.width) / SAVEGAME_SCREENSHOT_WIDTH;
+            SoftSavegameWritePixel(dest, src_row[src_x]);
+            dest += 3;
+        }
+    }
+}
+
+void ClearSavegameScreenShot()
+{
+    if (pSavegamePic == NULL)
+        return;
+
+    ri.X_Free(pSavegamePic);
+    pSavegamePic = NULL;
+}
+
+void SaveSavegameScreenShot(char *path, char *savename)
+{
+    FILE *f;
+    char name[32];
+    char filename[128];
+    char c;
+
+    if (pSavegamePic == NULL || savename == NULL)
+        return;
+
+    _splitpath(savename, NULL, NULL, name, NULL);
+
+    if (path == NULL || path[0] == '\0')
+    {
+        Com_sprintf(filename, sizeof(filename), "%s.tga", name);
+    }
+    else
+    {
+        c = *(path + strlen(path) - 1);
+        if (c != '/' && c != '\\')
+            Com_sprintf(filename, sizeof(filename), "%s/%s.tga", path, name);
+        else
+            Com_sprintf(filename, sizeof(filename), "%s%s.tga", path, name);
+    }
+
+    f = fopen(filename, "wb");
+    if (f == NULL)
+    {
+        ri.Con_Printf(PRINT_ALL, "Failed to open %s\n", filename);
+        return;
+    }
+
+    fwrite(pSavegamePic, 1, SAVEGAME_IMAGE_SIZE, f);
+    fclose(f);
+}
 

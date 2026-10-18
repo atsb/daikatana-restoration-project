@@ -1,3 +1,4 @@
+#include <stdint.h>
 
 #include "qcommon.h"
 #include "winquake.h"
@@ -106,7 +107,7 @@ void Sys_Mkdir (char *path)
 //============================================
 char	findbase[MAX_OSPATH];
 char	findpath[MAX_OSPATH];
-int		findhandle;
+intptr_t		findhandle;
 
 static qboolean CompareAttributes( unsigned found, unsigned musthave, unsigned canthave )
 {

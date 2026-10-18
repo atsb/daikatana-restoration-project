@@ -310,7 +310,7 @@ void SFX2_ParseEpairs(userEntity_t *self)
 	hook->radius			= 0;				//default radius spread is 0
 	hook->lifetime			= 0;				//Zero out the lifetime variable.
 	hook->Color.Set(1.0f,1.0f,1.0f);			//Set default color to white.
-	hook->Gravity.Set(0.0f,.0.0f,-1.0f);		//Automatically set the gravity direction to go down.
+	hook->Gravity.Set(0.0f,0.0f,-1.0f);		//Automatically set the gravity direction to go down.
 	
 	
 	
@@ -349,7 +349,7 @@ void SFX2_ParseEpairs(userEntity_t *self)
 				else
 				{
 					//Set the direction to down.  Default direction is down.
-					hook->Gravity.Set(0.0f,.0.0f,-1.0f);
+					hook->Gravity.Set(0.0f,0.0f,-1.0f);
 				}
 			}
 			else if ( _stricmp(self->epair[i].key, "spread") == 0 )
@@ -450,8 +450,7 @@ void SFX2_ParseEpairs(userEntity_t *self)
 				// NSS[3/28/00]:Make sure that we shouldn't be going off for those non-violent people.
 				int Set_Violence = atoi(self->epair[i].value);
 				// NSS[3/28/00]:It always removes anything marked as a 'violent' thing for German version.
-// SCG[6/5/00]: #ifndef TONGUE_GERMAN
-#ifndef NO_VIOLENCE
+#ifndef TONGUE_GERMAN
 				if(gstate->GetCvar("sv_violence") && Set_Violence)
 #endif
 				{
@@ -560,8 +559,7 @@ void SFX2_ParseEpairs(userEntity_t *self)
 		AI_Dprintf("Removed SFX2 Particle due to lack of any Epair information!\n");
 	}
 
-// SCG[6/5/00]: #ifndef TONGUE_GERMAN
-#ifndef NO_VIOLENCE
+#ifndef TONGUE_GERMAN
 	if( sv_violence->value != 0)
 #endif
 	{

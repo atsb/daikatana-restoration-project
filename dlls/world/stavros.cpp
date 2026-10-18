@@ -120,35 +120,20 @@ void stavros_begin_attack( userEntity_t *self )
 // ----------------------------------------------------------------------------
 void stavros_start_pain( userEntity_t *self, userEntity_t *attacker, float kick, int damage )
 {
-	if(self->health <=0)
-	{
-		int poop = 1;
-	}
 	ai_generic_pain_handler( self, attacker, kick,damage,35);
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// NSS[6/2/00]:
-// stavros_think
-// Quick Hack
-///////////////////////////////////////////////////////////////////////////////
 void stavros_think(userEntity_t *self)
 {
 	AI_TaskThink(self);
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// NSS[6/2/00]:
-//  stavros_parseEpairs
-// Quick Hack
-///////////////////////////////////////////////////////////////////////////////
 void stavros_parseEpairs(userEntity_t *self)
 {
 	AI_ParseEpairs(self);
 	self->think = stavros_think;
 	self->nextthink = gstate->time + 0.1f;
 }
-
 
 // ----------------------------------------------------------------------------
 //
@@ -236,7 +221,6 @@ void monster_stavros( userEntity_t *self )
 
 	// NSS[3/10/00]:Setup the next think time... offset.
 	AI_SetInitialThinkTime(self);
-
 
 	// NSS[6/7/00]:Mark this monster as a boss
 	hook->dflags |= DFL_ISBOSS;

@@ -78,6 +78,13 @@ newgame_start newgames[] =
 #define skill_pic_x(i) (newgame_button_x(i) - 12)
 #define SKILL_PIC_Y    (NEWGAME_BUTTON_Y - 260)
 
+#define NEWGAME_AI_OPTION_LEFT       (newgame_button_x(0))
+#define NEWGAME_AI_OPTION_TOP        (NEWGAME_BUTTON_Y + 55)
+#define NEWGAME_AI_OPTION_SPACING    (22)
+
+#define NEWGAME_ADVANCED_REASONING_CVAR   "dk_advanced_reasoning"
+#define NEWGAME_NEURAL_AI_CVAR            "dk_neural_ai"
+
 
 // pictures of Hiro icon for each skill level
 char * skill_pics[NUM_NEWGAME_BUTTONS] =
@@ -101,6 +108,15 @@ void CMenuSubNewgame::Enter()
 {
 
 	//position the buttons.
+    Cvar_Get(NEWGAME_ADVANCED_REASONING_CVAR, "0", CVAR_ARCHIVE);
+    Cvar_Get(NEWGAME_NEURAL_AI_CVAR, "0", CVAR_ARCHIVE);
+
+    advanced_reasoning_radio.Init(NEWGAME_AI_OPTION_LEFT, NEWGAME_AI_OPTION_TOP,
+        menu_font, menu_font_bright, "Advanced Reasoning");
+    neural_ai_radio.Init(NEWGAME_AI_OPTION_LEFT,
+        NEWGAME_AI_OPTION_TOP + NEWGAME_AI_OPTION_SPACING,
+        menu_font, menu_font_bright, "Neural AI");
+
     for (int32 i = 0; i < NUM_NEWGAME_BUTTONS; i++)
     {
         
@@ -156,10 +172,8 @@ void CMenuSubNewgame::Animate(int32 elapsed_time)
 
 void CMenuSubNewgame::DrawForeground()
 {
-#ifndef JPN
 #ifdef  DM_DEMO
     return;
-#endif
 #endif
 
     // draw header 
@@ -181,6 +195,9 @@ void CMenuSubNewgame::DrawForeground()
     }
 
 
+    advanced_reasoning_radio.DrawForeground();
+    neural_ai_radio.DrawForeground();
+
 #ifdef EPISODE_DEMO_TEST
 
 	skill_easy.DrawForeground();
@@ -195,15 +212,19 @@ void CMenuSubNewgame::DrawForeground()
 
 void CMenuSubNewgame::DrawBackground()
 {
-#ifndef JPN
 #ifdef  DM_DEMO
     return;
 #endif
-#endif
+
     for (int32 i = 0; i < NUM_NEWGAME_BUTTONS; i++) 
     {
         start[i].DrawBackground();
     }
+
+    SetRadioState(advanced_reasoning_radio, NEWGAME_ADVANCED_REASONING_CVAR);
+    advanced_reasoning_radio.DrawBackground();
+    SetRadioState(neural_ai_radio, NEWGAME_NEURAL_AI_CVAR);
+    neural_ai_radio.DrawBackground();
 
 
 #ifdef EPISODE_DEMO_TEST
@@ -249,7 +270,10 @@ bool CMenuSubNewgame::MousePos(int32 norm_x, int32 norm_y)
     for (int32 i = 0; i < NUM_NEWGAME_BUTTONS; i++) 
     {
         if (start[i].MousePos(norm_x, norm_y) == true) return true;
-    }   
+    }
+
+    if (advanced_reasoning_radio.MousePos(norm_x, norm_y) == true) return true;
+    if (neural_ai_radio.MousePos(norm_x, norm_y) == true) return true;
 
 #ifdef EPISODE_DEMO_TEST
 
@@ -279,6 +303,9 @@ bool CMenuSubNewgame::MouseDown(int32 norm_x, int32 norm_y)
           return true;
     }
 
+    if (advanced_reasoning_radio.MouseDown(norm_x, norm_y) == true) return true;
+    if (neural_ai_radio.MouseDown(norm_x, norm_y) == true) return true;
+
 
 #ifdef EPISODE_DEMO_TEST
 
@@ -296,6 +323,20 @@ bool CMenuSubNewgame::MouseDown(int32 norm_x, int32 norm_y)
 bool CMenuSubNewgame::MouseUp(int32 norm_x, int32 norm_y)
 //they clicked and released
 {
+    if (advanced_reasoning_radio.MouseUp(norm_x, norm_y) == true)
+    {
+        Cvar_SetValue(NEWGAME_ADVANCED_REASONING_CVAR,
+            Cvar_VariableValue(NEWGAME_ADVANCED_REASONING_CVAR) == 0.0f ? 1.0f : 0.0f);
+        return true;
+    }
+
+    if (neural_ai_radio.MouseUp(norm_x, norm_y) == true)
+    {
+        Cvar_SetValue(NEWGAME_NEURAL_AI_CVAR,
+            Cvar_VariableValue(NEWGAME_NEURAL_AI_CVAR) == 0.0f ? 1.0f : 0.0f);
+        return true;
+    }
+
     for (int32 i = 0; i < NUM_NEWGAME_BUTTONS; i++)
     {
         if (start[i].MouseUp(norm_x, norm_y) == true)
@@ -310,15 +351,10 @@ bool CMenuSubNewgame::MouseUp(int32 norm_x, int32 norm_y)
 #ifdef DAIKATANA_DEMO
 			DKM_ShutdownString("map e1m1a\n");
 #else
-	// NSS[10/2/00]:For OEM version of Daikatana
-	#ifdef DAIKATANA_OEM
-			DKM_ShutdownString("map e1m2a\n");
-	#else
 			if (Cvar_VariableValue("play_intro") == 0)
 				DKM_ShutdownString("map e1m1a\n");
 			else
 				DKM_ShutdownString("map intro\n");
-	#endif
 #endif
             DKM_Shutdown();
 
@@ -369,17 +405,16 @@ bool CMenuSubNewgame::MouseUp(int32 norm_x, int32 norm_y)
 void CMenuSubNewgame::DrawSkillPic(char * filename, int x, int y)
 {
 
-  float	norm_to_screen_x = viddef.width  / 640.0f;
-  float	norm_to_screen_y = viddef.height / 480.0f;
+  float menu_scale = DKM_MenuScale();
 
   DRAWSTRUCT drawStruct;
 
   drawStruct.pImage  = re.RegisterPic( filename, NULL, NULL, RESOURCE_INTERFACE );
   drawStruct.nFlags  = DSFLAG_PALETTE | DSFLAG_ALPHA | DSFLAG_SCALE | DSFLAG_BLEND;
-  drawStruct.nXPos   = x * norm_to_screen_x;
-  drawStruct.nYPos   = y * norm_to_screen_y;
-  drawStruct.fScaleX = norm_to_screen_x;
-  drawStruct.fScaleY = norm_to_screen_y;
+  drawStruct.nXPos   = DKM_MenuScreenX(x);
+  drawStruct.nYPos   = DKM_MenuScreenY(y);
+  drawStruct.fScaleX = menu_scale;
+  drawStruct.fScaleY = menu_scale;
   drawStruct.fAlpha  = 0.90f;
 
   re.DrawPic( drawStruct );

@@ -76,6 +76,8 @@ LOGFILE logFileDefines[] =
 // ----------------------------------------------------------------------------
 static void DKLOG_FileInitialize( char *logFilePath )
 {
+	int i;
+
 	if ( bFileLogsReady == TRUE )
 	{
 		return;
@@ -86,7 +88,7 @@ static void DKLOG_FileInitialize( char *logFilePath )
 		int bError = FALSE;
 		// open files for logging to files
 		char logFileName[256];
-		for ( int i = 0; i < LOGTYPE_MAX; i++ )
+		for ( i = 0; i < LOGTYPE_MAX; i++ )
 		{
 			strcpy( logFileName, logFilePath );
 			strcat( logFileName, "\\" );
@@ -116,7 +118,7 @@ static void DKLOG_FileInitialize( char *logFilePath )
 	}
 	else
 	{
-		for ( int i = 0; i < LOGTYPE_MAX; i++ )
+		for ( i = 0; i < LOGTYPE_MAX; i++ )
 		{
 			aLogFiles[i] = NULL;
 		}

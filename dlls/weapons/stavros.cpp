@@ -25,8 +25,6 @@ enum
 // weapon info def
 weaponInfo_t stavrosWeaponInfo = 
 {
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_STAVROS),
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_STAVROS_AMMO),
 	// names, net names, icon
 	"weapon_stavros",
 	tongue_weapons[T_WEAPON_STAVROS],
@@ -102,15 +100,11 @@ weaponInfo_t stavrosWeaponInfo =
 	0.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 0.0f,
 
-/*	{
+	{
 		tongue_deathmsg_weapon3[T_DEATHMSGWEAPON_STAVROS],
 		NULL,
 		VICTIM_ATTACKER
-	},*/
-
-	RESOURCE_ID_FOR_STRING(tongue_deathmsg_weapon3,T_DEATHMSGWEAPON_STAVROS),
-	VICTIM_ATTACKER,
-
+	},
     WEAPON_STAVROS,
     0,
     NULL

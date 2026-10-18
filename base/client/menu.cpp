@@ -262,27 +262,12 @@ void M_DrawCharacter (int cx, int cy, int num)
 
 void M_Print (int cx, int cy, char *str)
 {
-// Encompass MarkMa 040599
-#ifdef	JPN	// JPN
-		extern void *con_font;
-		DRAWSTRUCT drawStruct;
-		drawStruct.nFlags = DSFLAG_SCALE;
-		drawStruct.szString = str;
-		drawStruct.nXPos = cx + ((viddef.width - 320)>>1);
-		drawStruct.nYPos = cy + ((viddef.height - 240)>>1);
-		drawStruct.pImage = con_font;
-		drawStruct.fScaleX = viddef.width / 640.0f;
-		drawStruct.fScaleY = viddef.height / 480.0f;
-		re.DrawString( drawStruct );
-#else	// JPN
 	while (*str)
 	{
 		M_DrawCharacter (cx, cy, (*str)+128);
 		str++;
 		cx += 8;
 	}
-#endif	// JPN
-// Encompass MarkMa 040599
 }
 
 void M_PrintWhite (int cx, int cy, char *str)

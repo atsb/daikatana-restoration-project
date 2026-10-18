@@ -1,528 +1,559 @@
-/******
-gserverlist.c
-GameSpy C Engine SDK
-  
-Copyright 1999 GameSpy Industries, Inc
-
-Suite E-204
-2900 Bristol Street
-Costa Mesa, CA 92626
-(714)549-7689
-Fax(714)549-0757
-
-******
-
- Please see the GameSpy C Engine SDK documentation for more 
- information
-
-******/
 #include "goaceng.h"
 #include "gserver.h"
 #include "darray.h"
-#include "..\nonport.h"
+#include "../nonport.h"
 #include "gutil.h"
+#include <SDL3/SDL.h>
+#include <SDL3_net/SDL_net.h>
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
-#define MSHOST	"master.gamespy.com"
-#define MSPORT	28900
+#define MSHOST "master.gamespy.com"
+#define MSPORT 28900
 #define SERVER_GROWBY 32
-#define LAN_SEARCH_TIME 3000 //3 sec
+#define LAN_SEARCH_TIME 3000
+#define MASTER_CONNECT_TIMEOUT 10000
+#define MASTER_SECURE_TIMEOUT 10000
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
-//todo: check state changes on error
-typedef struct 
+typedef struct
 {
-	SOCKET s;
-	int serverindex;
-	unsigned long starttime;
+    int serverindex;
+    unsigned long starttime;
 } UpdateInfo;
-
-
 
 struct GServerListImplementation
 {
-	GServerListState state;
-	DArray servers;
-	UpdateInfo *updatelist; //dynamic array of updateinfos
-	char gamename[32];
-	char seckey[32];
-	char enginename[32];
-	int maxupdates;
-	int nextupdate;
-	int abortupdate;
-	ListCallBackFn CallBackFn;
-	void *instance;
-	char *sortkey;
-	gbool sortascending;
-	SOCKET slsocket;
-	unsigned long lanstarttime;
+    GServerListState state;
+    DArray servers;
+    UpdateInfo *updatelist;
+    char gamename[32];
+    char seckey[32];
+    char enginename[32];
+    int maxupdates;
+    int nextupdate;
+    int abortupdate;
+    ListCallBackFn CallBackFn;
+    void *instance;
+    char *sortkey;
+    gbool sortascending;
+    NET_StreamSocket *slsocket;
+    NET_DatagramSocket *update_socket;
+    unsigned long lanstarttime;
 };
 
-GServerList g_sortserverlist; //global serverlist for sorting info!!
+GServerList g_sortserverlist;
 
+static NET_Address *GServerResolveAddress(const char *host)
+{
+    NET_Address *address;
+
+    if (!host || !host[0])
+        return NULL;
+
+    address = NET_ResolveHostname(host);
+    if (!address)
+        return NULL;
+
+    if (NET_WaitUntilResolved(address, -1) < 0)
+    {
+        NET_UnrefAddress(address);
+        return NULL;
+    }
+
+    return address;
+}
+
+static void GServerDestroyStream(GServerList serverlist)
+{
+    if (serverlist->slsocket)
+    {
+        NET_DestroyStreamSocket(serverlist->slsocket);
+        serverlist->slsocket = NULL;
+    }
+}
 
 /* ServerListNew
 ----------------
 Creates and returns a new (empty) GServerList. */
-GServerList	ServerListNew(char *gamename, char *enginename, char *seckey, int maxconcupdates, void *CallBackFn, int CallBackFnType, void *instance)
+GServerList ServerListNew(char *gamename, char *enginename, char *seckey, int maxconcupdates, void *CallBackFn, int CallBackFnType, void *instance)
 {
-	GServerList list;
+    GServerList list;
 
-	list = (GServerList) malloc(sizeof(struct GServerListImplementation));
-	assert(list != NULL);
-	list->state = sl_idle;
-	list->servers = ArrayNew(sizeof(GServer), SERVER_GROWBY, ServerFree);
-	list->maxupdates = maxconcupdates;
-	list->updatelist = calloc(maxconcupdates, sizeof(UpdateInfo));
-	assert(list->updatelist != NULL);
-	strcpy(list->gamename, gamename);
-	strcpy(list->seckey, seckey);
-	strcpy(list->enginename, enginename);
-	list->CallBackFn = CallBackFn;
-	assert(CallBackFn != NULL);
-	list->instance = instance;
-	list->sortkey = "";
-	SocketStartUp();
-	return list;	
+    (void)CallBackFnType;
+    list = (GServerList)malloc(sizeof(struct GServerListImplementation));
+    assert(list != NULL);
+    memset(list, 0, sizeof(*list));
+
+    list->state = sl_idle;
+    list->servers = ArrayNew(sizeof(GServer), SERVER_GROWBY, ServerFree);
+    list->maxupdates = maxconcupdates;
+    list->updatelist = (UpdateInfo *)calloc(maxconcupdates, sizeof(UpdateInfo));
+    assert(list->updatelist != NULL);
+    strcpy(list->gamename, gamename);
+    strcpy(list->seckey, seckey);
+    strcpy(list->enginename, enginename);
+    list->CallBackFn = CallBackFn;
+    assert(CallBackFn != NULL);
+    list->instance = instance;
+    list->sortkey = "";
+    return list;
 }
 
 /* ServerListFree
 -----------------
-Free a GServerList and all internal sturctures and servers */
+Free a GServerList and all internal structures and servers. */
 void ServerListFree(GServerList serverlist)
 {
-	ArrayFree(serverlist->servers);
-	serverlist->servers = NULL;
-	free(serverlist->updatelist);
-	serverlist->updatelist = NULL;
-	
-	free(serverlist);
-	serverlist = NULL;
-	SocketShutDown();
+    int i;
+
+    if (!serverlist)
+        return;
+
+    if (serverlist->slsocket)
+        GServerDestroyStream(serverlist);
+
+    if (serverlist->update_socket)
+    {
+        NET_DestroyDatagramSocket(serverlist->update_socket);
+        serverlist->update_socket = NULL;
+    }
+
+    if (serverlist->updatelist)
+    {
+        for (i = 0; i < serverlist->maxupdates; i++)
+            serverlist->updatelist[i].serverindex = -1;
+    }
+
+    ArrayFree(serverlist->servers);
+    serverlist->servers = NULL;
+    free(serverlist->updatelist);
+    serverlist->updatelist = NULL;
+    free(serverlist);
 }
 
- //create update sockets and init structures
+
 static GError InitUpdateList(GServerList serverlist)
 {
-	int i;
+    SDL_PropertiesID props;
+    int i;
 
-	for (i = 0 ; i < serverlist->maxupdates ; i++)
-	{
-		serverlist->updatelist[i].s = socket(AF_INET, SOCK_DGRAM,IPPROTO_UDP);
-		if (serverlist->updatelist[i].s == INVALID_SOCKET)
-			return GE_NOSOCKET;
-		serverlist->updatelist[i].serverindex = -1;
-		serverlist->updatelist[i].starttime = 0;
-	}
-	return 0;
+    props = SDL_CreateProperties();
+    if (!props)
+        return GE_NOSOCKET;
 
+    SDL_SetBooleanProperty(props, NET_PROP_DATAGRAM_SOCKET_ALLOW_BROADCAST_BOOLEAN, true);
+    SDL_SetBooleanProperty(props, NET_PROP_DATAGRAM_SOCKET_REUSEADDR_BOOLEAN, true);
+    serverlist->update_socket = NET_CreateDatagramSocket(NULL, 0, props);
+    SDL_DestroyProperties(props);
 
+    if (!serverlist->update_socket)
+        return GE_NOSOCKET;
+
+    for (i = 0; i < serverlist->maxupdates; i++)
+    {
+        serverlist->updatelist[i].serverindex = -1;
+        serverlist->updatelist[i].starttime = 0;
+    }
+
+    return GE_NOERROR;
 }
 
-//free update sockets 
-static GError FreeUpdateList(GServerList serverlist) 
+static GError FreeUpdateList(GServerList serverlist)
 {
-	int i;
-	for (i = 0 ; i < serverlist->maxupdates ; i++)
-	{
-		closesocket(serverlist->updatelist[i].s);
-	}
-	return 0;
-
-
+    if (serverlist->update_socket)
+    {
+        NET_DestroyDatagramSocket(serverlist->update_socket);
+        serverlist->update_socket = NULL;
+    }
+    return GE_NOERROR;
 }
 
-//create and connect a server list socket
+/* Create and connect a server list socket. */
 static GError CreateServerListSocket(GServerList serverlist)
 {
-	struct   sockaddr_in saddr;
-	struct hostent *hent;
+    NET_Address *master_address;
 
-	serverlist->slsocket = socket ( AF_INET, SOCK_STREAM, IPPROTO_TCP );
-	if (serverlist->slsocket == INVALID_SOCKET)
-		return GE_NOSOCKET;
-	saddr.sin_family = AF_INET;
-	saddr.sin_port = htons(MSPORT);
-	hent = gethostbyname(MSHOST);
-	if (!hent)
-		return GE_NODNS; 
-	saddr.sin_addr.s_addr = *(u_long *)hent->h_addr_list[0];
-	memset ( saddr.sin_zero, 0, 8 ); 
-	if (connect ( serverlist->slsocket, (struct sockaddr *) &saddr, sizeof saddr ) != 0)
-		return GE_NOCONNECT; 
+    master_address = GServerResolveAddress(MSHOST);
+    if (!master_address)
+        return GE_NODNS;
 
-	//else we are connected
-	return 0;
+    serverlist->slsocket = NET_CreateClient(master_address, MSPORT, 0);
+    NET_UnrefAddress(master_address);
+    if (!serverlist->slsocket)
+        return GE_NOSOCKET;
 
+    if (NET_WaitUntilConnected(serverlist->slsocket, MASTER_CONNECT_TIMEOUT) < 0)
+    {
+        GServerDestroyStream(serverlist);
+        return GE_NOCONNECT;
+    }
 
+    return GE_NOERROR;
 }
 
-
-//create and connect a server list socket
-static GError CreateServerListLANSocket(GServerList serverlist)
-{
-	int optval = 1;
-
-	serverlist->slsocket = socket ( AF_INET, SOCK_DGRAM, IPPROTO_UDP );
-	if (serverlist->slsocket == INVALID_SOCKET)
-		return GE_NOSOCKET;
-	if (setsockopt(serverlist->slsocket, SOL_SOCKET, SO_BROADCAST, (char *)&optval, sizeof(optval)) != 0)
-		return GE_NOSOCKET;
-
-	//else we are ready to broadcast
-	return 0;
-
-
-}
-
-//trigger the callback and set the new mode
+/* Trigger the callback and set the new mode. */
 static void ServerListModeChange(GServerList serverlist, GServerListState newstate)
 {
-	serverlist->state = newstate;
-	serverlist->CallBackFn(serverlist, LIST_STATECHANGED, serverlist->instance, NULL, NULL);
-
+    serverlist->state = newstate;
+    serverlist->CallBackFn(serverlist, LIST_STATECHANGED, serverlist->instance, NULL, NULL);
 }
 
-
-// validate us to the master and send a list request
+/* Validate us to the master and send a list request. */
 #define SECURE "\\secure\\"
 static GError SendListRequest(GServerList serverlist)
 {
-	char data[256], *ptr, result[64];
-	int len;
+    char data[256], *ptr, result[64];
+    int len, total;
+    unsigned long deadline;
 
-	
-	len = recv(serverlist->slsocket, data, sizeof(data) - 1, 0);
-	if (len == SOCKET_ERROR)
-		return GE_NOCONNECT;
-	data[len] = '\0'; //null terminate it
-	
-	ptr = strstr ( data, SECURE ) + strlen(SECURE);
-	gs_encrypt   ( (uchar *) serverlist->seckey, 6, ptr, 6 );
-	gs_encode ( ptr, 6, result );
+    total = 0;
+    data[0] = '\0';
+    deadline = current_time() + MASTER_SECURE_TIMEOUT;
+    for (;;)
+    {
+        len = NET_ReadFromStreamSocket(serverlist->slsocket, data + total, (int)sizeof(data) - total - 1);
+        if (len < 0)
+            return GE_NOCONNECT;
+        if (len > 0)
+        {
+            total += len;
+            data[total] = '\0';
+            ptr = strstr(data, SECURE);
+            if (ptr && strlen(ptr + strlen(SECURE)) >= 6)
+                break;
+        }
+        if (current_time() >= deadline || total >= (int)sizeof(data) - 1)
+            return GE_NOCONNECT;
+        msleep(10);
+    }
 
-	//validate to the master
-	sprintf(data, "\\gamename\\%s\\gamever\\%s\\location\\0\\validate\\%s\\final\\\\queryid\\1.1\\",
-			serverlist->enginename, ENGINE_VERSION, result); //validate us		
-	
-	len = send ( serverlist->slsocket, data, strlen(data), 0 );
-	if (len == SOCKET_ERROR || len == 0)
-		return GE_NOCONNECT;
+    ptr += strlen(SECURE);
 
-	//send the list request
-	sprintf(data, "\\list\\gamename\\%s\\final\\", serverlist->gamename);
-	len = send ( serverlist->slsocket, data, strlen(data), 0 );
-	if (len == SOCKET_ERROR || len == 0)
-		return GE_NOCONNECT;
+    gs_encrypt((uchar *)serverlist->seckey, 6, ptr, 6);
+    gs_encode((uchar *)ptr, 6, (uchar *)result);
 
-	ServerListModeChange(serverlist, sl_listxfer);
-	return 0;
+    sprintf(data, "\\gamename\\%s\\gamever\\%s\\location\\0\\validate\\%s\\final\\\\queryid\\1.1\\",
+        serverlist->enginename, ENGINE_VERSION, result);
+    if (!NET_WriteToStreamSocket(serverlist->slsocket, data, (int)strlen(data)))
+        return GE_NOCONNECT;
+
+    sprintf(data, "\\list\\gamename\\%s\\final\\", serverlist->gamename);
+    if (!NET_WriteToStreamSocket(serverlist->slsocket, data, (int)strlen(data)))
+        return GE_NOCONNECT;
+
+    ServerListModeChange(serverlist, sl_listxfer);
+    return GE_NOERROR;
 }
-
 
 static GError SendBroadcastRequest(GServerList serverlist, int startport, int endport, int delta)
 {
-	struct   sockaddr_in saddr;
-	short i;
+    NET_Address *broadcast;
+    short i;
+    static const char status[] = "\\status\\";
 
-	saddr.sin_family = AF_INET;
-	saddr.sin_addr.s_addr = 0xFFFFFFFF; //broadcast
-	for (i = startport ; i <= endport ; i += delta)
-	{
-		saddr.sin_port = htons(i);
-		sendto(serverlist->slsocket, "\\status\\",8,0,(struct sockaddr *)&saddr,sizeof(saddr));
-	}
-	ServerListModeChange(serverlist, sl_lanlist);
-	serverlist->lanstarttime = current_time();
-	return 0;
+    broadcast = GServerResolveAddress("255.255.255.255");
+    if (!broadcast)
+        return GE_NODNS;
 
+    for (i = (short)startport; i <= (short)endport; i += (short)delta)
+    {
+        NET_SendDatagram(serverlist->update_socket, broadcast, (Uint16)i, status, 8);
+    }
 
-
+    NET_UnrefAddress(broadcast);
+    ServerListModeChange(serverlist, sl_lanlist);
+    serverlist->lanstarttime = current_time();
+    return GE_NOERROR;
 }
 
-//just wait for the server list to become idle
 static void DoSyncLoop(GServerList serverlist)
 {
-	while (serverlist->state != sl_idle)
-	{
-		ServerListThink(serverlist);
-		msleep(10);
-		
-	}
-	
+    while (serverlist->state != sl_idle)
+    {
+        ServerListThink(serverlist);
+        msleep(10);
+    }
 }
 
-/* ServerListUpdate
--------------------
-Start updating a GServerList. */
 GError ServerListUpdate(GServerList serverlist, gbool async)
 {
-	GError error;
+    GError error;
 
-	if (serverlist->state != sl_idle)
-		return GE_BUSY;
+    if (serverlist->state != sl_idle)
+        return GE_BUSY;
 
-	error = InitUpdateList(serverlist);
-	if (error) return error;
-	error = CreateServerListSocket(serverlist);
-	if (error) return error;
-	error = SendListRequest(serverlist);
-	if (error) return error;
-	serverlist->nextupdate = 0;
-	serverlist->abortupdate = 0;
-	if (!async)
-		DoSyncLoop(serverlist);
+    error = InitUpdateList(serverlist);
+    if (error)
+        return error;
 
-	return 0;
+    error = CreateServerListSocket(serverlist);
+    if (error)
+    {
+        FreeUpdateList(serverlist);
+        return error;
+    }
+
+    error = SendListRequest(serverlist);
+    if (error)
+    {
+        GServerDestroyStream(serverlist);
+        FreeUpdateList(serverlist);
+        return error;
+    }
+
+    serverlist->nextupdate = 0;
+    serverlist->abortupdate = 0;
+    if (!async)
+        DoSyncLoop(serverlist);
+    return GE_NOERROR;
 }
 
-/* ServerListLANUpdate
--------------------
-Start updating a GServerList from servers on the LAN. */
 GError ServerListLANUpdate(GServerList serverlist, gbool async, int startsearchport, int endsearchport, int searchdelta)
 {
-	GError error;
+    GError error;
 
-	assert(searchdelta > 0);
+    assert(searchdelta > 0);
+    if (serverlist->state != sl_idle)
+        return GE_BUSY;
 
-	if (serverlist->state != sl_idle)
-		return GE_BUSY;
+    error = InitUpdateList(serverlist);
+    if (error)
+        return error;
 
-	error = InitUpdateList(serverlist);
-	if (error) return error;
-	error = CreateServerListLANSocket(serverlist);
-	if (error) return error;
-	error = SendBroadcastRequest(serverlist, startsearchport, endsearchport, searchdelta);
-	if (error) return error;
-	serverlist->nextupdate = 0;
-	serverlist->abortupdate = 0;
-	if (!async)
-		DoSyncLoop(serverlist);
+    error = SendBroadcastRequest(serverlist, startsearchport, endsearchport, searchdelta);
+    if (error)
+    {
+        FreeUpdateList(serverlist);
+        return error;
+    }
 
-	return 0;
+    serverlist->nextupdate = 0;
+    serverlist->abortupdate = 0;
+    if (!async)
+        DoSyncLoop(serverlist);
+    return GE_NOERROR;
 }
 
-
-//add the server to the list with the given ip, port
 static void ServerListAddServer(GServerList serverlist, char *ip, int port)
 {
-	GServer server;
-	server =  ServerNew(ip, port);
-	ArrayAppend(serverlist->servers,&server);
- //printf("%d %s:%d\n",++count, ip,port);
+    GServer server;
+    server = ServerNew(ip, port);
+    ArrayAppend(serverlist->servers, &server);
 }
-
 
 static GError ServerListLANList(GServerList serverlist)
 {
-	struct timeval timeout = {0,0};
-	fd_set set;
-	char indata[1500];
-	struct   sockaddr_in saddr;
-	int saddrlen = sizeof(saddr);
-	int error;
+    char indata[1500];
 
-	while (1) //we break if the select fails
-	{
-		FD_ZERO(&set);
-		FD_SET( serverlist->slsocket, &set);
-		error = select(FD_SETSIZE, &set, NULL, NULL, &timeout);
-		if (SOCKET_ERROR == error || 0 == error) //no data
-			break;
-		error = recvfrom(serverlist->slsocket, indata, sizeof(indata) - 1, 0, (struct sockaddr *)&saddr, &saddrlen );
-		if (SOCKET_ERROR == error)
-			continue; 
-		//we got data, add the server to the list to update
-		if (strstr(indata,"\\final\\") != NULL)
-			ServerListAddServer(serverlist, inet_ntoa(saddr.sin_addr), ntohs(saddr.sin_port));
-	}
-	if (current_time() - serverlist->lanstarttime > LAN_SEARCH_TIME) //done waiting for replies
-	{
-		closesocket(serverlist->slsocket);
-		serverlist->slsocket = INVALID_SOCKET;
-		ServerListModeChange(serverlist, sl_querying);
-	}
-	return 0;
+    while (serverlist->update_socket)
+    {
+        NET_Datagram *datagram = NULL;
+        int error;
 
+        if (!NET_ReceiveDatagram(serverlist->update_socket, &datagram) || !datagram)
+            break;
+        error = datagram->buflen;
+
+        if (error < (int)sizeof(indata))
+        {
+            memcpy(indata, datagram->buf, error);
+            indata[error] = '\0';
+            if (strstr(indata, "\\final\\") != NULL && datagram->addr)
+            {
+                const char *ip = NET_GetAddressString(datagram->addr);
+                if (ip)
+                    ServerListAddServer(serverlist, (char *)ip, datagram->port);
+            }
+        }
+        NET_DestroyDatagram(datagram);
+    }
+    return GE_NOERROR;
 }
-							 
-//reads the server list from the socket and parses it
+
 static GError ServerListReadList(GServerList serverlist)
 {
-	static char data[2048]; //static input buffer
-	int len, oldlen;
-	char *p, ip[32], port[16],*q, *lastip;
-//append to data
-	oldlen = strlen(data);
-	len = recv(serverlist->slsocket, data + oldlen, sizeof(data) - oldlen - 1, 0);
-	if (len == SOCKET_ERROR || len == 0)
-		return GE_NOCONNECT;
+    static char data[2048];
+    int len, oldlen;
+    char *p, ip[32], port[16], *q, *lastip;
 
-	data[len + oldlen] = 0; //null terminate it
-	// data is in the form of '\ip\1.2.3.4:1234\ip\1.2.3.4:1234\final\'
-	
-	
-	lastip = data;
-	while (*lastip != '\0')
-	{
-		p = lastip;
-		if (*(p+1) == 'f' || serverlist->abortupdate) //\final\!!
-		{
-			closesocket(serverlist->slsocket);
-			serverlist->slsocket = INVALID_SOCKET;
-			data[0] = 0; //clear data so it can be used again
-			ServerListModeChange(serverlist, sl_querying);
-			return 0; //get out!!
-		}
-		if (strlen(p) < 14) //no way it could be a full IP, quit
-			break;
-		p += 4; //skip the '\ip\'
-		if (strchr(p,':') == NULL || strchr(p,'\\') == NULL)
-			break; //it's not the full ip:port
-		q = ip; //fill the ip buffer
-		while (*p != 0 && *p != ':')
-			*q++ = *p++;
-		
-		*q = '\0'; //null terminate the ip
-		p++; //skip the :
-		q = port;
-		while (*p != 0 && *p != '\\')
-		*q++ = *p++;
-		*q = '\0';
-		lastip = p; //store the new position
-		ServerListAddServer(serverlist, ip, atoi(port));
-	}
-	memmove(data,lastip,strlen(lastip) + 1); //shift it over
-	return 0;
+    oldlen = (int)strlen(data);
+    len = NET_ReadFromStreamSocket(serverlist->slsocket, data + oldlen, sizeof(data) - oldlen - 1);
+    if (len < 0)
+        return GE_NOCONNECT;
+    if (len == 0)
+        return GE_NOERROR;
 
+    data[len + oldlen] = 0;
+    lastip = data;
+    while (*lastip != '\0')
+    {
+        p = lastip;
+        if (*(p + 1) == 'f' || serverlist->abortupdate)
+        {
+            GServerDestroyStream(serverlist);
+            data[0] = 0;
+            ServerListModeChange(serverlist, sl_querying);
+            return GE_NOERROR;
+        }
+        if (strlen(p) < 14)
+            break;
+        p += 4;
+        if (strchr(p, ':') == NULL || strchr(p, '\\') == NULL)
+            break;
+
+        q = ip;
+        while (*p != 0 && *p != ':')
+            *q++ = *p++;
+        *q = '\0';
+        p++;
+        q = port;
+        while (*p != 0 && *p != '\\')
+            *q++ = *p++;
+        *q = '\0';
+        lastip = p;
+        ServerListAddServer(serverlist, ip, atoi(port));
+    }
+
+    memmove(data, lastip, strlen(lastip) + 1);
+    return GE_NOERROR;
 }
 
-//loop through pending queries and send out new ones
 #define STATUS "\\status\\"
 static GError ServerListQueryLoop(GServerList serverlist)
 {
-	int i, scount = 0, error, final;
-	fd_set set;
-	struct timeval timeout = {0,0};
-	char indata[1500];
-	struct sockaddr_in saddr;
-	int saddrlen = sizeof(saddr);
-	GServer server;
+    int i, scount = 0, error, final;
+    char indata[1500];
+    GServer server;
 
-//first, check for available data
-	FD_ZERO(&set);
-	for (i = 0 ; i < serverlist->maxupdates ; i++)
-		if (serverlist->updatelist[i].serverindex >= 0) //there is a server waiting
-		{
-			scount++;
-			FD_SET( serverlist->updatelist[i].s, &set);
+    if (serverlist->update_socket)
+    {
+        for (;;)
+        {
+            NET_Datagram *datagram = NULL;
+            const char *ip;
 
-		}
-	if (scount > 0) //there are sockets to check for data
-	{
+            if (!NET_ReceiveDatagram(serverlist->update_socket, &datagram) || !datagram)
+                break;
+            error = datagram->buflen;
+            if (error >= (int)sizeof(indata))
+            {
+                NET_DestroyDatagram(datagram);
+                continue;
+            }
 
-		error = select(FD_SETSIZE, &set, NULL, NULL, &timeout);
-		if (SOCKET_ERROR != error && 0 != error)
-			for (i = 0 ; i < serverlist->maxupdates ; i++)
-				if (serverlist->updatelist[i].serverindex >= 0 && FD_ISSET(serverlist->updatelist[i].s, &set) ) //there is a server waiting
-				{ //we can read data!!
-					error = recv(serverlist->updatelist[i].s, indata, sizeof(indata) - 1, 0/*, &saddr, saddrlen*/ );
-					if (SOCKET_ERROR != error) //we got data
-					{
-						indata[error] = 0; //truncate and parse it
-						final = (strstr(indata,"\\final\\") != NULL);
-						server = *(GServer *)ArrayNth(serverlist->servers,serverlist->updatelist[i].serverindex);
-						if (server->ping == 9999) //set the ping
-							server->ping = current_time() - serverlist->updatelist[i].starttime;
-						ServerParseKeyVals(server, indata); 
-						if (final) //it's all done
-						{
-							serverlist->CallBackFn(serverlist, 
-													LIST_PROGRESS, 
-													serverlist->instance,
-													server,
-													(void *)((serverlist->nextupdate * 100) / ArrayLength(serverlist->servers))); //percent done
-							serverlist->updatelist[i].serverindex = -1; //reuse the updatelist
-						} 
-					} else
-						serverlist->updatelist[i].serverindex = -1; //reuse the updatelist
-					
-				}
-	}
-	//kill expired ones
-	for (i = 0 ; i < serverlist->maxupdates ; i++)
-		if (serverlist->updatelist[i].serverindex >= 0 && current_time() - serverlist->updatelist[i].starttime > SERVER_TIMEOUT ) 
-		{
-			/* serverlist->CallBackFn(serverlist,  //do we want to notify of dead servers? if so, uncomment!
-				LIST_PROGRESS, 
-				serverlist->instance,
-				*(GServer *)ArrayNth(serverlist->servers,serverlist->updatelist[i].serverindex),
-				(void *)((serverlist->nextupdate * 100) / ArrayLength(serverlist->servers))); //percent done
-				*/
-			serverlist->updatelist[i].serverindex = -1; //reuse the updatelist
-		}
-		
-	if (serverlist->abortupdate || (serverlist->nextupdate >= ArrayLength(serverlist->servers) && scount == 0)) 
-	{ //we are done!!
-		FreeUpdateList(serverlist);
-		ServerListModeChange(serverlist, sl_idle);
-		return 0;
-	}
-	
-//now, send out queries on available sockets
-	for (i = 0 ; i < serverlist->maxupdates && serverlist->nextupdate < ArrayLength(serverlist->servers) ; i++)
-		if (serverlist->updatelist[i].serverindex < 0) //it's availalbe
-		{
-			serverlist->updatelist[i].serverindex = serverlist->nextupdate++;
-			server = *(GServer *)ArrayNth(serverlist->servers,serverlist->updatelist[i].serverindex);
-			saddr.sin_family = AF_INET;
-			saddr.sin_addr.s_addr = inet_addr(ServerGetAddress(server));
-			saddr.sin_port = htons((short)ServerGetQueryPort(server));
-			error = connect (serverlist->updatelist[i].s, (struct sockaddr *) &saddr, saddrlen);
-			if (error != 0) //uhh.. bad server address?
-			{
-				 serverlist->updatelist[i].serverindex = -1;
-				 continue;
-			}
-			send(serverlist->updatelist[i].s,STATUS,strlen(STATUS),0);
-			serverlist->updatelist[i].starttime = current_time();
-		}
+            memcpy(indata, datagram->buf, error);
+            indata[error] = 0;
+            final = (strstr(indata, "\\final\\") != NULL);
+            ip = datagram->addr ? NET_GetAddressString(datagram->addr) : NULL;
 
+            if (ip)
+            {
+                for (i = 0; i < serverlist->maxupdates; i++)
+                {
+                    if (serverlist->updatelist[i].serverindex >= 0)
+                    {
+                        server = *(GServer *)ArrayNth(serverlist->servers, serverlist->updatelist[i].serverindex);
+                        if (!strcmp(ServerGetAddress(server), ip) &&
+                            ServerGetQueryPort(server) == datagram->port)
+                        {
+                            if (server->ping == 9999)
+                                server->ping = current_time() - serverlist->updatelist[i].starttime;
+                            ServerParseKeyVals(server, indata);
+                            if (final)
+                            {
+                                serverlist->CallBackFn(serverlist,
+                                    LIST_PROGRESS,
+                                    serverlist->instance,
+                                    server,
+                                    (void *)((serverlist->nextupdate * 100) / ArrayLength(serverlist->servers)));
+                                serverlist->updatelist[i].serverindex = -1;
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
 
-	return 0;
+            NET_DestroyDatagram(datagram);
+        }
+    }
+
+    for (i = 0; i < serverlist->maxupdates; i++)
+    {
+        if (serverlist->updatelist[i].serverindex >= 0)
+        {
+            scount++;
+            if (current_time() - serverlist->updatelist[i].starttime > SERVER_TIMEOUT)
+                serverlist->updatelist[i].serverindex = -1;
+        }
+    }
+
+    scount = 0;
+    for (i = 0; i < serverlist->maxupdates; i++)
+        if (serverlist->updatelist[i].serverindex >= 0)
+            scount++;
+
+    if (serverlist->abortupdate ||
+        (serverlist->nextupdate >= ArrayLength(serverlist->servers) && scount == 0))
+    {
+        FreeUpdateList(serverlist);
+        ServerListModeChange(serverlist, sl_idle);
+        return GE_NOERROR;
+    }
+
+    for (i = 0; i < serverlist->maxupdates && serverlist->nextupdate < ArrayLength(serverlist->servers); i++)
+    {
+        if (serverlist->updatelist[i].serverindex < 0)
+        {
+            NET_Address *address;
+            int server_index;
+
+            server_index = serverlist->nextupdate++;
+            server = *(GServer *)ArrayNth(serverlist->servers, server_index);
+            address = GServerResolveAddress(ServerGetAddress(server));
+            if (!address)
+                continue;
+
+            if (NET_SendDatagram(serverlist->update_socket, address,
+                                  (Uint16)ServerGetQueryPort(server),
+                                  STATUS, (int)strlen(STATUS)))
+            {
+                serverlist->updatelist[i].serverindex = server_index;
+                serverlist->updatelist[i].starttime = current_time();
+            }
+            NET_UnrefAddress(address);
+        }
+    }
+
+    return GE_NOERROR;
 }
 
 /* ServerListThink
 ------------------
 For use with Async Updates. This needs to be called every ~10ms for list processing and
-updating to occur during async server list updates */
+updating to occur during async server list updates. */
 GError ServerListThink(GServerList serverlist)
 {
+    switch (serverlist->state)
+    {
+        case sl_idle:
+            return GE_NOERROR;
+        case sl_listxfer:
+            return ServerListReadList(serverlist);
+        case sl_lanlist:
+            return ServerListLANList(serverlist);
+        case sl_querying:
+            return ServerListQueryLoop(serverlist);
+    }
 
-	switch (serverlist->state)
-	{
-		case sl_idle: return 0;
-		case sl_listxfer:
-				 //read the data
-				return ServerListReadList(serverlist);
-				break;
-		case sl_lanlist:
-				return ServerListLANList(serverlist);
-		case sl_querying: 
-				//do some queries
-				return ServerListQueryLoop(serverlist);
-				break;
-	}
-
-
-	return 0;
+    return GE_NOERROR;
 }
 
 /* ServerListHalt

@@ -33,30 +33,6 @@ static	serverModel_t	serverModel;
 //	dk_GetModelSkinIndex
 //
 ///////////////////////////////////////////////////////////////////////////////
-char*	dk_GetModelSkinName(int modelIndex)
-{
-#ifdef DEDICATED_ONLY
-	return 0;
-#else
-	void *model = NULL;
-	
-	if (modelIndex==0)
-		return (0);
-
-	// get a pointer to the model
-	model = cl.model_draw [modelIndex];
-	
-	if (model)
-	{
-		// call the function in the renderer to get the skin index
-		return re.GetModelSkinName (model);
-	}
-	else
-	{
-		return NULL;
-	}
-#endif
-}
 
 int		dk_GetModelSkinIndex(int modelIndex)
 {
@@ -355,7 +331,7 @@ void	dk_ForceModelLoad (int modelindex, char *name)
 	if (dedicated->value)
 		return;
 
-#ifndef DEDICATED_ONLY
+#if !DEDICATED_ONLY
 	//	make sure we free the frames so that viewthings work correctly!
 	if (serverModel.ModelIndex == modelindex)
 		dk_FreeServerModel (&serverModel);
@@ -384,7 +360,7 @@ void	dk_PreCacheModel (int modelindex, char *name)
 	if (dedicated->value)
 		return;
 	
-#ifndef DEDICATED_ONLY
+#if !DEDICATED_ONLY
 	// if it already has a value, assume it's been loaded
 	if (cl.model_draw [modelindex])
 		return;
@@ -414,7 +390,7 @@ void	dk_PreCacheModel (int modelindex, char *name)
 
 int	dk_VertInfo (edict_t *ent, int surfIndex, int vertIndex, CVector &vert)
 {
-#ifdef DEDICATED_ONLY
+#if DEDICATED_ONLY
 	return 0;
 #else
 	void	*mod;
@@ -443,7 +419,7 @@ int	dk_VertInfo (edict_t *ent, int surfIndex, int vertIndex, CVector &vert)
 
 int	dk_SurfIndex (int modelIndex, char *surfName)
 {
-#ifdef DEDICATED_ONLY
+#if DEDICATED_ONLY
 	return 0;
 #else
 	void	*mod;
@@ -473,7 +449,7 @@ int	dk_SurfIndex (int modelIndex, char *surfName)
 
 int	dk_TriVerts (edict_t *ent, int surfIndex, int vertIndex, CVector &v1, CVector &v2, CVector &v3)
 {
-#ifdef DEDICATED_ONLY
+#if DEDICATED_ONLY
 	return 0;
 #else
 	void	*mod;

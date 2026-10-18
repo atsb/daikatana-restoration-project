@@ -26,7 +26,7 @@ CXXFLAGS	= $(STD_CXXFLAGS) -fPIC -w -I$(USER_DIR) -I$(WORLD_DIR) \
 			-I$(QCOMMON_DIR) -I$(LIBENT_DIR) -I$(OS_DIR)
 LDFLAGS		= $(STD_LDFLAGS) $(RPATH)./dlls -Wl,-Bsymbolic $(SHARED) \
 			$(SONAME)$(WEAPONS_SONAME)
-LIBS		= $(STD_LIBS) $(IONCOMMON) $(WORLD)
+LIBS		= $(STD_LIBS) $(IONCOMMON) -lSDL3_net $(WORLD)
 
 #-----------------------------------------------------------------------------
 # Files

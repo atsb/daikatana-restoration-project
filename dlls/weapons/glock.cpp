@@ -29,8 +29,6 @@ typedef enum winfo_enum_t
 // weapon info def
 weaponInfo_t glockWeaponInfo = 
 {
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_GLOCK),
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_GLOCK_AMMO),
 	// names, net names, icon
 	"weapon_glock",
 	tongue_weapons[T_WEAPON_GLOCK],
@@ -114,15 +112,11 @@ weaponInfo_t glockWeaponInfo =
 	0.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 0.0f,
 
-/*	{
+	{
 		tongue_deathmsg_weapon4[T_DEATHMSGWEAPON_GLOCK],
 		NULL,
 		ATTACKER_VICTIM
-	},*/
-
-	RESOURCE_ID_FOR_STRING(tongue_deathmsg_weapon4,T_DEATHMSGWEAPON_GLOCK),
-	ATTACKER_VICTIM,
-
+	},
 	WEAPON_GLOCK,
 	0,
 	NULL

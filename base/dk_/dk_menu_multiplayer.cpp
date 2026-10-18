@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include "dk_shared.h"
 
 #include "dk_misc.h"
@@ -324,9 +325,13 @@ enum Multiplayer_Modes
 #define MULTI_START_FRAG_TOP				( MULTI_START_SKILL_TOP )
 #define MULTI_START_FRAG_WIDTH				( MULTI_START_SKILL_WIDTH )
 
-// configure weapons button
-#define MULTI_WC_LEFT						( MULTI_START_LEFT + 8)
-#define MULTI_WC_TOP						( MULTI_START_FRAG_TOP + 50 )
+// Daikatana 1.2: multiplayer weapon restriction screen.
+#define MULTI_WC_LEFT					( MULTI_START_LEFT + 8)
+#define MULTI_WC_TOP					( MULTI_START_FRAG_TOP + 50 )
+
+#define MULTI_START_LEVEL_LIMIT_LEFT		( MULTI_START_LEFT + MULTI_START_TIME_WIDTH + 6  )
+#define MULTI_START_LEVEL_LIMIT_TOP			( MULTI_START_FRAG_TOP )
+#define MULTI_START_LEVEL_LIMIT_WIDTH		( MULTI_START_SKILL_WIDTH )
 
 #define MULTI_FRIENDLY_FIRE_RADIO_LEFT		( MULTI_SETUP_LEFT + 20 )
 #define MULTI_FRIENDLY_FIRE_RADIO_TOP		( 390 )
@@ -337,10 +342,6 @@ enum Multiplayer_Modes
 // instagib radio
 #define MULTI_INSTAGIB_RADIO_LEFT			( MULTI_FRIENDLY_FIRE_RADIO_LEFT )
 #define MULTI_INSTAGIB_RADIO_TOP			( 370 )
-
-#define MULTI_START_LEVEL_LIMIT_LEFT		( MULTI_START_LEFT + MULTI_START_TIME_WIDTH + 6  )
-#define MULTI_START_LEVEL_LIMIT_TOP			( MULTI_START_FRAG_TOP )
-#define MULTI_START_LEVEL_LIMIT_WIDTH		( MULTI_START_SKILL_WIDTH )
 
 #define MULTI_SETUP_TEAM_LABEL_TOP			( MULTI_START_TOP + 175 )
 #define MULTI_SETUP_TEAM_FIELD_TOP			( MULTI_SETUP_TEAM_LABEL_TOP + SPACE )
@@ -912,8 +913,7 @@ bool CMenuSubMultiplayer::VerifyTeamColorPickers(CInterfacePicker &changing, CIn
 	return false;
 }
 
-CMenuSubMultiplayer::CMenuSubMultiplayer():
-weapons()
+CMenuSubMultiplayer::CMenuSubMultiplayer()
 {
 	memset(&manual_server,0,sizeof(manual_server));
 	// register all of the cool cvars as archivable
@@ -1086,14 +1086,14 @@ weapons()
     flag_control_array.AddControl(&footsteps_radio);
     flag_control_array.AddControl(&shotshells_radio);
 	flag_control_array.AddControl(&skill_system_radio);
-/*
+
 	flag_control_array.AddControl(&weapon_allow[0]);
 	flag_control_array.AddControl(&weapon_allow[1]);
 	flag_control_array.AddControl(&weapon_allow[2]);
 	flag_control_array.AddControl(&weapon_allow[3]);
 	flag_control_array.AddControl(&weapon_allow[4]);
 	flag_control_array.AddControl(&weapon_allow[5]);
-*/
+
     SetJoinString("");
 
     modelname_picker.AddString("Hiro");
@@ -1188,7 +1188,7 @@ weapons()
 
 CMenuSubMultiplayer::~CMenuSubMultiplayer()
 {
-	if (serverlist && ( (int)serverlist != 0xcdcdcdcd ) )
+	if (serverlist && ( (uintptr_t)serverlist != 0xcdcdcdcd ) )
 	{	
 		ServerListFree(serverlist);
 		serverlist = NULL;
@@ -1243,33 +1243,29 @@ void CMenuSubMultiplayer::Exit()
 
 void CMenuSubMultiplayer::Enter()
 {
-	// set up the weapon configure button
+	// Daikatana 1.2: configure which weapons are allowed in multiplayer.
 	BtnConfigureWeapons.Init( MULTI_WC_LEFT, MULTI_WC_TOP, menu_font, menu_font_bright, button_font );
 	BtnConfigureWeapons.InitGraphics( BUTTONLONG_UP_STRING, BUTTONLONG_DOWN_STRING, BUTTONLONG_DISABLE_STRING );
-	BtnConfigureWeapons.SetText( tongue_menu[T_MENU_CONFIGURE_WEAPONS], true );
-
-//	weapons.Activate("m_dm_weap_noallow");
-//	return;
+	BtnConfigureWeapons.SetText( "Configure Weapons", true );
 
     SetJoinString("");
 	// set up the mplayer logo thinggy
-	float xScale = (viddef.width / 640.0);
-	float yScale = (viddef.height / 480.0);
+	float menu_scale = DKM_MenuScale();
 	picDrawStruct.nFlags = DSFLAG_SCALE|DSFLAG_BLEND|DSFLAG_ALPHA;
-	picDrawStruct.fScaleX = (MULTI_MPLAYER_LOGO_WIDTH * xScale) / MULTI_MPLAYER_LOGO_IMGWIDTH;
-	picDrawStruct.fScaleY = (MULTI_MPLAYER_LOGO_HEIGHT * yScale) / MULTI_MPLAYER_LOGO_IMGHEIGHT;
-	picDrawStruct.nXPos = MULTI_MPLAYER_LOGO_LEFT * xScale;
-	picDrawStruct.nYPos = MULTI_MPLAYER_LOGO_TOP * yScale;
+	picDrawStruct.fScaleX = (MULTI_MPLAYER_LOGO_WIDTH * menu_scale) / MULTI_MPLAYER_LOGO_IMGWIDTH;
+	picDrawStruct.fScaleY = (MULTI_MPLAYER_LOGO_HEIGHT * menu_scale) / MULTI_MPLAYER_LOGO_IMGHEIGHT;
+	picDrawStruct.nXPos = DKM_MenuScreenX(MULTI_MPLAYER_LOGO_LEFT);
+	picDrawStruct.nYPos = DKM_MenuScreenY(MULTI_MPLAYER_LOGO_TOP);
 	picDrawStruct.fAlpha = 1.0;
 
 	// set up the gamespy logo thinggy
 	picGamespy.nFlags = DSFLAG_SCALE|DSFLAG_ALPHA|DSFLAG_BLEND;
-	picGamespy.fScaleX = (MULTI_GSPY_LOGO_WIDTH * xScale) / MULTI_GSPY_LOGO_IMGWIDTH;
-	picGamespy.fScaleY = (MULTI_GSPY_LOGO_HEIGHT * yScale) / MULTI_GSPY_LOGO_IMGHEIGHT;
-	picGamespy.nXPos = MULTI_GSPY_LOGO_LEFT * xScale;
-	picGamespy.nYPos = MULTI_GSPY_LOGO_TOP * yScale;
+	picGamespy.fScaleX = (MULTI_GSPY_LOGO_WIDTH * menu_scale) / MULTI_GSPY_LOGO_IMGWIDTH;
+	picGamespy.fScaleY = (MULTI_GSPY_LOGO_HEIGHT * menu_scale) / MULTI_GSPY_LOGO_IMGHEIGHT;
+	picGamespy.nXPos = DKM_MenuScreenX(MULTI_GSPY_LOGO_LEFT);
+	picGamespy.nYPos = DKM_MenuScreenY(MULTI_GSPY_LOGO_TOP);
 	picGamespy.fAlpha = 1.0;
-
+	picGamespy.pImage = re.RegisterPic( "pics/interface/gamespy_logo.tga", NULL, NULL, RESOURCE_INTERFACE );
 
 	int num;
 
@@ -1280,14 +1276,6 @@ void CMenuSubMultiplayer::Enter()
     if (character->value < 0 || character->value > 2) // boundary check
       Cvar_Set("character", "0");
 
-#ifdef JPN
-	button_find_local.Init( MULTI_FIND_LOCAL_GAME_LEFT, MULTI_FIND_LOCAL_GAME_TOP, menu_font, menu_font_bright, button_font );
-	button_find_local.InitGraphics( BUTTONLONG_UP_STRING, BUTTONLONG_DOWN_STRING, BUTTONLONG_DISABLE_STRING );
-	button_find_local.SetText( tongue_menu[T_MENU_FIND_LOCAL], true );
-	button_start_multiplayer.Init( MULTI_START_MULTIPLAYER_GAME_LEFT, MULTI_START_MULTIPLAYER_GAME_TOP, menu_font, menu_font_bright, button_font );
-	button_start_multiplayer.InitGraphics( BUTTONLONG_UP_STRING, BUTTONLONG_DOWN_STRING, BUTTONLONG_DISABLE_STRING );
-	button_start_multiplayer.SetText( tongue_menu[T_MENU_START_MULTIPLAYER], true );
-#else
 	button_find_internet.Init( MULTI_FIND_INTERNET_GAME_LEFT, MULTI_FIND_INTERNET_GAME_TOP ,menu_font, menu_font_bright, button_font );
 	button_find_internet.InitGraphics( BUTTONLONG_UP_STRING, BUTTONLONG_DOWN_STRING, BUTTONLONG_DISABLE_STRING );
 	button_find_internet.SetText( tongue_menu[T_MENU_FIND_INTERNET], true );
@@ -1301,14 +1289,13 @@ void CMenuSubMultiplayer::Enter()
 	// mplayer buttons
 	confirm_dlg.Init(CONFIRM_LEFT,CONFIRM_TOP,CONFIRM_RIGHT,CONFIRM_BOTTOM,2,CONFIRM_BUTTON_TOP,CONFIRM_BUTTON_LEFT(1),CONFIRM_BUTTON_LEFT(2));
 	mplayer_exec_mode = -1;
-
+	picDrawStruct.pImage = re.RegisterPic( "pics/interface/mplayer.tga", NULL, NULL, RESOURCE_INTERFACE );
     mplayer_start_button.Init(MULTI_START_MPLAYER_LEFT,MULTI_START_MPLAYER_TOP,menu_font, menu_font_bright, button_font);     
 	mplayer_start_button.InitGraphics( BUTTONMEDIUM_UP_STRING, BUTTONMEDIUM_DOWN_STRING, BUTTONMEDIUM_DISABLE_STRING );
 	mplayer_start_button.SetText( tongue_menu[T_MENU_MPLAYER_GAME], true );
     mplayer_community_button.Init(MULTI_MPLAYER_COMMUNITY_LEFT,MULTI_MPLAYER_COMMUNITY_TOP,menu_font, menu_font_bright, button_font);
 	mplayer_community_button.InitGraphics( BUTTONMEDIUM_UP_STRING, BUTTONMEDIUM_DOWN_STRING, BUTTONMEDIUM_DISABLE_STRING );
 	mplayer_community_button.SetText( tongue_menu[T_MENU_MPLAYER_COMM], true );
-#endif
 
     //get the current player name setting.
     player_name = Cvar_VariableString("name");
@@ -1320,7 +1307,7 @@ void CMenuSubMultiplayer::Enter()
 
     // 3.17.99 dsn  read connection rate from config file
     cvar_t * temp_cvar;
-    temp_cvar = Cvar_Get("rate", "25000", CVAR_ARCHIVE);
+    temp_cvar = Cvar_Get("rate", "2500", CVAR_ARCHIVE);
 
 	int i;
 	for(i=0;i<4;i++)
@@ -1332,7 +1319,7 @@ void CMenuSubMultiplayer::Enter()
     connect_speed_picker.SetCurrentString( i ); // current_connection_speed );
 
 	// WAW[12/9/99]: Added default frag limit.
-	cvar_t *fraglimit = Cvar_Get("fraglimit", "0", CVAR_SERVERINFO|CVAR_LATCH|CVAR_ARCHIVE);
+	cvar_t *fraglimit = Cvar_Get("fraglimit", "0", CVAR_ARCHIVE);
 	if (fraglimit->value < 0.0f) num = 0;
 	else if (fraglimit->value < 7.5f) num = 1;
 	else if (fraglimit->value < 12.5f) num = 2;
@@ -1347,7 +1334,7 @@ void CMenuSubMultiplayer::Enter()
 	level_limit_picker.SetCurrentString((dm_levellimit->value >= 2 ? (int)(dm_levellimit->value-1):0)); 
 
 	// WAW[12/9/99]: Added default time limit.
-	cvar_t *timelimit = Cvar_Get("timelimit", "0", CVAR_SERVERINFO|CVAR_LATCH|CVAR_ARCHIVE);
+	cvar_t *timelimit = Cvar_Get("timelimit", "0", CVAR_ARCHIVE);
 	if (timelimit->value < 2.5f) num = 0;
 	else if (timelimit->value < 7.5f) num = 1;
 	else if (timelimit->value < 12.5f) num = 2;
@@ -1435,13 +1422,13 @@ void CMenuSubMultiplayer::Enter()
     shotshells_radio.Init( 0, 0, menu_font, menu_font_bright, tongue_menu[T_MENU_MPO_SHOTSHELLS] );
     skill_system_radio.Init( 0, 0, menu_font, menu_font_bright, tongue_menu[T_MENU_SKILL_SYSTEM] );
 
-/*	char temp[16];
+	char temp[16];
 	for (i = 0; i < 6; i++)
 	{
 		Com_sprintf(temp,sizeof(temp),tongue_menu[T_MENU_WEAPON],i+1);
 		weapon_allow[i].Init( 0, 0, menu_font, menu_font_bright, temp );
 	}
-
+/*
 	weapon_allow[0].Init( 0, 0, menu_font, menu_font_bright, "Weapon 1" );
 	weapon_allow[1].Init( 0, 0, menu_font, menu_font_bright, "Weapon 2" );
 	weapon_allow[2].Init( 0, 0, menu_font, menu_font_bright, "Weapon 3" );
@@ -1450,7 +1437,6 @@ void CMenuSubMultiplayer::Enter()
 	weapon_allow[5].Init( 0, 0, menu_font, menu_font_bright, "Weapon 6" );
 */
     // SCG[12/1/99]: Init the control array
-
 	flag_control_array.Init( MULTI_ARRAY_RIGHT, MULTI_ARRAY_TOP, MULTI_ARRAY_RIGHT_WIDTH, 10, 20 );
     flag_control_array.InitScrollButtons( menu_font, menu_font_bright, button_font );
 
@@ -1464,10 +1450,10 @@ void CMenuSubMultiplayer::Enter()
 	
 	game_mode_picker.Init( MULTI_START_MODE_LEFT, MULTI_START_MODE_TOP, MULTI_START_MODE_WIDTH, menu_font, menu_font_bright, button_font, NULL );
     
-	teamplay_radio.Init( MULTI_TEAMPLAY_RADIO_LEFT, MULTI_TEAMPLAY_RADIO_TOP, menu_font, menu_font_bright, tongue_menu[T_MENU_MPO_TEAMPLAY] );
 	friendly_fire_radio.Init( MULTI_FRIENDLY_FIRE_RADIO_LEFT, MULTI_FRIENDLY_FIRE_RADIO_TOP, menu_font, menu_font_bright, tongue_menu[T_MENU_MPO_FRIENDLY_FIRE] );
-    instagib_radio.Init( MULTI_INSTAGIB_RADIO_LEFT, MULTI_INSTAGIB_RADIO_TOP, menu_font, menu_font_bright, tongue_menu[T_MENU_INSTAGIB] );
     
+	teamplay_radio.Init( MULTI_TEAMPLAY_RADIO_LEFT, MULTI_TEAMPLAY_RADIO_TOP, menu_font, menu_font_bright, tongue_menu[T_MENU_MPO_TEAMPLAY] );
+	instagib_radio.Init( MULTI_INSTAGIB_RADIO_LEFT, MULTI_INSTAGIB_RADIO_TOP, menu_font, menu_font_bright, "Instagib" );
 	
 #ifndef NO_EPISODE_SELECTOR
 	episode_picker.Init(MULTI_START_EPISODE_LEFT, MULTI_START_EPISODE_TOP, MULTI_START_EPISODE_WIDTH, menu_font, menu_font_bright, button_font, NULL);
@@ -1663,9 +1649,9 @@ void CMenuSubMultiplayer::DrawBackground()
 		switch( GameModeIndex() )//game_mode_picker.CurrentIndex() )
 		{
 		case 0:		// SCG[10/29/99]: Deathmatch
+			BtnConfigureWeapons.DrawBackground();
 			instagib_radio.DrawBackground();
 			go_button.DrawBackground();
-			BtnConfigureWeapons.DrawBackground();
 //			team_name_field.DrawBackground();
 			score_limit_picker.DrawBackground();
 			team_choice_picker.DrawBackground();
@@ -1675,8 +1661,8 @@ void CMenuSubMultiplayer::DrawBackground()
 			flag_control_array.DrawBackground();
 			break;
 		case 1:		// WAW[11/19/99]: CTF
-			instagib_radio.DrawBackground();
 			BtnConfigureWeapons.DrawBackground();
+			instagib_radio.DrawBackground();
 			go_button.DrawBackground();
 			score_limit_picker.DrawBackground();
 			team_choice_picker.DrawBackground();
@@ -1687,8 +1673,8 @@ void CMenuSubMultiplayer::DrawBackground()
 			flag_control_array.DrawBackground();
 			break;
 		case 2:		// SCG[10/29/99]: Deathtag
-			instagib_radio.DrawBackground();
 			BtnConfigureWeapons.DrawBackground();
+			instagib_radio.DrawBackground();
 			go_button.DrawBackground();
 			flag_control_array.DrawBackground();
 			break;			
@@ -1755,14 +1741,14 @@ void CMenuSubMultiplayer::DrawGameModeDeathmatch()
     SetRadioState( footsteps_radio			, CVAR_NAME_FOOTSTEPS(MPM_DEATHMATCH) );
     SetRadioState( shotshells_radio			, CVAR_NAME_SHOTSHELLS(MPM_DEATHMATCH) );
     SetRadioState( skill_system_radio		, CVAR_NAME_SKILL_SYSTEM(MPM_DEATHMATCH) );
-/*
-	unsigned int flag;
+
+	unsigned long flag;
 	int i;
 	for (i = 0, flag = 1; i < 6; i++,flag <<= 1)
 	{
 	    SetRadioStateFlag( weapon_allow[i], CVAR_NAME_WEAPONALLOW(MPM_DEATHMATCH), flag ,true);
 	}
-*/
+
 	instagib_radio.DrawForeground();
     //draw the option radio buttons.
 	flag_control_array.DrawForeground();
@@ -1782,12 +1768,11 @@ void CMenuSubMultiplayer::DrawGameModeDeathmatch()
 	FLAG_RADIO_FUNC(footsteps_radio			,DrawForeground());
 	FLAG_RADIO_FUNC(shotshells_radio		,DrawForeground());
 	FLAG_RADIO_FUNC(skill_system_radio		,DrawForeground());
-/*
+
 	for (i = 0; i < 6; i++)
 	{
 		FLAG_RADIO_FUNC(weapon_allow[i]		,DrawForeground());
 	}
-*/
 }
 
 void CMenuSubMultiplayer::DrawGameModeCTF()
@@ -1817,14 +1802,14 @@ void CMenuSubMultiplayer::DrawGameModeCTF()
     SetRadioState( footsteps_radio			, CVAR_NAME_FOOTSTEPS(MPM_CTF) );
     SetRadioState( shotshells_radio			, CVAR_NAME_SHOTSHELLS(MPM_CTF) );
     SetRadioState( skill_system_radio		, CVAR_NAME_SKILL_SYSTEM(MPM_CTF) );
-/*
-	unsigned int flag;
+
+	unsigned long flag;
 	int i;
 	for (i = 0, flag = 1; i < 6; i++,flag <<= 1)
 	{
 	    SetRadioStateFlag( weapon_allow[i], CVAR_NAME_WEAPONALLOW(MPM_CTF), flag, true );
 	}
-*/
+
 	instagib_radio.DrawForeground();
     //draw the option radio buttons.
 	flag_control_array.DrawForeground();
@@ -1842,12 +1827,11 @@ void CMenuSubMultiplayer::DrawGameModeCTF()
 	FLAG_RADIO_FUNC(footsteps_radio			,DrawForeground());
 	FLAG_RADIO_FUNC(shotshells_radio		,DrawForeground());
 	FLAG_RADIO_FUNC(skill_system_radio		,DrawForeground());
-/*
+
 	for (i = 0; i < 6; i++)
 	{
 		FLAG_RADIO_FUNC(weapon_allow[i]		,DrawForeground());
 	}
-*/
 }
 
 void CMenuSubMultiplayer::DrawGameModeDeathtag()
@@ -1877,14 +1861,14 @@ void CMenuSubMultiplayer::DrawGameModeDeathtag()
     SetRadioState( footsteps_radio			, CVAR_NAME_FOOTSTEPS(MPM_DEATHTAG) );
     SetRadioState( shotshells_radio			, CVAR_NAME_SHOTSHELLS(MPM_DEATHTAG) );
     SetRadioState( skill_system_radio		, CVAR_NAME_SKILL_SYSTEM(MPM_DEATHTAG) );
-/*
-	unsigned int flag;
+
+	unsigned long flag;
 	int i;
 	for (i = 0, flag = 1; i < 6; i++,flag <<= 1)
 	{
 	    SetRadioStateFlag( weapon_allow[i], CVAR_NAME_WEAPONALLOW(MPM_DEATHTAG), flag, true );
 	}
-*/
+
 	instagib_radio.DrawForeground();
     //draw the option radio buttons.
 	flag_control_array.DrawForeground();
@@ -1902,12 +1886,11 @@ void CMenuSubMultiplayer::DrawGameModeDeathtag()
 	FLAG_RADIO_FUNC(footsteps_radio			,DrawForeground());
 	FLAG_RADIO_FUNC(shotshells_radio		,DrawForeground());
 	FLAG_RADIO_FUNC(skill_system_radio		,DrawForeground());
-/*
+
 	for (i = 0; i < 6; i++)
 	{
 		FLAG_RADIO_FUNC(weapon_allow[i]		,DrawForeground());
 	}
-*/
 }
 
 void CMenuSubMultiplayer::DrawGameModeCooperative()
@@ -1941,13 +1924,7 @@ void CMenuSubMultiplayer::DrawForeground()
 
 	if( current_mode == MM_SETUP )
 	{
-// SCG[6/15/00]: this was commecnted in the japanese version
-// changed by yokoyama for Japanese version
-#ifndef JPN 
-		picDrawStruct.pImage = re.RegisterPic( "pics/interface/mplayer.tga", NULL, NULL, RESOURCE_INTERFACE );
 		re.DrawPic( picDrawStruct );
-#endif
-// for cut the 37play
 		mplayer_start_button.DrawForeground();
 		mplayer_community_button.DrawForeground();
 		button_find_internet.DrawForeground();
@@ -2002,7 +1979,7 @@ void CMenuSubMultiplayer::DrawForeground()
 	}
 }
 
-inline cstrncpy( char *tostr, const char *fromstr, int len )
+inline void cstrncpy( char *tostr, const char *fromstr, int len )
 {
 	len--;
 	strncpy( tostr, fromstr, len );
@@ -2139,8 +2116,6 @@ void CMenuSubMultiplayer::DrawModeJoin()
 			refresh_button.SetText(tongue_menu[T_MENU_CANCEL], true);
 
 		refresh_button.DrawForeground();
-
-		picGamespy.pImage = re.RegisterPic( "pics/interface/gamespy_logo.tga", NULL, NULL, RESOURCE_INTERFACE );
 		re.DrawPic( picGamespy );
 		switch( serverlist_state )
 		{
@@ -2504,9 +2479,10 @@ bool CMenuSubMultiplayer::Keydown(int32 key)
 
 bool CMenuSubMultiplayer::MousePosDeathmatch( int32 norm_x, int32 norm_y )
 {
-	bool ans = false;	// WAW[12/12/99]: Old way was keeping stuff highlighted.
+	bool ans = false;
+	if (BtnConfigureWeapons.MousePos(norm_x, norm_y)) ans = true;
+	// WAW[12/12/99]: Old way was keeping stuff highlighted.
 
-    if( BtnConfigureWeapons.MousePos(norm_x, norm_y) == true ) ans = true;
     if( level_picker.MousePos( norm_x, norm_y ) == true ) ans = true;
     if( time_limit_picker.MousePos( norm_x, norm_y ) == true ) ans = true;
     if( max_players_picker.MousePos( norm_x, norm_y ) == true ) ans = true;
@@ -2514,9 +2490,9 @@ bool CMenuSubMultiplayer::MousePosDeathmatch( int32 norm_x, int32 norm_y )
     if( level_limit_picker.MousePos( norm_x, norm_y ) == true ) ans = true;
 
     if( teamplay_radio.MousePos(norm_x, norm_y) == true ) ans = true;
+    if (instagib_radio.MousePos(norm_x, norm_y)) ans = true;
 
 //    if( team_name_field.MousePos( norm_x, norm_y ) == true ) ans = true;
-	if (instagib_radio.MousePos(norm_x, norm_y)) ans = true;
 
 	if (FLAG_RADIO_FUNC(weapon_stay_radio		,MousePos( norm_x, norm_y))) ans = true;
 	if (FLAG_RADIO_FUNC(item_respawn_radio		,MousePos( norm_x, norm_y))) ans = true;
@@ -2533,20 +2509,19 @@ bool CMenuSubMultiplayer::MousePosDeathmatch( int32 norm_x, int32 norm_y )
 	if (FLAG_RADIO_FUNC(footsteps_radio			,MousePos( norm_x, norm_y))) ans = true;
 	if (FLAG_RADIO_FUNC(shotshells_radio		,MousePos( norm_x, norm_y))) ans = true;
 	if (FLAG_RADIO_FUNC(skill_system_radio		,MousePos( norm_x, norm_y))) ans = true;
-/*
+
 	for (int i = 0; i < 6; i++)
 	{
 		if (FLAG_RADIO_FUNC(weapon_allow[i]		,MousePos( norm_x, norm_y))) ans = true;
 	}
-*/
 	return ans;
 }
 
 bool CMenuSubMultiplayer::MousePosCTF( int32 norm_x, int32 norm_y )
 {
-	bool ans = false;	// WAW[12/12/99]: Old way was keeping stuff highlighted.
+	bool ans = false;
+	if (BtnConfigureWeapons.MousePos(norm_x, norm_y)) ans = true;	// WAW[12/12/99]: Old way was keeping stuff highlighted.
 
-    if( BtnConfigureWeapons.MousePos(norm_x, norm_y) == true ) ans = true;
     if( level_picker.MousePos( norm_x, norm_y ) == true ) ans = true;
     if( time_limit_picker.MousePos( norm_x, norm_y ) == true ) ans = true;
     if( max_players_picker.MousePos( norm_x, norm_y ) == true ) ans = true;
@@ -2554,8 +2529,8 @@ bool CMenuSubMultiplayer::MousePosCTF( int32 norm_x, int32 norm_y )
     if( team_choice_picker.MousePos( norm_x, norm_y ) == true ) ans = true;
 //    if( team1_color_picker.MousePos( norm_x, norm_y ) == true ) ans = true;
 //    if( team2_color_picker.MousePos( norm_x, norm_y ) == true ) ans = true;
-	if (instagib_radio.MousePos(norm_x, norm_y)) ans = true;
 
+	if (instagib_radio.MousePos(norm_x, norm_y)) ans = true;
 	if (FLAG_RADIO_FUNC(weapon_stay_radio		,MousePos( norm_x, norm_y))) ans = true;
 	if (FLAG_RADIO_FUNC(item_respawn_radio		,MousePos( norm_x, norm_y))) ans = true;
 	if (FLAG_RADIO_FUNC(same_map_radio			,MousePos( norm_x, norm_y))) ans = true;
@@ -2569,28 +2544,26 @@ bool CMenuSubMultiplayer::MousePosCTF( int32 norm_x, int32 norm_y )
 	if (FLAG_RADIO_FUNC(footsteps_radio			,MousePos( norm_x, norm_y))) ans = true;
 	if (FLAG_RADIO_FUNC(shotshells_radio		,MousePos( norm_x, norm_y))) ans = true;
 	if (FLAG_RADIO_FUNC(skill_system_radio		,MousePos( norm_x, norm_y))) ans = true;
-/*
 	for (int i = 0; i < 6; i++)
 	{
 		if (FLAG_RADIO_FUNC(weapon_allow[i]		,MousePos( norm_x, norm_y))) ans = true;
 	}
-*/
 	return ans;
 }
 
 bool CMenuSubMultiplayer::MousePosDeathtag(int32 norm_x, int32 norm_y)
 {
-	bool ans = false;	// WAW[12/12/99]: Old way was keeping stuff highlighted.
+	bool ans = false;
+	if (BtnConfigureWeapons.MousePos(norm_x, norm_y)) ans = true;	// WAW[12/12/99]: Old way was keeping stuff highlighted.
 
-    if( BtnConfigureWeapons.MousePos(norm_x, norm_y) == true ) ans = true;
     if( level_picker.MousePos( norm_x, norm_y ) == true ) ans = true;
     if( time_limit_picker.MousePos( norm_x, norm_y ) == true ) ans = true;
     if( score_limit_picker.MousePos( norm_x, norm_y ) == true ) ans = true;
     if( team_choice_picker.MousePos( norm_x, norm_y ) == true ) ans = true;
 //    if( team1_color_picker.MousePos( norm_x, norm_y ) == true ) ans = true;
 //    if( team2_color_picker.MousePos( norm_x, norm_y ) == true ) ans = true;
-	if (instagib_radio.MousePos(norm_x, norm_y)) ans = true;
 
+	if (instagib_radio.MousePos(norm_x, norm_y)) ans = true;
 	if (FLAG_RADIO_FUNC(weapon_stay_radio		,MousePos( norm_x, norm_y))) ans = true;
 	if (FLAG_RADIO_FUNC(item_respawn_radio		,MousePos( norm_x, norm_y))) ans = true;
 	if (FLAG_RADIO_FUNC(same_map_radio			,MousePos( norm_x, norm_y))) ans = true;
@@ -2604,12 +2577,10 @@ bool CMenuSubMultiplayer::MousePosDeathtag(int32 norm_x, int32 norm_y)
 	if (FLAG_RADIO_FUNC(footsteps_radio			,MousePos( norm_x, norm_y))) ans = true;
 	if (FLAG_RADIO_FUNC(shotshells_radio		,MousePos( norm_x, norm_y))) ans = true;
 	if (FLAG_RADIO_FUNC(skill_system_radio		,MousePos( norm_x, norm_y))) ans = true;
-/*
 	for (int i = 0; i < 6; i++)
 	{
 		if (FLAG_RADIO_FUNC(weapon_allow[i]		,MousePos( norm_x, norm_y))) ans = true;
 	}
-*/
 	return ans;
 }
 
@@ -2722,7 +2693,7 @@ bool CMenuSubMultiplayer::MousePos(int32 norm_x, int32 norm_y)
 
 bool CMenuSubMultiplayer::MouseDownDeathmatch(int32 norm_x, int32 norm_y)
 {
-    if( BtnConfigureWeapons.MouseDown( norm_x, norm_y ) == true ) return true;
+	if (BtnConfigureWeapons.MouseDown(norm_x, norm_y)) return true;
     if( level_picker.MouseDown( norm_x, norm_y ) == true ) return true;
 	if( time_limit_picker.MouseDown( norm_x, norm_y ) == true ) return true;
 	if( max_players_picker.MouseDown( norm_x, norm_y ) == true ) return true;
@@ -2730,9 +2701,9 @@ bool CMenuSubMultiplayer::MouseDownDeathmatch(int32 norm_x, int32 norm_y)
 	if( level_limit_picker.MouseDown( norm_x, norm_y ) == true ) return true;
 
 	if( teamplay_radio.MouseDown(norm_x, norm_y) == true ) return true;
+	if (instagib_radio.MouseDown(norm_x, norm_y)) return true;
 
 //	if( team_name_field.MouseDown( norm_x, norm_y ) == true ) return true;
-	if (instagib_radio.MouseDown(norm_x, norm_y)) return true;
 
 	if (FLAG_RADIO_FUNC(weapon_stay_radio		,MouseDown( norm_x, norm_y))) return true;
 	if (FLAG_RADIO_FUNC(item_respawn_radio		,MouseDown( norm_x, norm_y))) return true;
@@ -2749,18 +2720,16 @@ bool CMenuSubMultiplayer::MouseDownDeathmatch(int32 norm_x, int32 norm_y)
 	if (FLAG_RADIO_FUNC(footsteps_radio			,MouseDown( norm_x, norm_y))) return true;
 	if (FLAG_RADIO_FUNC(shotshells_radio		,MouseDown( norm_x, norm_y))) return true;
 	if (FLAG_RADIO_FUNC(skill_system_radio		,MouseDown( norm_x, norm_y))) return true;
-/*
 	for (int i = 0; i < 6; i++)
 	{
 		if (FLAG_RADIO_FUNC(weapon_allow[i]		,MouseDown( norm_x, norm_y))) return true;
 	}
-*/
 	return false;
 }
 
 bool CMenuSubMultiplayer::MouseDownCTF(int32 norm_x, int32 norm_y)
 {
-    if( BtnConfigureWeapons.MouseDown( norm_x, norm_y ) == true ) return true;
+	if (BtnConfigureWeapons.MouseDown(norm_x, norm_y)) return true;
     if( level_picker.MouseDown( norm_x, norm_y ) == true ) return true;
 	if( time_limit_picker.MouseDown( norm_x, norm_y ) == true ) return true;
 	if( max_players_picker.MouseDown( norm_x, norm_y ) == true ) return true;
@@ -2768,8 +2737,8 @@ bool CMenuSubMultiplayer::MouseDownCTF(int32 norm_x, int32 norm_y)
 	if( team_choice_picker.MouseDown( norm_x, norm_y ) == true ) return true;
 //	if( team1_color_picker.MouseDown( norm_x, norm_y ) == true ) return true;
 //	if( team2_color_picker.MouseDown( norm_x, norm_y ) == true ) return true;
-	if (instagib_radio.MouseDown(norm_x, norm_y)) return true;
 
+	if (instagib_radio.MouseDown(norm_x, norm_y)) return true;
 	if (FLAG_RADIO_FUNC(weapon_stay_radio		,MouseDown( norm_x, norm_y))) return true;
 	if (FLAG_RADIO_FUNC(item_respawn_radio		,MouseDown( norm_x, norm_y))) return true;
 	if (FLAG_RADIO_FUNC(same_map_radio			,MouseDown( norm_x, norm_y))) return true;
@@ -2783,26 +2752,25 @@ bool CMenuSubMultiplayer::MouseDownCTF(int32 norm_x, int32 norm_y)
 	if (FLAG_RADIO_FUNC(footsteps_radio			,MouseDown( norm_x, norm_y))) return true;
 	if (FLAG_RADIO_FUNC(shotshells_radio		,MouseDown( norm_x, norm_y))) return true;
 	if (FLAG_RADIO_FUNC(skill_system_radio		,MouseDown( norm_x, norm_y))) return true;
-/*
+
 	for (int i = 0; i < 6; i++)
 	{
 		if (FLAG_RADIO_FUNC(weapon_allow[i]		,MouseDown( norm_x, norm_y))) return true;
 	}
-*/
 	return false;
 }
 
 bool CMenuSubMultiplayer::MouseDownDeathtag(int32 norm_x, int32 norm_y)
 {
-    if( BtnConfigureWeapons.MouseDown( norm_x, norm_y ) == true ) return true;
+	if (BtnConfigureWeapons.MouseDown(norm_x, norm_y)) return true;
     if( level_picker.MouseDown( norm_x, norm_y ) == true ) return true;
 	if( time_limit_picker.MouseDown( norm_x, norm_y ) == true ) return true;
 	if( score_limit_picker.MouseDown( norm_x, norm_y ) == true ) return true;
 	if( team_choice_picker.MouseDown( norm_x, norm_y ) == true ) return true;
 //	if( team1_color_picker.MouseDown( norm_x, norm_y ) == true ) return true;
 //	if( team2_color_picker.MouseDown( norm_x, norm_y ) == true ) return true;
-	if (instagib_radio.MouseDown(norm_x, norm_y)) return true;
 
+	if (instagib_radio.MouseDown(norm_x, norm_y)) return true;
 	if (FLAG_RADIO_FUNC(weapon_stay_radio		,MouseDown( norm_x, norm_y))) return true;
 	if (FLAG_RADIO_FUNC(item_respawn_radio		,MouseDown( norm_x, norm_y))) return true;
 	if (FLAG_RADIO_FUNC(same_map_radio			,MouseDown( norm_x, norm_y))) return true;
@@ -2816,12 +2784,11 @@ bool CMenuSubMultiplayer::MouseDownDeathtag(int32 norm_x, int32 norm_y)
 	if (FLAG_RADIO_FUNC(footsteps_radio			,MouseDown( norm_x, norm_y))) return true;
 	if (FLAG_RADIO_FUNC(shotshells_radio		,MouseDown( norm_x, norm_y))) return true;
 	if (FLAG_RADIO_FUNC(skill_system_radio		,MouseDown( norm_x, norm_y))) return true;
-/*
+
 	for (int i = 0; i < 6; i++)
 	{
 		if (FLAG_RADIO_FUNC(weapon_allow[i]		,MouseDown( norm_x, norm_y))) return true;
 	}
-*/
 	return false;
 }
 
@@ -2923,32 +2890,19 @@ bool CMenuSubMultiplayer::MouseDown(int32 norm_x, int32 norm_y)
 			{
 				int32 local_game_index = net_list_top_index + local_list_hit_row;				
 				if (local_game_index < 0 || local_game_index >= ServerListCount( serverlist )) 
-				{
 					return true;
-				}
-
 				GServer server = ServerListGetServer( serverlist, local_game_index );
-				bool newServer = true;
+
 				if (server)//breaks shit && stricmp(ServerGetStringValue( server, "hostname", "" ),Cvar_VariableString("hostname")))
 				{
 					char buf[64];
 					_snprintf(buf,64,"%s:%d",ServerGetAddress(server),ServerGetIntValue( server, "hostport", 0 )); // ServerGetQueryPort( server ));
-					newServer = stricmp(join_name_string,buf) != 0;
 					SetJoinString( buf );
 //					ctf_selected = (stricmp( "ctf", ServerGetStringValue( server, "gamemode", " " )) == 0);
 					ctf_selected =	(strnicmp( "ctf", ServerGetStringValue( server, "gametype", " " ), 3) == 0) || 
 									(strnicmp( "deathtag", ServerGetStringValue( server, "gametype", " " ), 8) == 0);
 				    S_StartLocalSound(DKM_sounds[DKMS_BUTTON4]);
 				}
-
-				// check for a double click here.
-				if (!newServer)
-				{
-					if (cl.time - lastClick <= 200)
-						return DoJoin();
-				}
-
-				lastClick = cl.time;
 			}
 			else
 			{
@@ -2964,21 +2918,12 @@ bool CMenuSubMultiplayer::MouseDown(int32 norm_x, int32 norm_y)
 //					return true;
 
 				//take the ip address of the server and dump in into the join name field.
-				bool newServer = stricmp(join_name_string,NET_AdrToString(local_game_server_info[local_game_index].address)) != 0;
+				//SetJoinString(NET_AdrToString(local_game_ips[local_game_index]));
 				SetJoinString(NET_AdrToString(local_game_server_info[local_game_index].address));
 //				ctf_selected = (_strnicmp( local_game_server_info[local_game_index].gametype,"CTF",3 ) == 0);
 				ctf_selected =	(strnicmp("ctf",local_game_server_info[local_game_index].gametype,3) == 0) ||
 								(strnicmp("deathtag", local_game_server_info[local_game_index].gametype,8) == 0);
 			    S_StartLocalSound(DKM_sounds[DKMS_BUTTON4]);
-
-				// check for a double click here.
-				if (!newServer)
-				{
-					if (cl.time - lastClick <= 200)
-						return DoJoin();
-				}
-
-				lastClick = cl.time;
 			}				
 			return true;
 		}
@@ -3002,7 +2947,7 @@ bool CMenuSubMultiplayer::MouseDown(int32 norm_x, int32 norm_y)
 
 bool CMenuSubMultiplayer::MouseUpDeathmatch(int32 norm_x, int32 norm_y)
 {
-	if( BtnConfigureWeapons.MouseUp( norm_x, norm_y ) == true )
+	if (BtnConfigureWeapons.MouseUp(norm_x, norm_y))
 	{
 		weapons.Activate(CVAR_NAME_WEAPONALLOW(MPM_DEATHMATCH));
 		return true;
@@ -3033,9 +2978,9 @@ bool CMenuSubMultiplayer::MouseUpDeathmatch(int32 norm_x, int32 norm_y)
 	}
 
 	if( teamplay_radio.MouseUp(norm_x, norm_y) == true) { ToggleRadioState(CVAR_NAME_TEAMPLAY(MPM_DEATHMATCH)); return true; }
+	if (instagib_radio.MouseUp(norm_x, norm_y)) { ToggleRadioState( CVAR_NAME_INSTAGIB(MPM_DEATHMATCH) ); return true; }
 
 //	if( team_name_field.MouseUp( norm_x, norm_y ) == true ) return true;
-	if (instagib_radio.MouseUp(norm_x, norm_y)) { ToggleRadioState( CVAR_NAME_INSTAGIB(MPM_DEATHMATCH) ); return true; }
 
 	if (FLAG_RADIO_FUNC(weapon_stay_radio		,MouseUp( norm_x, norm_y))) { ToggleRadioState( CVAR_NAME_WEAPON_STAY(MPM_DEATHMATCH) ); return true; }
 	if (FLAG_RADIO_FUNC(item_respawn_radio		,MouseUp( norm_x, norm_y))) { ToggleRadioState( CVAR_NAME_ITEM_RESPAWN(MPM_DEATHMATCH) ); return true; }
@@ -3052,8 +2997,8 @@ bool CMenuSubMultiplayer::MouseUpDeathmatch(int32 norm_x, int32 norm_y)
 	if (FLAG_RADIO_FUNC(footsteps_radio			,MouseUp( norm_x, norm_y))) { ToggleRadioState( CVAR_NAME_FOOTSTEPS(MPM_DEATHMATCH) ); return true; }
 	if (FLAG_RADIO_FUNC(shotshells_radio		,MouseUp( norm_x, norm_y))) { ToggleRadioState( CVAR_NAME_SHOTSHELLS(MPM_DEATHMATCH) ); return true; }
 	if (FLAG_RADIO_FUNC(skill_system_radio		,MouseUp( norm_x, norm_y))) { ToggleRadioState( CVAR_NAME_SKILL_SYSTEM(MPM_DEATHMATCH) ); return true; }
-/*
-	unsigned int flag = 1;
+
+	unsigned long flag = 1;
 	for (int i = 0; i < 6; i++,flag <<= 1)
 	{
 		if (FLAG_RADIO_FUNC(weapon_allow[i]		,MouseUp( norm_x, norm_y))) 
@@ -3062,13 +3007,12 @@ bool CMenuSubMultiplayer::MouseUpDeathmatch(int32 norm_x, int32 norm_y)
 			return true; 
 		}
 	}
-*/
 	return false;
 }
 
 bool CMenuSubMultiplayer::MouseUpCTF(int32 norm_x, int32 norm_y)
 {
-	if( BtnConfigureWeapons.MouseUp( norm_x, norm_y ) == true )
+	if (BtnConfigureWeapons.MouseUp(norm_x, norm_y))
 	{
 		weapons.Activate(CVAR_NAME_WEAPONALLOW(MPM_CTF));
 		return true;
@@ -3117,7 +3061,6 @@ bool CMenuSubMultiplayer::MouseUpCTF(int32 norm_x, int32 norm_y)
 	}
 */
 	if (instagib_radio.MouseUp(norm_x, norm_y)) { ToggleRadioState( CVAR_NAME_INSTAGIB(MPM_CTF) ); return true; }
-
 	if (FLAG_RADIO_FUNC(weapon_stay_radio		,MouseUp( norm_x, norm_y))) { ToggleRadioState( CVAR_NAME_WEAPON_STAY(MPM_CTF) ); return true; }
 	if (FLAG_RADIO_FUNC(item_respawn_radio		,MouseUp( norm_x, norm_y))) { ToggleRadioState( CVAR_NAME_ITEM_RESPAWN(MPM_CTF) ); return true; }
 	if (FLAG_RADIO_FUNC(same_map_radio			,MouseUp( norm_x, norm_y))) { ToggleRadioState( CVAR_NAME_SAME_MAP(MPM_CTF) ); return true; }
@@ -3131,8 +3074,8 @@ bool CMenuSubMultiplayer::MouseUpCTF(int32 norm_x, int32 norm_y)
 	if (FLAG_RADIO_FUNC(footsteps_radio			,MouseUp( norm_x, norm_y))) { ToggleRadioState( CVAR_NAME_FOOTSTEPS(MPM_CTF) ); return true; }
 	if (FLAG_RADIO_FUNC(shotshells_radio		,MouseUp( norm_x, norm_y))) { ToggleRadioState( CVAR_NAME_SHOTSHELLS(MPM_CTF) ); return true; }
 	if (FLAG_RADIO_FUNC(skill_system_radio		,MouseUp( norm_x, norm_y))) { ToggleRadioState( CVAR_NAME_SKILL_SYSTEM(MPM_CTF) ); return true; }
-/*
-	unsigned int flag = 1;
+
+	unsigned long flag = 1;
 	for (int i = 0; i < 6; i++,flag <<= 1)
 	{
 		if (FLAG_RADIO_FUNC(weapon_allow[i]		,MouseUp( norm_x, norm_y))) 
@@ -3141,7 +3084,6 @@ bool CMenuSubMultiplayer::MouseUpCTF(int32 norm_x, int32 norm_y)
 			return true; 
 		}
 	}
-*/
 	return false;
 }
 
@@ -3168,7 +3110,7 @@ void CMenuSubMultiplayer::RefreshInternetList()
 
 bool CMenuSubMultiplayer::MouseUpDeathtag(int32 norm_x, int32 norm_y)
 {
-	if( BtnConfigureWeapons.MouseUp( norm_x, norm_y ) == true )
+	if (BtnConfigureWeapons.MouseUp(norm_x, norm_y))
 	{
 		weapons.Activate(CVAR_NAME_WEAPONALLOW(MPM_DEATHTAG));
 		return true;
@@ -3211,7 +3153,6 @@ bool CMenuSubMultiplayer::MouseUpDeathtag(int32 norm_x, int32 norm_y)
 	}
 */
 	if (instagib_radio.MouseUp(norm_x, norm_y)) { ToggleRadioState( CVAR_NAME_INSTAGIB(MPM_DEATHTAG) ); return true; }
-
 	if (FLAG_RADIO_FUNC(weapon_stay_radio		,MouseUp( norm_x, norm_y))) { ToggleRadioState( CVAR_NAME_WEAPON_STAY(MPM_DEATHTAG) ); return true; }
 	if (FLAG_RADIO_FUNC(item_respawn_radio		,MouseUp( norm_x, norm_y))) { ToggleRadioState( CVAR_NAME_ITEM_RESPAWN(MPM_DEATHTAG) ); return true; }
 	if (FLAG_RADIO_FUNC(same_map_radio			,MouseUp( norm_x, norm_y))) { ToggleRadioState( CVAR_NAME_SAME_MAP(MPM_DEATHTAG) ); return true; }
@@ -3225,8 +3166,8 @@ bool CMenuSubMultiplayer::MouseUpDeathtag(int32 norm_x, int32 norm_y)
 	if (FLAG_RADIO_FUNC(footsteps_radio			,MouseUp( norm_x, norm_y))) { ToggleRadioState( CVAR_NAME_FOOTSTEPS(MPM_DEATHTAG) ); return true; }
 	if (FLAG_RADIO_FUNC(shotshells_radio		,MouseUp( norm_x, norm_y))) { ToggleRadioState( CVAR_NAME_SHOTSHELLS(MPM_DEATHTAG) ); return true; }
 	if (FLAG_RADIO_FUNC(skill_system_radio		,MouseUp( norm_x, norm_y))) { ToggleRadioState( CVAR_NAME_SKILL_SYSTEM(MPM_DEATHTAG) ); return true; }
-/*
-	unsigned int flag = 1;
+
+	unsigned long flag = 1;
 	for (int i = 0; i < 6; i++,flag <<= 1)
 	{
 		if (FLAG_RADIO_FUNC(weapon_allow[i]		,MouseUp( norm_x, norm_y))) 
@@ -3235,7 +3176,6 @@ bool CMenuSubMultiplayer::MouseUpDeathtag(int32 norm_x, int32 norm_y)
 			return true; 
 		}
 	}
-*/
 	return false;
 }
 
@@ -3257,19 +3197,8 @@ bool CMenuSubMultiplayer::MouseUpCooperative(int32 norm_x, int32 norm_y)
 #ifdef DAIKATANA_DEMO
 			DKM_ShutdownString("maxclients 3\nwait\nwait\nmap e1m1a\n");
 #else
-	int episode = coop_episode_picker.CurrentIndex() + 1;
-	#ifdef DAIKATANA_OEM
-			if(episode == 1)
-			{
-				DKM_ShutdownString("maxclients 3\nwait\nwait\nmap e%dm2a\n",episode);
-			}
-			else
-			{
-				DKM_ShutdownString("maxclients 3\nwait\nwait\nmap e%dm1a\n",episode);
-			}
-	#else
+			int episode = coop_episode_picker.CurrentIndex() + 1;
 			DKM_ShutdownString("maxclients 3\nwait\nwait\nmap e%dm1a\n",episode);
-	#endif
 #endif
             DKM_Shutdown();
 
@@ -3322,37 +3251,6 @@ bool CMenuSubMultiplayer::ConfirmFinish()
 	}
 
 	return false;
-}
-
-bool CMenuSubMultiplayer::DoJoin()
-{
-	if (strlen(join_name_string)) // join name must exist
-	{
-		if (ctf_selected)
-		{					
-			Cvar_ForceSetValue(CVAR_NAME_TEAMCHOICE(MPM_CTF),join_team_choice_picker.CurrentIndex());
-			Cvar_ForceSetValue(CVAR_NAME_TEAMCHOICE(MPM_DEATHTAG),join_team_choice_picker.CurrentIndex());
-		}
-		else
-		{
-			Cvar_ForceSetValue(CVAR_NAME_TEAMCHOICE(MPM_ASSIGN), team_color_convert[skincolor_picker.CurrentIndex()]);
-		}
-
-		//make the command string to run the connect command.
-		char command[256];
-		Com_sprintf(command,sizeof(command),"connect %s\n",(const char *)join_name_string);
-		
-		//start the map. loading\nwait\nwait\nwait\nwait\nwait\nwait\n
-//		DKM_ShutdownString("%s", (const char *)command);
-		Cbuf_AddText(command);
-		//shut down the menu.
-		DKM_Shutdown();
-		return true;
-	}
-	else
-	{
-		return false;
-	}
 }
 
 bool CMenuSubMultiplayer::MouseUp(int32 norm_x, int32 norm_y)
@@ -3508,8 +3406,6 @@ bool CMenuSubMultiplayer::MouseUp(int32 norm_x, int32 norm_y)
 		
 		if (play_button.MouseUp(norm_x, norm_y) == true)
 		{
-			return DoJoin();
-/*
 			if (strlen(join_name_string)) // join name must exist
 			{
 				if (ctf_selected)
@@ -3538,7 +3434,6 @@ bool CMenuSubMultiplayer::MouseUp(int32 norm_x, int32 norm_y)
 				// TTD: beep as invalid selection
 				return false;
 			}
-*/
 		}
 		
 	    if( joinback_button.MouseUp( norm_x, norm_y ) == true ) // WAW[12/3/99]: Added
@@ -3576,11 +3471,7 @@ bool CMenuSubMultiplayer::MouseUp(int32 norm_x, int32 norm_y)
 void CMenuSubMultiplayer::SetPlayerName(const char *name)
 {
     buffer256 playername(name);
-#ifdef JPN
-    playername.StripInvalidChars(15);
-#else
     playername.StripInvalidChars(16);
-#endif // JPN
 	
     Cvar_Set("name", playername);
     player_name = Cvar_VariableString("name");
@@ -4122,7 +4013,7 @@ void CMenuSubMultiplayer::ServerListCallBack( int msg, void *param1, void *param
 	SetJoinListButtons();
 	if (msg == LIST_PROGRESS)
 	{
-		serverlist_progress = (int)param2;
+		serverlist_progress = (int)(intptr_t)param2;
 		//server = (GServer)param1;
 		//Com_DPrintf ("%s:%d [%d] %s %d/%d %s\n",ServerGetAddress(server),ServerGetQueryPort(server), ServerGetPing(server),ServerGetStringValue(server, "hostname","(NONE)"), ServerGetIntValue(server,"numplayers",0), ServerGetIntValue(server,"maxplayers",0), ServerGetStringValue(server,"mapname","(NO MAP)"));
 	}
@@ -4200,17 +4091,16 @@ void CMenuSubMultiplayer::SetTeamChoice( int val )
 void CMenuSubMultiplayer::DrawSkillPic(char * filename, int x, int y)
 {
 
-  float	norm_to_screen_x = viddef.width  / 640.0f;
-  float	norm_to_screen_y = viddef.height / 480.0f;
+  float menu_scale = DKM_MenuScale();
 
   DRAWSTRUCT drawStruct;
 
   drawStruct.pImage  = re.RegisterPic( filename, NULL, NULL, RESOURCE_INTERFACE );
   drawStruct.nFlags  = DSFLAG_PALETTE | DSFLAG_ALPHA | DSFLAG_SCALE | DSFLAG_BLEND;
-  drawStruct.nXPos   = x * norm_to_screen_x;
-  drawStruct.nYPos   = y * norm_to_screen_y;
-  drawStruct.fScaleX = norm_to_screen_x;
-  drawStruct.fScaleY = norm_to_screen_y;
+  drawStruct.nXPos   = DKM_MenuScreenX(x);
+  drawStruct.nYPos   = DKM_MenuScreenY(y);
+  drawStruct.fScaleX = menu_scale;
+  drawStruct.fScaleY = menu_scale;
   drawStruct.fAlpha  = 0.90f;
 
   re.DrawPic( drawStruct );

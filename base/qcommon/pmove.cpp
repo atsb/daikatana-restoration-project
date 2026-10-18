@@ -110,7 +110,6 @@ void PM_StepSlideMove_ (void)
 	trace_t	trace;
 	CVector		end;
 	float		time_left;
-	int j, i;
 	
 	numbumps = 4;
 	
@@ -121,7 +120,7 @@ void PM_StepSlideMove_ (void)
 
 	for (bumpcount=0 ; bumpcount<numbumps ; bumpcount++)
 	{
-		end = pml.origin + (pml.velocity);
+		end = pml.origin + (time_left * pml.velocity);
 
 		trace = pm->TraceBox(pml.origin, pm->mins, pm->maxs, end);
 

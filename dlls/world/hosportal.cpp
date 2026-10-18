@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include "world.h"
 #include "ai_utils.h"
 
@@ -24,10 +25,10 @@ int AI_IsInFOV( userEntity_t *self, userEntity_t *targ );
 #define FRAME_JUICEAVAIL   1   // frame # to show juice is available (green)
 #define FRAME_NOJUICEAVAIL 0   // frame # to show juice is not available (red)
 
+// SCG[11/19/99]: Save game stuff
 #define	IS_INSTAGIB				(deathmatch->value && dm_instagib->value)
 
-// SCG[11/19/99]: Save game stuff
-#define	HOSPORTALHOOK(x) (int)&(((hosportalHook_t *)0)->x)
+#define	HOSPORTALHOOK(x) (int)offsetof(hosportalHook_t,x)
 field_t hosportal_hook_fields[] = 
 {
 	{"style",			HOSPORTALHOOK(style),			F_BYTE},
@@ -243,7 +244,7 @@ void hosportal_give_health_think( userEntity_t *self )
 
 	// SCG[10/29/99]: If the activator is too far from the hosportal, stop giving the acivator health
 	// SCG[10/29/99]: and go into recharge mode.
-	if( fDist > 64 && (pHosportalHook->activator->flags & FL_CLIENT))
+	if( fDist > 64 )
 	{
 		hosportal_reset( self );
 		return;
@@ -299,7 +300,7 @@ void hosportal_use( userEntity_t *self, userEntity_t *other, userEntity_t *activ
 
 	// SCG[10/29/99]: If the activator is too far from the hosportal, stop giving the acivator health
 	// SCG[10/29/99]: and go into recharge mode.
-	if( fDist > 64 && (activator->flags & FL_CLIENT))
+	if( fDist > 64 )
 	{
 		return;
 	}

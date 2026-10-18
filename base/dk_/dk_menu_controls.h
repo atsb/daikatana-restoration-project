@@ -3,11 +3,6 @@
 #ifndef _DK_MENU_CONTROLS_H_
 #define _DK_MENU_CONTROLS_H_
 
-// added for Japanese version
-#ifdef JPN
-#include <windows.h>
-#endif
-
 //classes for generic interface objects that we use
 class CInterfaceControl {
 public:
@@ -105,6 +100,7 @@ public:
     void Enable(bool enabled);
 
     bool IsDown();
+    bool IsUnderCursor();
 
     virtual bool MousePos(int32 norm_x, int32 norm_y);
     virtual bool MouseDown(int32 norm_x, int32 norm_y);
@@ -135,6 +131,14 @@ public:
     virtual void DrawBackground();
 
     virtual void SetPosition(int32 norm_x, int32 norm_y);
+
+    void SetHitWidth(int32 width);
+
+protected:
+    virtual bool HitTest(int32 norm_x, int32 norm_y);
+
+private:
+    int32 hit_width;
 };
 
 class CInterfaceInputField : public CInterfaceControl {
@@ -179,9 +183,6 @@ protected:
 
     //the text string that is drawn in the field.
     buffer256 text;
-#ifdef JPN
-	buffer256 imetext;
-#endif // JPN
 
     //called when we want to start editing the text.  the passed number
     //is the number of pixels into the text we want to put the insertion bar.
@@ -208,15 +209,6 @@ public:
     virtual bool Keydown(int32 key);
 
     virtual void SetPosition(int32 norm_x, int32 norm_y);
-
-#ifdef JPN
-	// function for IME control
-	void SteImeOpenClose(bool onoff);
-	void SetIMECompFormPos();
-	void DisplayCompString();
-	void SetImeText(LPSTR lpStr);
-	bool ImeKeydown(int32 leadbyte, int32 trailbyte);
-#endif // JPN
 };
 
 class CInterfaceBox : public CInterfaceControl {
@@ -372,6 +364,9 @@ public:
     //adds a string into the picker.
     void AddString(const char *string);
 
+    //enables or disables the selector controls.
+    void Enable(bool enabled);
+
     //makes sure the current_string setting is valid for the number of strings we have in our array.
     void CheckCurrentString();
 
@@ -405,6 +400,8 @@ protected:
     //true if the mouse is on the picker at all.  The text is drawn bright if it is.
     bool mouse_on_picker;
 
+    bool enabled;
+
     //the fonts that we use to draw the text.
     void *font_normal;
     void *font_bright;
@@ -426,6 +423,7 @@ public:
     //
     const char *CurrentString();
     int CurrentIndex();
+    bool IsMouseOver();
 
     void SetCurrentString(int32 num);
 
@@ -722,9 +720,9 @@ protected:
 	void					QSort(config_file_t ary[], int l, int r, short field1, short field2, short field3);
 	int						QSPartition(config_file_t ary[], int l, int r, short field1, short field2, short field3);
 
-	int					sortField1;
-	int					sortField2;
-	int					sortField3;
+	long					sortField1;
+	long					sortField2;
+	long					sortField3;
 };
 
 class CInterfaceStatusText : public CInterfaceBox

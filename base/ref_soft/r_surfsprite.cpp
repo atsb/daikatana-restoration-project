@@ -247,3 +247,14 @@ void surfSprite_AddSurfaceSprite (CVector &origin, CVector &entityOrigin,
 {
 }
 
+// Renderer-independent entry point used by dk_ref_init.  The software
+// renderer historically has no surface-sprite implementation, so preserve
+// its no-op behavior while providing the expected symbol.
+void R_SurfaceSpriteAdd (CVector &origin, CVector &entityOrigin,
+        CVector &entityAngles, void *hitModel, int planeIndex, void *model,
+        int frame, float roll, float scale, byte flags)
+{
+    surfSprite_AddSurfaceSprite(origin, entityOrigin, entityAngles,
+        hitModel, planeIndex, model, frame, roll, scale, flags);
+}
+

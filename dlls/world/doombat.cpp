@@ -509,10 +509,10 @@ void DOOMBAT_Chase( userEntity_t *self )
 				//Set the resolution for % change in degrees for smooth turn
 				//this value works well for the Doombat
 				CVector TurnRate;
-				TurnRate.Set(0.10,0.20,0.35);
-		
-				AI_FlyTowardPoint2( self, pAIData->destPoint, AI_GetSkill(TurnRate));
+				TurnRate.Set(0.10, 0.20, 0.35);
 
+				AI_FlyTowardPoint2( self, pAIData->destPoint, AI_GetSkill(TurnRate));
+				
 	
 				//Check to see if we haven't moved...we could be stuck on something.
 				if(AI_FLY_Debug_Origin(self))
@@ -860,8 +860,8 @@ void monster_doombat( userEntity_t *self )
 
 	// NSS[6/7/00]:Reduce their speed on lower skill levels.
 	CVector Speed;
-	Speed.Set(0.35f,0.65f,1.0f);
-	hook->run_speed		= hook->run_speed * AI_GetSkill(Speed);
+	Speed.Set(0.35f, 0.65f, 1.0f);
+	hook->run_speed	= hook->run_speed * AI_GetSkill(Speed);
 	hook->walk_speed	= hook->walk_speed * AI_GetSkill(Speed);
 }
 

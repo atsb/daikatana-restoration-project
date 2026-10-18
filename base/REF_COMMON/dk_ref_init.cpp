@@ -13,7 +13,6 @@
 refexport_t	re;
 refimport_t	ri;
 memory_import_t memmgr;
-char *R_GetModelSkinName (void *modelPtr);
 
 refexport_t GetRefAPI (refimport_t rimp )
 {
@@ -52,7 +51,6 @@ refexport_t GetRefAPI (refimport_t rimp )
 	re.GetModelHardpoint			= R_GetModelHardpoint;
 	re.BestColor					= R_BestColor;
 	re.GetModelSkinIndex			= R_GetModelSkinIndex;
-	re.GetModelSkinName				= R_GetModelSkinName;
 	re.AddSurfaceSprite				= R_SurfaceSpriteAdd;
     re.DrawString					= R_DrawString;
     re.DrawStringFlare				= R_DrawStringFlare;

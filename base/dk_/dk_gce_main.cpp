@@ -17,6 +17,7 @@
 #include "dk_shared.h"
 #include "qcommon.h"
 #include "client.h"
+#include "input.h"
 
 //our private export functions
 int GCE_Version();
@@ -314,8 +315,6 @@ void GCE_SetCamera() {
 static int cin_last_tick;
 static bool cin_changed_timescale;
 
-void IN_DeactivateMouse ();
-void IN_ActivateMouse ();
 void ScriptColorInit(float r, float g, float b, float a);
 void ScriptColorDest(float r, float g, float b, float a);
 void SCR_TileClear();
@@ -397,6 +396,8 @@ void CIN_RemoveCinematicEntities()
 
 void CIN_StopAllSounds()
 {
+	CinStopTrackedMP3();
+
 	for( int i = 2; i < 8; i++ )
 	{
 		S_StopMP3( i );
@@ -579,29 +580,12 @@ void DrawString(int x, int y, const char *str) {
 
 	DRAWSTRUCT	drawStruct;
 
-// changed by yokoyama
-#ifdef	JPN	// JPN
-		extern void *con_font;
-		
-		drawStruct.nFlags = DSFLAG_SCALE;
-		drawStruct.szString = str;
-		drawStruct.nXPos = x;
-		drawStruct.nYPos = y;
-		drawStruct.pImage = con_font;
-		drawStruct.fScaleX = viddef.width / 640.0f;
-		drawStruct.fScaleY = viddef.height / 480.0f;
-		re.DrawString( drawStruct );
-#else	// JPN
-
 	drawStruct.nFlags = DSFLAG_BLEND;
 	drawStruct.szString = str;
 	drawStruct.nXPos = x;
 	drawStruct.nYPos = y;
 	drawStruct.pImage = NULL;
 	re.DrawString( drawStruct );
-
-#endif	// JPN
-// Encompass MarkMa 040599
 }
 
 void GetVidDims(float& width, float& height)

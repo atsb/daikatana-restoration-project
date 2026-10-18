@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include "world.h"
 
 /////////////////////////////////////////////////////////////////////
@@ -21,7 +22,7 @@ typedef	struct	animHook_s
 	float	damage;
 } animHook_t;
 
-#define	ANIMHOOK(x) (int)&(((animHook_t *)0)->x)
+#define	ANIMHOOK(x) (int)offsetof(animHook_t,x)
 field_t anim_hook_fields[] = 
 {
 	{"damage",	ANIMHOOK(damage),	F_FLOAT},

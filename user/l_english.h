@@ -323,6 +323,17 @@ static char *tongue[] =
 };
 
 
+static char *tongue_save_error[] =
+{
+	"You must be running a local game to save!\n",
+	"You must be in a game to save!\n",
+	"You can not save in deathmatch!\n",
+	"You can not save during a cinematic!\n",
+	"You can not save while dead!\n",
+	"You can not save during intermission!\n",
+	"You can not save here!\n"
+};
+
 // menu-related
 static char *tongue_menu[] =
 {

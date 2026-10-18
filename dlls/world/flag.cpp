@@ -59,15 +59,15 @@ char flagNames[CTF_TEAMS][32];
 
 const ctfTeamInfo_s teamInfo[] = 
 {
-	{-1,NULL,NULL,NULL,NULL},
-	{T_CTF_RED_TEAM_NAME					,tongue_ctf[T_CTF_RED_TEAM_NAME]		,"skins/hiro_bod_8.wal"		,"skins/miko_bod_8.wal"		,"skins/sfly_bod_8.wal"},		
-	{T_CTF_BLUE_TEAM_NAME					,tongue_ctf[T_CTF_BLUE_TEAM_NAME]		,"skins/hiro_bod_3.wal"		,"skins/miko_bod_3.wal"		,"skins/sfly_bod_3.wal"},		
-	{T_CTF_CHROME_TEAM_NAME					,tongue_ctf[T_CTF_CHROME_TEAM_NAME]		,"skins/hiro_bod_4.wal"		,"skins/miko_bod_4.wal"		,"skins/sfly_bod_4.wal"},		
-	{T_CTF_METAL_TEAM_NAME					,tongue_ctf[T_CTF_METAL_TEAM_NAME]		,"skins/hiro_bod_1.wal"		,"skins/miko_bod_1.wal"		,"skins/sfly_bod_1.wal"},	
-	{T_CTF_GREEN_TEAM_NAME					,tongue_ctf[T_CTF_GREEN_TEAM_NAME]		,"skins/hiro_bod_2.wal"		,"skins/miko_bod_2.wal"		,"skins/sfly_bod_2.wal"},		
-	{T_CTF_ORANGE_TEAM_NAME					,tongue_ctf[T_CTF_ORANGE_TEAM_NAME]		,"skins/hiro_bod_5.wal"		,"skins/miko_bod_5.wal"		,"skins/sfly_bod_5.wal"},	
-	{T_CTF_PURPLE_TEAM_NAME					,tongue_ctf[T_CTF_PURPLE_TEAM_NAME]		,"skins/hiro_bod_6.wal"		,"skins/miko_bod_6.wal"		,"skins/sfly_bod_6.wal"},	
-	{T_CTF_YELLOW_TEAM_NAME					,tongue_ctf[T_CTF_YELLOW_TEAM_NAME]		,"skins/hiro_bod_7.wal"		,"skins/miko_bod_7.wal"		,"skins/sfly_bod_7.wal"}		
+	{NULL,NULL,NULL,NULL},
+	{tongue_ctf[T_CTF_RED_TEAM_NAME]		,"skins/hiro_bod_8.wal"		,"skins/miko_bod_8.wal"		,"skins/sfly_bod_8.wal"},		
+	{tongue_ctf[T_CTF_BLUE_TEAM_NAME]		,"skins/hiro_bod_3.wal"		,"skins/miko_bod_3.wal"		,"skins/sfly_bod_3.wal"},		
+	{tongue_ctf[T_CTF_CHROME_TEAM_NAME]		,"skins/hiro_bod_4.wal"		,"skins/miko_bod_4.wal"		,"skins/sfly_bod_4.wal"},		
+	{tongue_ctf[T_CTF_METAL_TEAM_NAME]		,"skins/hiro_bod_1.wal"		,"skins/miko_bod_1.wal"		,"skins/sfly_bod_1.wal"},	
+	{tongue_ctf[T_CTF_GREEN_TEAM_NAME]		,"skins/hiro_bod_2.wal"		,"skins/miko_bod_2.wal"		,"skins/sfly_bod_2.wal"},		
+	{tongue_ctf[T_CTF_ORANGE_TEAM_NAME]		,"skins/hiro_bod_5.wal"		,"skins/miko_bod_5.wal"		,"skins/sfly_bod_5.wal"},	
+	{tongue_ctf[T_CTF_PURPLE_TEAM_NAME]		,"skins/hiro_bod_6.wal"		,"skins/miko_bod_6.wal"		,"skins/sfly_bod_6.wal"},	
+	{tongue_ctf[T_CTF_YELLOW_TEAM_NAME]		,"skins/hiro_bod_7.wal"		,"skins/miko_bod_7.wal"		,"skins/sfly_bod_7.wal"}		
 };
 #define TEAMSKINMAX 8
 
@@ -334,24 +334,6 @@ void FLAG_Message( int team, userEntity_t *notthis, float time, const char *fmt,
 			if (gstate->gi->TestUnicast(ent,true))
 			{
 				gstate->centerprint( ent, time, buf );
-			}
-		}
-	}
-}
-
-void FLAG_CS_Message( int team, userEntity_t *notthis, float time )
-{
-	// Send the message to the people on the team.
-	userEntity_t *ent;
-	int c;
-	for (c = 0; c < maxclients->value; c++)
-	{
-		ent = &gstate->g_edicts [c + 1];
-		if (ent && (ent != notthis) && ent->inuse && TEAM_CHECK(ent,team))
-		{
-			if (gstate->gi->TestUnicast(ent,true))
-			{
-				gstate->cs.Unicast(ent,CS_print_center,time);
 			}
 		}
 	}
@@ -852,21 +834,10 @@ void TEAM_Set(userEntity_t *self, int teamChoice, bool killIfChanged, char *user
 		TEAM_SetSkin( self, userInfo );
 		if (self->netname && strlen(self->netname))
 		{
-			gstate->cs.BeginSendString();
-			gstate->cs.SendSpecifierID(RESOURCE_ID_FOR_STRING(tongue_ctf,T_CTF_PLAYER_JOINED),2);
-			gstate->cs.SendString(self->netname);
-
 			if (ctf->value || deathtag->value)
-			{
-				gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf,teamInfo[teamConvert[teamChoice]].teamNameID));
-			}
+				FLAG_Message( 0,NULL,2.0f,tongue_ctf[T_CTF_PLAYER_JOINED],self->netname,teamInfo[teamConvert[teamChoice]].teamName);
 			else
-			{
-				gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf,teamInfo[teamChoice].teamNameID));
-			}
-
-			FLAG_CS_Message(0,NULL,2.0f);
-			gstate->cs.EndSendString();
+				FLAG_Message( 0,NULL,2.0f,tongue_ctf[T_CTF_PLAYER_JOINED],self->netname,teamInfo[teamChoice].teamName);
 		}
 
 		// kill off the player and reset stuff
@@ -948,12 +919,7 @@ void TEAM_Join_f(userEntity_t *self)
 
 	if (gstate->GetArgc() != 2)
 	{
-		gstate->cs.BeginSendString();
-		gstate->cs.SendSpecifierID(RESOURCE_ID_FOR_STRING(tongue_ctf, T_CTF_ON_TEAM),2);
-		gstate->cs.SendInteger(self->team);
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf,teamInfo[teamConvert[self->team]].teamNameID));
-		gstate->cs.Unicast(self,CS_print_center,2.0);
-		gstate->cs.EndSendString();
+		gstate->centerprintf(self,tongue_ctf[T_CTF_ON_TEAM],self->team,teamInfo[teamConvert[self->team]].teamName);
 		return;
 	}
 	else
@@ -961,24 +927,18 @@ void TEAM_Join_f(userEntity_t *self)
 		int team = atoi(gstate->GetArgv(1));
 		if ((team < CTF_TEAM1) || (team >= CTF_TEAMS))
 		{
-			gstate->cs.BeginSendString();
-			gstate->cs.SendSpecifierID(RESOURCE_ID_FOR_STRING(tongue_ctf, T_CTF_INVALID_TEAM),1);
-			gstate->cs.SendInteger(self->team);
-			gstate->cs.Unicast(self,CS_print_center,2.0);
-			gstate->cs.EndSendString();
+			gstate->centerprintf(self, tongue_ctf[T_CTF_INVALID_TEAM],team);
 			return;
 		}
 		else if (team == self->team)
 		{
-			gstate->cs.BeginSendString();
-			gstate->cs.SendSpecifierID(RESOURCE_ID_FOR_STRING(tongue_ctf, T_CTF_ALREADY_ON_TEAM),1);
-			gstate->cs.SendInteger(team);
-			gstate->cs.Unicast(self,CS_print_center,2.0);
-			gstate->cs.EndSendString();
+			gstate->centerprintf(self,tongue_ctf[T_CTF_ALREADY_ON_TEAM],team);
 			return;
 		}
 
 		TEAM_Set(self,team,true);
+//		FLAG_Message( team,NULL,2.0f,tongue_ctf[T_CTF_PLAYER_JOINED],self->netname,teamInfo[teamConvert[team]].teamName);
+//		FLAG_Message( -team,NULL,2.0f,tongue_ctf[T_CTF_PLAYER_JOINED],self->netname,teamInfo[teamConvert[team]].teamName);		
 	}
 }
 
@@ -995,17 +955,7 @@ userEntity_t *TEAM_GetSpawnPoint( userEntity_t *self )
 // some overtime functions.  make them visible just in case I decide to do anything crazy with them...
 void TEAM_SetOvertime( qboolean bSet )
 {
-	if (bSet)
-	{
-		gstate->cs.BeginSendString();
-		gstate->cs.SendSpecifierStr("%s%s%s",3);
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf, T_CTF_TIME_EXPIRED));
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf, T_CTF_TIE));
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf, T_CTF_OVERTIME));
-		FLAG_CS_Message(0, NULL, 2.0);
-		gstate->cs.EndSendString();
-	}
-	bIsOvertime = bSet;
+	bIsOvertime = false;	// disabled for now.
 }
 
 qboolean TEAM_Overtime( void )

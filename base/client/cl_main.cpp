@@ -1,19 +1,5 @@
 // cl_main.c  -- client main loop
-#ifdef _WIN32
-    #include <io.h>
-#elif __linux__
-    #include <inttypes.h>
-    #include <unistd.h>
-    #define __int64 int64_t
-    #define _close close
-    #define _read read
-    #define _lseek64 lseek64
-    #define _O_RDONLY O_RDONLY
-    #define _open open
-    #define _lseeki64 lseek64
-    #define _lseek lseek
-    #define stricmp strcasecmp
-#endif
+#include	<io.h>
 
 #include	"client.h"
 //	Nelno:	header for daikatana specific code
@@ -80,8 +66,8 @@ cvar_t	*cl_maxfps;
 cvar_t	*cl_gun;
 
 cvar_t  *dm_footsteps;
+cvar_t  *cl_dmhints;
 cvar_t  *deathmatch;
-cvar_t	*cl_dmhints;
 
 cvar_t	*cl_add_particles;
 cvar_t	*cl_add_lights;
@@ -271,7 +257,7 @@ void CL_Record_f (void)
 	//
 	// open the demo file
 	//
-	Com_sprintf (name, sizeof(name), "%s/demos/%s.dem", FS_Gamedir(), GetArgv(1));
+	Com_sprintf (name, sizeof(name), "%s/demos/%s.dm2", FS_Gamedir(), GetArgv(1));
 
 	Com_Printf ("recording to %s.\n", name);
 	FS_CreatePath (name);
@@ -905,23 +891,13 @@ void CL_Packet_f (void)
 	l = strlen (in);
 	for (i=0 ; i<l ; i++)
 	{
-// Encompass MarkMa 040599
-#ifdef	JPN	// JPN
-		if(IsDBCSLeadByte(in[i]))	{
-			*out++ = in[i++];
-			*out++ = in[i];
+		if (in[i] == '\\' && in[i+1] == 'n')
+		{
+			*out++ = '\n';
+			i++;
 		}
 		else
-#endif	// JPN Encompass MarkMa 040599
-		{ // JPN
-			if (in[i] == '\\' && in[i+1] == 'n')
-			{
-				*out++ = '\n';
-				i++;
-			}
-			else
-				*out++ = in[i];
-		} //JPN Encompass MarkMa 040599
+			*out++ = in[i];
 	}
 	*out = 0;
 
@@ -1151,7 +1127,6 @@ void CL_ConnectionlessPacket (void)
 		MSG_WriteChar (&cls.netchan.message, clc_stringcmd);
 		MSG_WriteString (&cls.netchan.message, "new");	
 		cls.state = ca_connected;
-		Com_DPrintf("client_connect packet received from server.\n");
 		return;
 	}
 	// server responding to a status broadcast
@@ -1185,12 +1160,6 @@ void CL_ConnectionlessPacket (void)
             CL_Disconnect();
             Cbuf_AddText ("menu_main\n");
         }
-		else if (strstr(s,"Server is version"))		// make sure the client doesn't just keep going....
-		{
-            SCR_EndLoadingPlaque ();
-            CL_Disconnect();
-            Cbuf_AddText ("menu_main\n");
-		}
         return;
 	}
 	// ping from somewhere
@@ -1526,25 +1495,24 @@ void CL_InitLocal (void)
 
 
 //	skin = Cvar_Get ("skin", "male/grunt", CVAR_USERINFO | CVAR_ARCHIVE);
-	rate = Cvar_Get ("rate", "25000", CVAR_USERINFO | CVAR_ARCHIVE);
+	rate = Cvar_Get ("rate", "2500", CVAR_USERINFO | CVAR_ARCHIVE);
 	msg = Cvar_Get ("msg", "1", CVAR_USERINFO | CVAR_ARCHIVE);
 	//hand = Cvar_Get ("hand", "0", CVAR_USERINFO | CVAR_ARCHIVE);
 	fov = Cvar_Get ("fov", "90", CVAR_USERINFO | CVAR_ARCHIVE);
     
-	modelname = Cvar_Get ("modelname", DEFAULT_CHARACTER_MODEL, CVAR_USERINFO | CVAR_ARCHIVE | CVAR_NOSET );
-	skinname  = Cvar_Get ("skinname", "", CVAR_USERINFO | CVAR_ARCHIVE);
-	skincolor = Cvar_Get ("skincolor", "0", CVAR_USERINFO | CVAR_ARCHIVE);
-	character = Cvar_Get ("character", "0", CVAR_USERINFO | CVAR_ARCHIVE);
+  modelname = Cvar_Get ("modelname", DEFAULT_CHARACTER_MODEL, CVAR_USERINFO | CVAR_ARCHIVE | CVAR_NOSET );
+  skinname  = Cvar_Get ("skinname", "", CVAR_USERINFO | CVAR_ARCHIVE);
+  skincolor = Cvar_Get ("skincolor", "0", CVAR_USERINFO | CVAR_ARCHIVE);
+  character = Cvar_Get ("character", "0", CVAR_USERINFO | CVAR_ARCHIVE);
 
 	if (character->value < 0 || character->value > 2) // boundary check
     Cvar_Set("character", "0");
 
 
-	dm_footsteps = Cvar_Get("dm_footsteps", "1", CVAR_LATCH);
-	deathmatch   = Cvar_Get("deathmatch", "0", CVAR_SERVERINFO|CVAR_LATCH);
-	Cvar_Get("dm_taunts","1",CVAR_USERINFO | CVAR_ARCHIVE );	// cek[5-10-00]: disable dm commentary
-	Cvar_Get("unlimited_saves","0", CVAR_ARCHIVE );
-	cl_dmhints = Cvar_Get("cl_dmhints","1",CVAR_ARCHIVE);
+  dm_footsteps = Cvar_Get("dm_footsteps", "1", CVAR_LATCH);
+  deathmatch   = Cvar_Get("deathmatch", "0", CVAR_LATCH);
+  Cvar_Get("dm_taunts", "1", CVAR_USERINFO | CVAR_ARCHIVE);
+  cl_dmhints = Cvar_Get("cl_dmhints", "1", CVAR_ARCHIVE);
 
 	//	kick idle asses so Nelno can update
 	cl_checkkick = Cvar_Get ("cl_checkkick", "1", CVAR_ARCHIVE);
@@ -1932,7 +1900,10 @@ void CL_Frame (int msec)
 	{
 		if (cls.state == ca_connected && extratime < 100)
 			return;			// don't flood packets out while connecting
-		if (extratime < 1000/cl_maxfps->value)
+
+		/* Let VSync determine presentation pacing when it is enabled. */
+		if (Cvar_VariableValue("gl_swapinterval") == 0.0f &&
+			extratime < 1000/cl_maxfps->value)
 			return;			// framerate is too high
 	}
 
@@ -1985,7 +1956,17 @@ void CL_Frame (int msec)
 
 	// fetch results from server
 	CL_ReadPackets ();
-
+/*
+	// SCG[8/17/99]: 
+	if ((CIN_Running() == 1) || Cvar_VariableValue ("scr_letterbox"))
+	{
+		cl.frame.playerstate.rdflags |= RDF_LETTERBOX;
+	}
+	else
+	{
+		cl.frame.playerstate.rdflags &= ~RDF_LETTERBOX;
+	}
+*/
 	// send a new command message to the server
 	CL_SendCommand ();
 
@@ -1997,7 +1978,12 @@ void CL_Frame (int msec)
 	
 	if (!cl.refresh_prepped && cls.state == ca_active)
 		CL_PrepRefresh ();
-
+/*
+	else if (bspModel.fixModelClip)
+		//	bsp was unloaded and reloaded by server, so remake model_clip
+		//	list or it will likely point to bad places
+		CL_FixModelClip ();
+*/
 	if( cl.frame.playerstate.rdflags & RDF_NOCHEATING )
 	{
 		CL_FixCvarCheats();

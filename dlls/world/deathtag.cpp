@@ -223,24 +223,6 @@ int DT_GetScores(teamInfo_t *scorearr, int maxscores)
 	return cnt;
 }
 
-void CTFEndGameMessage(long message, int winner, int loser, int wscore, int lscore);
-void DTEndGameMessage(long message, int winner, int loser, int wscore, int lscore)
-{
-	gstate->cs.BeginSendString();
-	gstate->cs.SendSpecifierStr("%s%s",2);
-	gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_deathtag,message));
-	gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf,T_CTF_TEAM_WON));
-	gstate->cs.Continue(true);
-	gstate->cs.SendCount(5);
-	gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf,teamInfo[winner].teamNameID));
-	gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf,teamInfo[winner].teamNameID));
-	gstate->cs.SendInteger(wscore);
-	gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf,teamInfo[loser].teamNameID));
-	gstate->cs.SendInteger(lscore);
-	FLAG_CS_Message(0,NULL,2.0);
-	gstate->cs.EndSendString();
-}
-
 //=============================================================================
 // int DT_CheckRules()
 // 
@@ -276,36 +258,29 @@ int DT_CheckRules()
 	bool limit = (fraglimit->value && (wscore >= fraglimit->value));
 	bool timeup = ( (timelimit->value) &&  (gstate->level->time > timelimit->value*60) );
 
-	if (TEAM_Overtime())
+	if (limit || timeup)
 	{
-		if (winner && loser)
+		char buf[128];
+
+		if (limit)	// cap limit...always a winner/loser
 		{
-			DTEndGameMessage(TONGUE_DT_SCORE_LIMIT,winner,loser,wscore,lscore);
-			return 1;
+			Com_sprintf(buf,sizeof(buf),"%s%s",tongue_deathtag[TONGUE_DT_SCORE_LIMIT],tongue_ctf[T_CTF_TEAM_WON]);
+			FLAG_Message( 0, NULL, 2.0f, buf,teamInfo[winner].teamName,teamInfo[winner].teamName,wscore,teamInfo[loser].teamName,lscore );
 		}
-	}
-	else
-	{
-		if (limit || timeup)
+		else		// time limit...can be a tie
 		{
-			if (limit)	// cap limit...always a winner/loser
+			if (winner && loser)
 			{
-				DTEndGameMessage(TONGUE_DT_SCORE_LIMIT,winner,loser,wscore,lscore);
+				Com_sprintf(buf,sizeof(buf),"%s%s",tongue_ctf[T_CTF_TIME_EXPIRED],tongue_ctf[T_CTF_TEAM_WON]);
+				FLAG_Message( 0, NULL, 2.0f, buf,teamInfo[winner].teamName,teamInfo[winner].teamName,wscore,teamInfo[loser].teamName,lscore );
 			}
-			else		// time limit...can be a tie
+			else
 			{
-				if (winner && loser)
-				{
-					CTFEndGameMessage(T_CTF_TIME_EXPIRED,winner,loser,wscore,lscore);
-				}
-				else
-				{
-					TEAM_SetOvertime(TRUE);
-					return 0;
-				}
+				Com_sprintf(buf,sizeof(buf),"%s%s",tongue_ctf[T_CTF_TIME_EXPIRED],tongue_ctf[T_CTF_TIE]);
+				FLAG_Message( 0, NULL, 2.0f, buf );
 			}
-			return 1;
 		}
+		return 1;
 	}
 
 	return 0;
@@ -319,25 +294,18 @@ int DT_CheckRules()
 void DT_TeamStats(userEntity_t *self, int team, long &capPerc, long &teamPerc, long &flags)
 {
 	flags = 0;
-
-	// check if your team's pack is being carried
-	userEntity_t *teamFlag = FLAG_Team(team);
-	if (!teamFlag || (!FLAG_Carrier(team) && !(teamFlag->spawnflags & DROPPED_ITEM)))
-		flags |= STAT_CTF_YOUR_FLAG_HOME;
-
 	if (team == self->team)
 	{
 		flags |= STAT_CTF_YOUR_TEAM;
-		// see if you're carrying a pack
-		if (FLAG_Carried_By(self))
-			flags |= STAT_CTF_YOU_HAVE_ENEMY_FLAG;
 	}
+
 	// send over the team conversion
 	flags += ((teamConvert[team]) << STAT_CTF_TEAM_CONVERT_SHIFT);
 
 	// send over the number of captures
 	flags += ((ctfgame.score[team]) << STAT_CTF_TEAM_CAPTURES_SHIFT);
 
+	userEntity_t *teamFlag = FLAG_Team(team);
 	teamPerc = 100;
 	if (teamFlag && (teamFlag->hacks != -1))
 	{
@@ -372,7 +340,7 @@ void item_pack_return_think(userEntity_t *self)
 	if (ihook)
 		gstate->StartEntitySound(self, CHAN_OVERRIDE, ihook->soundFlagReturned, 0.85f, 100000, 100000 );
 
-	FLAG_RETURN_MESSAGE(tongue_ctf,T_CTF_FLAG_RETURNED,tongue_deathtag,TONGUE_DT_TEAM_PACK,self->team);
+	FLAG_Message( 0, NULL, 2.0f, tongue_ctf[ T_CTF_FLAG_RETURNED ], self->netname );
 	FLAG_Reset(self);
 }
 
@@ -426,7 +394,6 @@ void item_pack_explode(userEntity_t *self)
 // Lets players on the same team as the pack pick up the pack.  Sets the timers
 // if necessary.  Players on the other team cause the pack to explode.
 //=============================================================================
-//tongue_deathtag[TONGUE_DT_TEAM_PACK]
 void item_pack_touch(userEntity_t *self, userEntity_t *other, cplane_t *plane, csurface_t *surf)
 {
 	if (!com->ValidTouch (self, other))
@@ -451,38 +418,9 @@ void item_pack_touch(userEntity_t *self, userEntity_t *other, cplane_t *plane, c
 		}
 
 		// Let the other players know about it.
-		// you grabbed the %s
-		gstate->cs.BeginSendString();
-		gstate->cs.SendSpecifierID(RESOURCE_ID_FOR_STRING(tongue_ctf,T_CTF_YOU_HAVE_GOT_FLAG),1);
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_deathtag,TONGUE_DT_TEAM_PACK));
-		gstate->cs.Continue(true);
-		gstate->cs.SendCount(1);
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf,teamInfo[teamConvert[self->team]].teamNameID));
-		gstate->cs.Unicast(other,CS_print_center,2.0);
-		gstate->cs.EndSendString();
-
-		//%s from your team has grabbed the %s
-		gstate->cs.BeginSendString();
-		gstate->cs.SendSpecifierID(RESOURCE_ID_FOR_STRING(tongue_ctf,T_CTF_GRABBED_FLAG),2);
-		gstate->cs.SendString(other->netname);
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_deathtag,TONGUE_DT_TEAM_PACK));
-		gstate->cs.Continue(true);
-		gstate->cs.SendCount(1);
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf,teamInfo[teamConvert[self->team]].teamNameID));
-		FLAG_CS_Message(  other->team, other, 2.0f );
-		gstate->cs.EndSendString();
-
-		//%s has stolen your flag.
-		gstate->cs.BeginSendString();
-		gstate->cs.SendSpecifierID(RESOURCE_ID_FOR_STRING(tongue_deathtag,TONGUE_DT_O_TEAM_GRABBED),3);
-		gstate->cs.SendString(other->netname);
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf,teamInfo[teamConvert[other->team]].teamNameID));
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_deathtag,TONGUE_DT_TEAM_PACK));
-		gstate->cs.Continue(true);
-		gstate->cs.SendCount(1);
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf,teamInfo[teamConvert[self->team]].teamNameID));
-		FLAG_CS_Message( -other->team, other, 2.0f );
-		gstate->cs.EndSendString();
+		gstate->centerprintf( other, tongue_ctf[ T_CTF_YOU_HAVE_GOT_FLAG ], self->netname ); 
+		FLAG_Message(  other->team, other, 1.0f, tongue_ctf[ T_CTF_GRABBED_FLAG ], other->netname, self->netname );
+		FLAG_Message( -other->team, other, 1.0f, tongue_deathtag[ TONGUE_DT_O_TEAM_GRABBED ], other->netname,teamInfo[other->team].teamName,self->netname );
 
 		FLAG_Grab(self,other);
 		self->touch = NULL;
@@ -533,10 +471,7 @@ void item_pack_think(userEntity_t *self)
 
 			if (vol < (1.0 / PACK_BEEP_DURATION))
 			{
-				gstate->cs.BeginSendString();
-				gstate->cs.SendSpecifierID(RESOURCE_ID_FOR_STRING(tongue_deathtag,TONGUE_DT_TIME_ROUT),0);
-				gstate->cs.Unicast(soundEnt,CS_print_center,2.0);
-				gstate->cs.EndSendString();
+				gstate->centerprintf(soundEnt,tongue_deathtag[TONGUE_DT_TIME_ROUT]);
 			}
 			gstate->StartEntitySound(soundEnt, CHAN_OVERRIDE, gstate->SoundIndex(PACK_SOUND_BEAT), vol, 700.0f, 700.0f);
 		}
@@ -546,12 +481,7 @@ void item_pack_think(userEntity_t *self)
 	if ((self->hacks != -1) && (gstate->time > self->hacks))
 	{
 		if (soundEnt != self)
-		{
-			gstate->cs.BeginSendString();
-			gstate->cs.SendSpecifierID(RESOURCE_ID_FOR_STRING(tongue_deathtag,TONGUE_DT_TIME_OUT),0);
-			gstate->cs.Unicast(soundEnt,CS_print_center,2.0);
-			gstate->cs.EndSendString();
-		}
+			gstate->centerprintf(soundEnt,tongue_deathtag[TONGUE_DT_TIME_OUT]);
 		item_pack_explode(self);
 		return;
 	}
@@ -599,118 +529,31 @@ void DT_FlagCaptured(userEntity_t *flag, userEntity_t *capturer, userEntity_t *t
 	ctfgame.score[ capturer->team ] += points;
 
 	// play the message
-	buffer32 scoreString(tongue_ctf[T_CTF_SCORE],
-		teamInfo[teamConvert[CTF_TEAM1]].teamName,
-		ctfgame.score[CTF_TEAM1],
-		teamInfo[teamConvert[CTF_TEAM2]].teamName,
-		ctfgame.score[CTF_TEAM_BLUE]);
-
+	buffer32 scoreString(tongue_ctf[T_CTF_SCORE],teamInfo[teamConvert[CTF_TEAM1]].teamName,ctfgame.score[CTF_TEAM1],teamInfo[teamConvert[CTF_TEAM2]].teamName,ctfgame.score[CTF_TEAM_BLUE]);
 	buffer128 whoString;
 	buffer128 pointString;
 	if (points == 1)
 	{
-		// tell you what happened
-		gstate->cs.BeginSendString();
-		gstate->cs.SendSpecifierStr("%s%s%s",3);
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_deathtag,TONGUE_DT_YOU_SCORED));
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_deathtag,TONGUE_DT_Y_POINT));
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf,T_CTF_SCORE));
-		gstate->cs.Continue(true);
-		gstate->cs.SendCount(4);
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf, teamInfo[teamConvert[CTF_TEAM1]].teamNameID));
-		gstate->cs.SendInteger(ctfgame.score[CTF_TEAM1]);
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf, teamInfo[teamConvert[CTF_TEAM2]].teamNameID));
-		gstate->cs.SendInteger(ctfgame.score[CTF_TEAM2]);
-		gstate->cs.Unicast(capturer,CS_print_center,2.0);
-		gstate->cs.EndSendString();
+		gstate->centerprintf(capturer, "%s%s%s",tongue_deathtag[TONGUE_DT_YOU_SCORED],tongue_deathtag[TONGUE_DT_Y_POINT],(const char *)scoreString);
 
-		// tell your team what happened
-		gstate->cs.BeginSendString();
-		gstate->cs.SendSpecifierStr("%s%s%s",3);
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_deathtag,TONGUE_DT_Y_TEAM_SCORED));
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_deathtag,TONGUE_DT_Y_POINT));
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf,T_CTF_SCORE));
-		gstate->cs.Continue(true);
-		gstate->cs.SendCount(5);
-		gstate->cs.SendString(capturer->netname);
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf, teamInfo[teamConvert[CTF_TEAM1]].teamNameID));
-		gstate->cs.SendInteger(ctfgame.score[CTF_TEAM1]);
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf, teamInfo[teamConvert[CTF_TEAM2]].teamNameID));
-		gstate->cs.SendInteger(ctfgame.score[CTF_TEAM2]);
-		FLAG_CS_Message(capturer->team,capturer,2.0f);
-		gstate->cs.EndSendString();
+		whoString.Set(tongue_deathtag[TONGUE_DT_Y_TEAM_SCORED],capturer->netname);
+		FLAG_Message( capturer->team,capturer,2.0f,"%s%s%s",(const char *)whoString,tongue_deathtag[TONGUE_DT_Y_POINT],(const char *)scoreString);
 
-		// tell other team what happened
-		gstate->cs.BeginSendString();
-		gstate->cs.SendSpecifierStr("%s%s%s",3);
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_deathtag,TONGUE_DT_O_TEAM_SCORED));
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_deathtag,TONGUE_DT_O_POINT));
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf,T_CTF_SCORE));
-		gstate->cs.Continue(true);
-		gstate->cs.SendCount(7);
-		gstate->cs.SendString(capturer->netname);
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf, teamInfo[capturer->team].teamNameID));
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf, teamInfo[capturer->team].teamNameID));
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf, teamInfo[teamConvert[CTF_TEAM1]].teamNameID));
-		gstate->cs.SendInteger(ctfgame.score[CTF_TEAM1]);
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf, teamInfo[teamConvert[CTF_TEAM2]].teamNameID));
-		gstate->cs.SendInteger(ctfgame.score[CTF_TEAM2]);
-		FLAG_CS_Message(-capturer->team,capturer,2.0f);
-		gstate->cs.EndSendString();
+		whoString.Set(tongue_deathtag[TONGUE_DT_O_TEAM_SCORED],capturer->netname,teamInfo[capturer->team].teamName);
+		pointString.Set(tongue_deathtag[TONGUE_DT_O_POINT],teamInfo[capturer->team].teamName);
+		FLAG_Message( -capturer->team,capturer,2.0f,"%s%s%s",(const char *)whoString,(const char *)pointString,(const char *)scoreString);
 	}
 	else
 	{
-		// tell you what happened
-		gstate->cs.BeginSendString();
-		gstate->cs.SendSpecifierStr("%s%s%s",3);
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_deathtag,TONGUE_DT_YOU_SCORED));
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_deathtag,TONGUE_DT_Y_POINTS));
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf,T_CTF_SCORE));
-		gstate->cs.Continue(true);
-		gstate->cs.SendCount(5);
-		gstate->cs.SendInteger(points);
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf, teamInfo[teamConvert[CTF_TEAM1]].teamNameID));
-		gstate->cs.SendInteger(ctfgame.score[CTF_TEAM1]);
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf, teamInfo[teamConvert[CTF_TEAM2]].teamNameID));
-		gstate->cs.SendInteger(ctfgame.score[CTF_TEAM2]);
-		gstate->cs.Unicast(capturer,CS_print_center,2.0);
-		gstate->cs.EndSendString();
+		pointString.Set(tongue_deathtag[TONGUE_DT_Y_POINTS],points);
+		gstate->centerprintf(capturer, "%s%s%s",tongue_deathtag[TONGUE_DT_YOU_SCORED],(const char *)pointString,(const char *)scoreString);
 
-		// tell your team what happened
-		gstate->cs.BeginSendString();
-		gstate->cs.SendSpecifierStr("%s%s%s",3);
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_deathtag,TONGUE_DT_Y_TEAM_SCORED));
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_deathtag,TONGUE_DT_Y_POINTS));
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf,T_CTF_SCORE));
-		gstate->cs.Continue(true);
-		gstate->cs.SendCount(6);
-		gstate->cs.SendString(capturer->netname);
-		gstate->cs.SendInteger(points);
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf, teamInfo[teamConvert[CTF_TEAM1]].teamNameID));
-		gstate->cs.SendInteger(ctfgame.score[CTF_TEAM1]);
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf, teamInfo[teamConvert[CTF_TEAM2]].teamNameID));
-		gstate->cs.SendInteger(ctfgame.score[CTF_TEAM2]);
-		FLAG_CS_Message(capturer->team,capturer,2.0f);
-		gstate->cs.EndSendString();
+		whoString.Set(tongue_deathtag[TONGUE_DT_Y_TEAM_SCORED],capturer->netname);
+		FLAG_Message( capturer->team,capturer,2.0f,"%s%s%s",(const char *)whoString,(const char *)pointString,(const char *)scoreString);
 
-		// tell other team what happened
-		gstate->cs.BeginSendString();
-		gstate->cs.SendSpecifierStr("%s%s%s",3);
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_deathtag,TONGUE_DT_O_TEAM_SCORED));
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_deathtag,TONGUE_DT_O_POINTS));
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf,T_CTF_SCORE));
-		gstate->cs.Continue(true);
-		gstate->cs.SendCount(8);
-		gstate->cs.SendString(capturer->netname);
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf, teamInfo[capturer->team].teamNameID));
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf, teamInfo[capturer->team].teamNameID));
-		gstate->cs.SendInteger(points);
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf, teamInfo[teamConvert[CTF_TEAM1]].teamNameID));
-		gstate->cs.SendInteger(ctfgame.score[CTF_TEAM1]);
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf, teamInfo[teamConvert[CTF_TEAM2]].teamNameID));
-		gstate->cs.SendInteger(ctfgame.score[CTF_TEAM2]);
-		FLAG_CS_Message(-capturer->team,capturer,2.0f);
-		gstate->cs.EndSendString();
+		whoString.Set(tongue_deathtag[TONGUE_DT_O_TEAM_SCORED],capturer->netname,teamInfo[capturer->team].teamName);
+		pointString.Set(tongue_deathtag[TONGUE_DT_O_POINTS],teamInfo[capturer->team].teamName,points);
+		FLAG_Message( -capturer->team,capturer,2.0f,"%s%s%s",(const char *)whoString,(const char *)pointString,(const char *)scoreString);
 	}
 }
 

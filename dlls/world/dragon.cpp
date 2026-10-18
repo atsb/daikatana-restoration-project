@@ -472,14 +472,13 @@ void monster_dragon( userEntity_t *self )
 	// NSS[3/10/00]:Setup the next think time... offset.
 	AI_SetInitialThinkTime(self);
 
+	// NSS[6/7/00]:Mark this monster as a boss
+	hook->dflags |= DFL_ISBOSS;
+
 	// NSS[3/20/00]:Fireball sound cache
 	gstate->SoundIndex("global/e_explodef.wav");
 	gstate->SoundIndex("global/e_explodeq.wav");
 	gstate->SoundIndex("global/e_exploded.wav");
-
-	// NSS[6/7/00]:Mark this monster as a boss
-	hook->dflags |= DFL_ISBOSS;
-
 
 }
 

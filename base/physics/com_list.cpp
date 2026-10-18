@@ -1,3 +1,4 @@
+#include <stdint.h>
 //#include <windows.h>
 #if _MSC_VER
 #include <crtdbg.h>
@@ -194,9 +195,9 @@ void	com_list_remove_node (void *ptr, listHeader_t *list)
 
 	while (cur_node)
 	{
-		_ASSERTE ((int)cur_node->next != 0xcdcdcdcd);
-		_ASSERTE ((int)cur_node->next != 0xdcdcdcdc);
-		_ASSERTE ((int)cur_node->next != 0xdddddddd);
+		_ASSERTE ((uintptr_t)cur_node->next != 0xcdcdcdcd);
+		_ASSERTE ((uintptr_t)cur_node->next != 0xdcdcdcdc);
+		_ASSERTE ((uintptr_t)cur_node->next != 0xdddddddd);
 
 		if (cur_node->ptr == ptr)
 		{

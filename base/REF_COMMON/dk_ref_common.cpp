@@ -3,12 +3,18 @@
 
 
 // randomize background filename   12.18  dsn
-/*
-const char * RandBkgFilename (int fname_idx)  
+static const char *bkg_rootNames[] =
 {
-  return (bkg_rootNames[fname_idx]);
+    "2dkcon.pcx", "2dkcon2.pcx",
+    "5dkcon.pcx", "5dkcon2.pcx",
+    "6dkcon.pcx", "6dkcon2.pcx",
+    "7dkcon.pcx", "7dkcon2.pcx"
+};
+
+const char *RandBkgFilename (int fname_idx)
+{
+    return bkg_rootNames[fname_idx];
 }
-*/
 
 
 

@@ -17,7 +17,6 @@
 short isLevelUp(userEntity_t *self);
 int AI_IsAlive( userEntity_t *self );
 
-#define IS_PAUSED				(gstate->GetCvar("paused") > 0.0f)
 void Inventory_weap_update(userEntity_t *self, qboolean bOn)
 {
 	if (gstate->gi->TestUnicast(self,true))
@@ -44,7 +43,7 @@ void Inventory_inv_update(userEntity_t *self, qboolean bOn)
 
 void Inventory_Update(  userEntity_t *self )
 {
-	if (!AI_IsAlive(self) || IS_PAUSED)
+	if (!AI_IsAlive(self))
 		return;
 	gclient_t	*pClient = self->client;
 
@@ -118,7 +117,7 @@ void Inventory_Update(  userEntity_t *self )
 
 void Inventory_SetMode( userEntity_t *self, int nMode, qboolean bPerformAction )
 {
-	if (!AI_IsAlive(self) || IS_PAUSED)
+	if (!AI_IsAlive(self))
 		return;
 
 	gclient_t	*pClient = self->client;
@@ -159,7 +158,7 @@ int Inventory_sack_count(userEntity_t *self)
 
 void Inventory_Open_f( userEntity_t *self )
 {
-	if (!AI_IsAlive(self) || IS_PAUSED)
+	if (!AI_IsAlive(self))
 		return;
 
 	gclient_t	*pClient = self->client;
@@ -215,7 +214,7 @@ void Inventory_Open_f( userEntity_t *self )
 
 void Inventory_Next_f( userEntity_t *self )
 {
-	if (!AI_IsAlive(self) || IS_PAUSED)
+	if (!AI_IsAlive(self))
 		return;
 
 	gclient_t	*pClient = self->client;
@@ -251,7 +250,7 @@ void Inventory_Next_f( userEntity_t *self )
 
 void Inventory_Prev_f( userEntity_t *self )
 {
-	if (!AI_IsAlive(self) || IS_PAUSED)
+	if (!AI_IsAlive(self))
 		return;
 
 	gclient_t	*pClient = self->client;
@@ -287,7 +286,7 @@ void Inventory_Prev_f( userEntity_t *self )
 
 void Inventory_Use_f( userEntity_t *self )
 {
-	if (!AI_IsAlive(self) || IS_PAUSED)
+	if (!AI_IsAlive(self))
 		return;
 
 	gclient_t	*pClient = self->client;

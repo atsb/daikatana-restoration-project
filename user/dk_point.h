@@ -45,14 +45,14 @@ public:
 		this->z = v.z;
 	}
 */
-	CVector(float x, float y, float z) 
+	CVector::CVector(float x, float y, float z) 
 	{
 		this->x = x;
 		this->y = y;
 		this->z = z;
 	}
 
-	CVector(const float *vect) 
+	CVector::CVector(const float *vect) 
 	{
 		x = vect[0];
 		y = vect[1];
@@ -233,11 +233,10 @@ public:
 		float z;
 		float roll;
 	};
-	
-
 };
 
-#ifdef _DEBUG
+CVector operator*(float n, const CVector &v);
+
 
 /* ************************************************************************* */
 /*						Helper functions and definitions					 */
@@ -258,7 +257,9 @@ void Normal( CVector &v1, CVector &v2, CVector &v3, CVector &out );
 float LerpAngle( float a2, float a1, float frac );
 void LerpAngles( CVector &aPrev, CVector &aCur, CVector &aOut, float frac);
 
-#else _DEBUG
+#ifdef _DEBUG
+
+#else
 
 
 ///////////////////////////////////////////////////////////////////////////////

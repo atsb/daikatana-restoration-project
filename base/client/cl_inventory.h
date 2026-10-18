@@ -34,6 +34,7 @@ void	inventory_init (void);
 void	inventory_ParseInventory (void);
 
 void CL_ParseWeaponIcons(void);
+void CL_RefreshWeaponIconModels();
 void CL_ParseAmmoUpdate();
 
 #endif

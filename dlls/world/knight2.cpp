@@ -567,5 +567,4 @@ void world_ai_valkyrie_register_func()
 	gstate->RegisterFunc("knight2_start_pain",knight2_start_pain);
 	gstate->RegisterFunc("knight2_start_die",knight2_start_die);
 	gstate->RegisterFunc("Knight2_ParseEpairs",Knight2_ParseEpairs);
-	gstate->RegisterFunc("KNIGHT2_Think",KNIGHT2_Think);	
 }

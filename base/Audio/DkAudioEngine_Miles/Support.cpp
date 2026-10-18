@@ -99,6 +99,9 @@ int Sound_Init(void)
 	cvar_t* max_chan	= ai.Cvar_Get("s_max_channels","32",CVAR_ARCHIVE);
 	cvar_t* use3d		= ai.Cvar_Get("s_use3d","1",CVAR_ARCHIVE);
 
+#pragma message( "// SCG[3/9/00]: this fucking sucks!" )
+	use3d->value = 0;
+	
 	// init miles audio engine
 	AIL_startup();
 	
@@ -189,8 +192,7 @@ audiook:
 	failed_3d = false;
 	
 	// setup 3d sound if we want to use it
-//	if (use3d->value)
-	if (0)
+	if (use3d->value)
 	{
 		ai.Com_Printf("\nInitializing 3D Sound Engine ...\n");
 		

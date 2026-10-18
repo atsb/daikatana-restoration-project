@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include "world.h"
 #include "actorlist.h"
 
@@ -15,7 +16,7 @@ DllExport	void	effect_lightning (userEntity_t *self);
 DllExport   void    effect_steam (userEntity_t *self);
 
 // SCG[11/19/99]: Save game stuff
-#define	LIGHTNINGEFFECTHOOK(x) (int)&(((lightningEffectHook_t *)0)->x)
+#define	LIGHTNINGEFFECTHOOK(x) (int)offsetof(lightningEffectHook_t,x)
 field_t lightning_effect_hook_fields[] = 
 {
 	{"attractorHead",	LIGHTNINGEFFECTHOOK(attractorHead),		F_EDICT},
@@ -34,7 +35,7 @@ field_t lightning_effect_hook_fields[] =
 };
 
 // SCG[11/19/99]: Save game stuff
-#define	EFFECTENTITYHOOK(x) (int)&(((effectEntityHook_t *)0)->x)
+#define	EFFECTENTITYHOOK(x) (int)offsetof(effectEntityHook_t,x)
 field_t effect_entity_hook_fields[] = 
 {
 	{"emitter",				EFFECTENTITYHOOK(emitter),				F_EDICT},
@@ -177,7 +178,7 @@ void effect_fog (userEntity_t *self)
 ///////////////////////////////////////////////////////////////////////////////
 // effect_snow
 ///////////////////////////////////////////////////////////////////////////////
-// cek: win2k -- rain and snow volumes set to nosave
+
 void effect_snow (userEntity_t *self)
 {
 	int		i;
@@ -196,7 +197,6 @@ void effect_snow (userEntity_t *self)
 
 	self->solid = SOLID_NOT;
 	self->movetype = MOVETYPE_NONE;
-	self->flags |= FL_NOSAVE;
 
 	self->s.renderfx	= RF_PARTICLEVOLUME;
 	self->s.effects		= 0;
@@ -227,7 +227,6 @@ void effect_rain (userEntity_t *self)
 
 	self->solid = SOLID_NOT;
 	self->movetype = MOVETYPE_NONE;
-	self->flags |= FL_NOSAVE;
 
 	self->s.renderfx	= RF_PARTICLEVOLUME;
 	self->s.effects		= 0;
@@ -954,7 +953,7 @@ void effect_lightning (userEntity_t *self)
 ///////////////////////////////////////////////////////////////////////////////
 
 // SCG[11/19/99]: Save game stuff
-#define	STEAMEFFECTHOOK(x) (int)&(((steamEffectHook_t *)0)->x)
+#define	STEAMEFFECTHOOK(x) (int)offsetof(steamEffectHook_t,x)
 field_t steam_effect_hook_fields[] = 
 {
 	{"sound",		STEAMEFFECTHOOK(sound),		F_INT},

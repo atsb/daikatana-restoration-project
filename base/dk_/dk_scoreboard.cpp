@@ -30,7 +30,7 @@ typedef	struct
 {
 	short	int		client_index;		//	index into cl.clientinfo
 	short	int		frags;				//	number of frags this client has
-	//int			exp;				//  experience points
+	//long			exp;				//  experience points
 	short	int		level;
 	short	int		ping;				//	ping time of this client
 	short	int		time_on;			//	time this client has been on server
@@ -145,23 +145,18 @@ void SB_DrawString(int32 x, int32 y, const char *str, int32 max_pixel_width, int
 	re.DrawString( strDrawStruct );
 }
 
-void SB_DrawTime(int32 x, int32 y, int32 x1)
+void SB_DrawTime(int32 x, int32 y)
 {
-	int time = cl.frame.playerstate.stats[STAT_TIME];
+	long time = cl.frame.playerstate.stats[STAT_TIME];
 
-	int nMinutes	= ( time / 60 ) % 60;
-	int nHours		= ( time / 3600 );
+	int nMinutes	= ( time / 60 );
+	int nHours		= ( ( time / 60 ) / 60 );
 	int nSeconds	= ( time % 60 );
 
-	SB_DrawString(x,y,tongue_menu[T_MENU_TIME],300,10);
-	char string[128];
-	Com_sprintf(string,sizeof(string), "%02d:%02d:%02d",nHours,nMinutes,nSeconds);
-	SB_DrawString( x1, y, string, 300, 10);
-/*
 	// SCG[11/9/99]: Draw the Time
 	char string[128];
 	Com_sprintf(string,sizeof(string), "%s %02d:%02d:%02d",tongue_menu[T_MENU_TIME],nHours,nMinutes,nSeconds);
-*/
+	SB_DrawString( x, y, string, 300, 10);
 }
 ///////////////////////////////////////////////////////////////////////////////
 //	sb_InitScoreboard
@@ -309,7 +304,7 @@ void sb_DrawMulti()
 	drawStruct.pImage = scoreboard_font;
 
 	// setup drawing info
-	g_MultiScoreboard.y = 100;//(g_MultiScoreboard.ctf || g_MultiScoreboard.teamplay) ? 64 : 96;
+	g_MultiScoreboard.y = (g_MultiScoreboard.ctf || g_MultiScoreboard.teamplay) ? 64 : 96;
 	if (scr_centertime_off > 0)
 	{
 		if (g_MultiScoreboard.y < scr_centerstring_bottom)
@@ -327,43 +322,7 @@ void sb_DrawMulti()
 	}
 	drawStruct.nXPos = g_MultiScoreboard.sx;
 
-#define TIME_LEFT		(viddef.width - 270)
-#define TIME_RIGHT		(viddef.width - 130)
-	SB_DrawTime(TIME_LEFT,0,TIME_RIGHT);
-
-	// put the sword level here
-	int lev = cl.frame.playerstate.stats[STAT_SWORD_LEVEL];
-	char dklev[64];
-	if( lev != -1 )
-	{
-		drawStruct.nYPos = g_MultiScoreboard.char_height + 4;
-
-		drawStruct.nXPos = TIME_LEFT;
-		drawStruct.szString = "Daikatana";
-		re.DrawString( drawStruct );
-
-		drawStruct.nXPos = TIME_RIGHT;
-		Com_sprintf(dklev,sizeof(dklev),"%3.2f / 5",(float)lev / 100.0);
-		drawStruct.szString = dklev;
-		re.DrawString( drawStruct );
-	}
-
-	// put the player level here
-	lev = cl.frame.playerstate.stats[STAT_LEVEL];
-	drawStruct.nYPos *= 2;
-	drawStruct.nXPos = TIME_LEFT;
-	drawStruct.szString = tongue_menu[T_MENU_LEVEL];
-	re.DrawString( drawStruct );
-
-	drawStruct.nXPos = TIME_RIGHT;
-	Com_sprintf(dklev,sizeof(dklev),"%d",lev);
-	drawStruct.szString = dklev;
-	re.DrawString( drawStruct );
-
-
-	drawStruct.nXPos = g_MultiScoreboard.sx;
-	drawStruct.nYPos = g_MultiScoreboard.y+(g_MultiScoreboard.char_height/2);
-
+	SB_DrawTime(0,0);
 	if (g_MultiScoreboard.ctf)
 	{
 		CTFInfo_t ctf_info1 = g_MultiScoreboard.ctf_info[0];

@@ -148,6 +148,8 @@ void SIDEKICK_SpawnHiro2( userEntity_t *self );
 void SIDEKICK_SpawnSuperfly2( userEntity_t *self );
 void SIDEKICK_SpawnMikiko2( userEntity_t *self );
 void SIDEKICK_SpawnMikikoFly2( userEntity_t *self );
+void SIDEKICK_GiveEpisode1TestWeapons(userEntity_t *self);
+void SIDEKICK_SpawnBothWithEpisode1TestWeapons(userEntity_t *self);
 
 
 // NSS[2/15/00]:
@@ -234,5 +236,12 @@ typedef struct
 
 
 
+
+
+int SIDEKICK_SmartRecoverMovement(userEntity_t *self, const CVector &failedPoint);
+int SIDEKICK_GetTightFollowPoint(userEntity_t *self, userEntity_t *target, CVector &outPoint);
+void SIDEKICK_SmartJumpStarted(userEntity_t *self, const CVector &target);
+qboolean SIDEKICK_SmartJumpShouldAvoid(userEntity_t *self, const CVector &target);
+void SIDEKICK_SmartJumpFinished(userEntity_t *self, const CVector &target);
 
 #endif _SIDEKICK_H

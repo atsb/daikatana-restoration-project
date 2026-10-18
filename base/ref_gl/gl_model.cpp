@@ -256,14 +256,13 @@ Loads in a model for the given name
 #define SPRITE_MODEL_HUNK_SIZE	( 0x10000 )			// SCG[11/13/99]: 64k
 #define BRUSH_MODEL_HUNK_SIZE	( 0x1000000 )		// SCG[11/13/99]: 16MB
 
-// cek: win2k -- array moved out of function.  Weird stack problem.
-static char		g_filename[256];
 model_t *Mod_ForName (const char *name, qboolean crash, resource_t resource)
 {
+	model_t		*mod;
 	unsigned	*buf;
 	int			i/*, forced_index = -1*/;
 	int			is_world_model = NOT_WORLD_MODEL;
-	model_t		*mod;
+	char		filename[256];
 	
 	if (!name[0])
 		ri.Sys_Error (ERR_DROP, "Mod_ForName: NULL name");
@@ -282,18 +281,11 @@ model_t *Mod_ForName (const char *name, qboolean crash, resource_t resource)
 		return &mod_inline[i];
 	}
 
-	strcpy( g_filename, name );
-	for( i = 0; i < strlen( g_filename ); i++ )
+	strcpy( filename, name );
+	for( i = 0; i < strlen( filename ); i++ )
 	{
-// Encompass MarkMa 040599
-#ifdef	JPN	// JPN
-				if(IsDBCSLeadByte(g_filename[i]))	{
-					i++;	continue;
-				}
-#endif	// JPN
-// Encompass MarkMa 040599
-		if( g_filename[i] == '\\' )
-			g_filename[i] = '/';
+		if( filename[i] == '\\' )
+			filename[i] = '/';
 	}
 
 	//
@@ -306,24 +298,23 @@ model_t *Mod_ForName (const char *name, qboolean crash, resource_t resource)
 	//	the first model loaded, but with Daikatana that is not the case
 	//	because R_FrameNameForModel can load a model before the .bsp is
 	//	loaded.
-/*
 	if (is_world_model)
 	{
 		mod = mod_known;
 
 		//	if world model has not changed, just return the current one
-		if (!strcmp (mod->name, g_filename))
+		if (!strcmp (mod->name, filename))
 			return	mod;
 	}
 	else
-*/	{
-		for (i = 0, mod = mod_known; i < mod_numknown; i++, mod++)
+	{
+		for (i = 0, mod = mod_known + 1; i < mod_numknown; i++, mod++)
 		{
 			if (!mod->name [0])
 				continue;
 			
 			//	Nelno:	reload this model or return it as found
-			if (!strcmp (mod->name, g_filename))
+			if (!strcmp (mod->name, filename))
 				return	mod;
 		}
 
@@ -331,7 +322,7 @@ model_t *Mod_ForName (const char *name, qboolean crash, resource_t resource)
 		//
 		//	Nelno:	start looking after mod_known, because that has to
 		//	be the world model!!
-		for (i = 0, mod = mod_known; i < mod_numknown; i++, mod++)
+		for (i = 0, mod = mod_known + 1; i < mod_numknown; i++, mod++)
 		{
 			if (!mod->name[0])
 				break;	// free spot
@@ -346,7 +337,7 @@ model_t *Mod_ForName (const char *name, qboolean crash, resource_t resource)
 	}
 
 //	strcpy (mod->name, name);
-	strcpy (mod->name, g_filename);
+	strcpy (mod->name, filename);
 	mod->resource = resource;
 	
 	//
@@ -1329,8 +1320,8 @@ void Mod_LoadBrushModel (model_t *mod, void *buffer)
 		pSurf = &loadmodel->surfaces[s];
 		if( pSurf->flags & SURF_DRAWFOG )
 		{
-			ri.X_Free( pSurf->polys );
-//			Hunk_Free( pSurf->polys );
+			//ri.X_Free( pSurf->polys );
+			Hunk_Free( pSurf->polys );
 			pSurf->polys = NULL;
 			GL_SubdivideSurface( pSurf );	// cut up polygon for warps
 		}
@@ -2028,7 +2019,7 @@ void PurgeResources(resource_t type)
    // free models
    for (loop=0, model=mod_known; loop<mod_numknown; loop++, model++)
    {
-	   if (model->resource >= type)
+	   if (model->flags >= type)
 	   {
 //		   image->registration_sequence = registration_sequence;
 		   Mod_Free(model);

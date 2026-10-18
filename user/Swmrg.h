@@ -38,7 +38,7 @@ typedef struct SingleWriterMultiReaderGuard
 // the structure's address is passed as the first parameter.
 // The lpszName parameter is the name of the object. Pass
 // NULL if you do not want to share the object.
-BOOL  SWMRGInitialize (PSWMRG pSWMRG, LPCTSTR lpszName, int nFlag);
+BOOL  SWMRGInitialize (PSWMRG pSWMRG, LPCSTR lpszName, int nFlag);
 
 
 // Deletes the system resources associated with a SWMRG 

@@ -29,8 +29,6 @@ enum
 // weapon info def
 weaponInfo_t kineticoreWeaponInfo = 
 {
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_KINETICORE),
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_KINETICORE_AMMO),
 	// names, net names, icon
 	"weapon_kineticore",
 	tongue_weapons[T_WEAPON_KINETICORE],
@@ -112,15 +110,11 @@ weaponInfo_t kineticoreWeaponInfo =
 	0.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 0.0f,
 
-/*	{
+	{
 		tongue_deathmsg_weapon4[T_DEATHMSGWEAPON_KINETICORE],
 		NULL,
 		VICTIM_ATTACKER
-	},*/
-
-	RESOURCE_ID_FOR_STRING(tongue_deathmsg_weapon4,T_DEATHMSGWEAPON_KINETICORE),
-	VICTIM_ATTACKER,
-
+	},
 	WEAPON_KINETICORE,
 	0,
 	NULL

@@ -326,24 +326,6 @@ int CTFGetScores(teamInfo_t *scorearr, int maxscores)
 }
 
 //DllExport int dll_CTFCheckRules()
-
-void CTFEndGameMessage(long message, int winner, int loser, int wscore, int lscore)
-{
-	gstate->cs.BeginSendString();
-	gstate->cs.SendSpecifierStr("%s%s",2);
-	gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf,message));
-	gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf,T_CTF_TEAM_WON));
-	gstate->cs.Continue(true);
-	gstate->cs.SendCount(5);
-	gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf,teamInfo[winner].teamNameID));
-	gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf,teamInfo[winner].teamNameID));
-	gstate->cs.SendInteger(wscore);
-	gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf,teamInfo[loser].teamNameID));
-	gstate->cs.SendInteger(lscore);
-	FLAG_CS_Message(0,NULL,2.0);
-	gstate->cs.EndSendString();
-}
-
 int CTFCheckRules()
 {
 	if (!ctf->value)
@@ -378,7 +360,9 @@ int CTFCheckRules()
 	{
 		if (winner && loser)
 		{
-			CTFEndGameMessage(T_CTF_LIMIT_REACHED,winner,loser,wscore,lscore);
+			char buf[128];
+			Com_sprintf(buf,sizeof(buf),"%s%s",tongue_ctf[T_CTF_LIMIT_REACHED],tongue_ctf[T_CTF_TEAM_WON]);
+			FLAG_Message( 0, NULL, 2.0f, buf,teamInfo[winner].teamName,teamInfo[winner].teamName,wscore,teamInfo[loser].teamName,lscore );
 			return 1;
 		}
 	}
@@ -386,20 +370,26 @@ int CTFCheckRules()
 	{
 		if (limit || timeup)
 		{
+			char buf[128];
+
 			if (limit)	// cap limit...always a winner/loser
 			{
-				CTFEndGameMessage(T_CTF_LIMIT_REACHED,winner,loser,wscore,lscore);
+				Com_sprintf(buf,sizeof(buf),"%s%s",tongue_ctf[T_CTF_LIMIT_REACHED],tongue_ctf[T_CTF_TEAM_WON]);
+				FLAG_Message( 0, NULL, 2.0f, buf,teamInfo[winner].teamName,teamInfo[winner].teamName,wscore,teamInfo[loser].teamName,lscore );
 			}
 			else		// time limit...can be a tie
 			{
 				if (winner && loser)
 				{
-					CTFEndGameMessage(T_CTF_TIME_EXPIRED,winner,loser,wscore,lscore);
+					Com_sprintf(buf,sizeof(buf),"%s%s",tongue_ctf[T_CTF_TIME_EXPIRED],tongue_ctf[T_CTF_TEAM_WON]);
+					FLAG_Message( 0, NULL, 2.0f, buf,teamInfo[winner].teamName,teamInfo[winner].teamName,wscore,teamInfo[loser].teamName,lscore );
 				}
 				else
 				{
+					Com_sprintf(buf,sizeof(buf),"%s%s",tongue_ctf[T_CTF_TIME_EXPIRED],tongue_ctf[T_CTF_TIE]);
+					FLAG_Message( 0, NULL, 2.0f, buf );
 					TEAM_SetOvertime(TRUE);
-					return 0;
+					return 1;
 				}
 			}
 			return 1;
@@ -557,24 +547,17 @@ void CTFClientConnect( userEntity_t *self, char * userinfo )
 //	self->team = (atoi(Info_ValueForKey (userinfo, "ctf_team")));
 }
 
-void item_flag_thinkreturn( userEntity_t *self )
+static void item_flag_thinkreturn( userEntity_t *self )
 {
-	if ( (gstate->time > self->hacks) || (gstate->PointContents(self->s.origin) & CONTENTS_LAVA) )
-	{
-		self->hacks = 0.0;
-		ctfFlagHook_t	*ihook = (ctfFlagHook_t *) self->userHook;
+	ctfFlagHook_t	*ihook = (ctfFlagHook_t *) self->userHook;
 
-		FLAG_Reset(self);
-		self->s.effects |= EF_RESPAWN;	//	tell client to start respawn effect
+	FLAG_Reset(self);
+	self->s.effects |= EF_RESPAWN;	//	tell client to start respawn effect
 
-		if (ihook && ihook->soundFlagReturned)
-			gstate->StartEntitySound(self, CHAN_OVERRIDE, ihook->soundFlagReturned, 0.85f, 100000, 100000 );
+	if (ihook && ihook->soundFlagReturned)
+		gstate->StartEntitySound(self, CHAN_OVERRIDE, ihook->soundFlagReturned, 0.85f, 100000, 100000 );
 
-		FLAG_RETURN_MESSAGE(tongue_ctf,T_CTF_FLAG_RETURNED,tongue_ctf,T_CTF_FLAG_NAME,self->team);
-		return;
-	}
-
-	self->nextthink = gstate->time + 1.0;
+	FLAG_Message( 0, NULL, 2.0f, tongue_ctf[ T_CTF_FLAG_RETURNED ], self->netname );
 }
 
 //=============================================================================
@@ -585,8 +568,7 @@ void item_flag_thinkreturn( userEntity_t *self )
 void CTFClientDropFlag( userEntity_t *self, userEntity_t *flag )
 {
 	flag->think		= item_flag_thinkreturn;
-	flag->nextthink	= gstate->time + 1.0;
-	flag->hacks		= gstate->time + FLAG_RETURN_TIME;
+	flag->nextthink	= gstate->time + FLAG_RETURN_TIME;
 }
 
 //=============================================================================
@@ -773,59 +755,20 @@ void CTFFlagCaptured( userEntity_t *self, userEntity_t *capturer, userEntity_t *
 	// We want to here the sound ALL OVER the map.
 	gstate->StartEntitySound(capturer, CHAN_OVERRIDE, ihook->soundVictory, 1.0f, 100000.0f, 100000.0f);
 
+	// "Score is now: %s:%d, %s:%d"
+	buffer32 scoreString(tongue_ctf[T_CTF_SCORE],teamInfo[teamConvert[CTF_TEAM1]].teamName,ctfgame.score[CTF_TEAM1],teamInfo[teamConvert[CTF_TEAM2]].teamName,ctfgame.score[CTF_TEAM_BLUE]);
 
-	// "You have captured the %s!"
-	gstate->cs.BeginSendString();
-	gstate->cs.SendSpecifierStr("%s%s",2);
-	gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf,T_CTF_YOU_CAPTURED));
-	gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf,T_CTF_SCORE));
-	gstate->cs.Continue(true);
-	gstate->cs.SendCount(5);
-	gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf, T_CTF_FLAG_NAME));
-	gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf, teamInfo[teamConvert[CTF_TEAM1]].teamNameID));
-	gstate->cs.SendInteger(ctfgame.score[CTF_TEAM1]);
-	gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf, teamInfo[teamConvert[CTF_TEAM2]].teamNameID));
-	gstate->cs.SendInteger(ctfgame.score[CTF_TEAM2]);
-	gstate->cs.Continue(true);
-	gstate->cs.SendCount(1);
-	gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf, teamInfo[teamConvert[self->team]].teamNameID));
-	gstate->cs.Unicast(capturer,CS_print_center,2.0);
-	gstate->cs.EndSendString();
+	// "You have captured the flag!"
+	buffer128 str(tongue_ctf[T_CTF_YOU_CAPTURED],self->netname);
+	gstate->centerprintf(capturer, "%s%s",(const char *)str,(const char *)scoreString);
 
 	// "%s from your team has captured the %s!"
-	gstate->cs.BeginSendString();
-	gstate->cs.SendSpecifierStr("%s%s",2);
-	gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf,T_CTF_YOUR_TEAM_CAPTURED));
-	gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf,T_CTF_SCORE));
-	gstate->cs.Continue(true);
-	gstate->cs.SendCount(6);
-	gstate->cs.SendString(capturer->netname);
-	gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf, T_CTF_FLAG_NAME));
-	gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf, teamInfo[teamConvert[CTF_TEAM1]].teamNameID));
-	gstate->cs.SendInteger(ctfgame.score[CTF_TEAM1]);
-	gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf, teamInfo[teamConvert[CTF_TEAM2]].teamNameID));
-	gstate->cs.SendInteger(ctfgame.score[CTF_TEAM2]);
-	gstate->cs.Continue(true);
-	gstate->cs.SendCount(1);
-	gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf, teamInfo[teamConvert[self->team]].teamNameID));
-	FLAG_CS_Message(capturer->team,capturer,2.0f);
-	gstate->cs.EndSendString();
+	str.Set(tongue_ctf[T_CTF_YOUR_TEAM_CAPTURED],capturer->netname,self->netname);
+	FLAG_Message( capturer->team,capturer,2.0f,"%s%s",(const char *)str,(const char *)scoreString);
 
 	// "%s from the %s team has captured your flag!"
-	gstate->cs.BeginSendString();
-	gstate->cs.SendSpecifierStr("%s%s",2);
-	gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf,T_CTF_OTHER_TEAM_CAPTURED));
-	gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf,T_CTF_SCORE));
-	gstate->cs.Continue(true);
-	gstate->cs.SendCount(6);
-	gstate->cs.SendString(capturer->netname);
-	gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf, teamInfo[capturer->team].teamNameID));
-	gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf, teamInfo[teamConvert[CTF_TEAM1]].teamNameID));
-	gstate->cs.SendInteger(ctfgame.score[CTF_TEAM1]);
-	gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf, teamInfo[teamConvert[CTF_TEAM2]].teamNameID));
-	gstate->cs.SendInteger(ctfgame.score[CTF_TEAM2]);
-	FLAG_CS_Message(-capturer->team,capturer,2.0f);
-	gstate->cs.EndSendString();
+	str.Set(tongue_ctf[T_CTF_OTHER_TEAM_CAPTURED],capturer->netname, teamInfo[capturer->team].teamName);
+	FLAG_Message( -capturer->team,capturer,2.0f,"%s%s",(const char *)str,(const char *)scoreString);
 
 	// award the bonus points
 	capturer->record.frags += CAPTURER_BONUS;
@@ -857,7 +800,7 @@ void	item_flag_touch (userEntity_t *self, userEntity_t *other, cplane_t *plane, 
 			// TODO: Let Everyone know that the flag has been returned.
 			// 
 			// Return the flag to it's start now.
-			FLAG_RETURN_MESSAGE(tongue_ctf,T_CTF_FLAG_RETURNED,tongue_ctf,T_CTF_FLAG_NAME,self->team);
+			FLAG_Message( 0, NULL, 2.0f, tongue_ctf[ T_CTF_FLAG_RETURNED ], self->netname );
 			gstate->StartEntitySound(other, CHAN_OVERRIDE, ihook->soundFlagReturned, 0.85f, 100000, 100000 );
 			DEBUG_MSG("Flag replaced bonus");
 			other->record.frags += PUT_FLAG_BACK_BONUS;
@@ -878,33 +821,9 @@ void	item_flag_touch (userEntity_t *self, userEntity_t *other, cplane_t *plane, 
 	FLAG_Grab(self,other);
 
 	// Let the other players know about it.
-	// you grabbed the %s
-	gstate->cs.BeginSendString();
-	gstate->cs.SendSpecifierID(RESOURCE_ID_FOR_STRING(tongue_ctf,T_CTF_YOU_HAVE_GOT_FLAG),1);
-	gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf,T_CTF_FLAG_NAME));
-	gstate->cs.Continue(true);
-	gstate->cs.SendCount(1);
-	gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf,teamInfo[teamConvert[self->team]].teamNameID));
-	gstate->cs.Unicast(other,CS_print_center,2.0);
-	gstate->cs.EndSendString();
-
-	//%s from your team has grabbed the %s
-	gstate->cs.BeginSendString();
-	gstate->cs.SendSpecifierID(RESOURCE_ID_FOR_STRING(tongue_ctf,T_CTF_GRABBED_FLAG),2);
-	gstate->cs.SendString(other->netname);
-	gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf,T_CTF_FLAG_NAME));
-	gstate->cs.Continue(true);
-	gstate->cs.SendCount(1);
-	gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf,teamInfo[teamConvert[self->team]].teamNameID));
-	FLAG_CS_Message(  other->team, other, 2.0f );
-	gstate->cs.EndSendString();
-
-	//%s has stolen your flag.
-	gstate->cs.BeginSendString();
-	gstate->cs.SendSpecifierID(RESOURCE_ID_FOR_STRING(tongue_ctf,T_CTF_STOLEN_FLAG),1);
-	gstate->cs.SendString(other->netname);
-	FLAG_CS_Message( -other->team, other, 2.0f );
-	gstate->cs.EndSendString();
+	gstate->centerprintf( other, tongue_ctf[ T_CTF_YOU_HAVE_GOT_FLAG ], self->netname ); 
+	FLAG_Message(  other->team, other, 1.0f, tongue_ctf[ T_CTF_GRABBED_FLAG ], other->netname, self->netname );
+	FLAG_Message( -other->team, other, 1.0f, tongue_ctf[ T_CTF_STOLEN_FLAG ], other->netname );
 
 }
 

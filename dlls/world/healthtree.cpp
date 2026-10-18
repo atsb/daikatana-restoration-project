@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include "world.h"
 #include "ai_utils.h"
 
@@ -15,10 +16,10 @@ void misc_healthtree_think(userEntity_t *self);
 #define HT_MAXFRUIT    (5)
 #define HT_MINFRUIT    (0)
 
+// SCG[11/19/99]: Save game stuff
 #define	IS_INSTAGIB				(deathmatch->value && dm_instagib->value)
 
-// SCG[11/19/99]: Save game stuff
-#define	HEALTHTREEHOOK(x) (int)&(((healthtreeHook_t *)0)->x)
+#define	HEALTHTREEHOOK(x) (int)offsetof(healthtreeHook_t,x)
 field_t healthtree_hook_fields[] = 
 {
 	{"max_fruit",		HEALTHTREEHOOK(max_fruit),		F_INT},
@@ -151,7 +152,7 @@ void misc_healthtree_think(userEntity_t *self)
 void misc_healthtree(userEntity_t *self)
 {
 	if (IS_INSTAGIB || (deathmatch->value && !dm_allow_health->value))
-	  return;
+		return;
 
 	healthtreeHook_t *hook;
 	int				 i;

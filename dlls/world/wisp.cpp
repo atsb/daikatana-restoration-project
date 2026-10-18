@@ -1,3 +1,4 @@
+#include <stddef.h>
 // ==========================================================================
 //
 //  File:wisp.cpp
@@ -24,7 +25,7 @@
 /* ***************************** Local Functions *************************** */
 /* **************************** Global Variables *************************** */
 
-#define	WISPHOOK(x) ((int)&(((wispHook_t *)0)->x))
+#define	WISPHOOK(x) ((int)offsetof(wispHook_t,x))
 field_t wisp_hook_fields[] = 
 {
 	{"sinofs",			WISPHOOK(sinofs),			F_INT},
@@ -43,7 +44,7 @@ field_t wisp_hook_fields[] =
 	{NULL, 0, F_INT}
 };
 
-#define	WISPMASTERHOOK(x) (int)&(((wispMasterHook_t *)0)->x)
+#define	WISPMASTERHOOK(x) (int)offsetof(wispMasterHook_t,x)
 field_t wisp_master_hook_fields[] = 
 {
 	{"NumFlies",	WISPMASTERHOOK(NumFlies),		F_INT},

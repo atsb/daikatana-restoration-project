@@ -28,10 +28,7 @@ enum
 };
 
 // weapon info def
-weaponInfo_t nightmareWeaponInfo = 
-{
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_NIGHTMARE),
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_NIGHTMARE_AMMO),
+weaponInfo_t nightmareWeaponInfo = {
     // names, net names, icon
     "weapon_nightmare",
     tongue_weapons[T_WEAPON_NIGHTMARE],
@@ -107,15 +104,11 @@ weaponInfo_t nightmareWeaponInfo =
 	0.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 0.0f,
 
-/*	{
+	{
 		tongue_deathmsg_weapon3[T_DEATHMSGWEAPON_NHARRE],
 		NULL,
 		VICTIM_ATTACKER
-	},*/
-
-	RESOURCE_ID_FOR_STRING(tongue_deathmsg_weapon3,T_DEATHMSGWEAPON_NHARRE),
-	VICTIM_ATTACKER,
-
+	},
     WEAPON_NIGHTMARE,
     0,
     NULL

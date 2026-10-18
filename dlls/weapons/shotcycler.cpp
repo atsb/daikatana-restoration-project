@@ -23,8 +23,6 @@ enum
 // weapon info def
 weaponInfo_t shotcyclerWeaponInfo = 
 {
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_SHOTCYCLER),
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_SHOTCYCLER_AMMO),
 	// names, net names, icon
 	"weapon_shotcycler",
 	tongue_weapons[T_WEAPON_SHOTCYCLER],
@@ -105,16 +103,11 @@ weaponInfo_t shotcyclerWeaponInfo =
 	0.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 0.0f,
 
-/*	{
+	{
 		tongue_deathmsg_weapon1[T_DEATHMSGWEAPON_SHOTCYCLER],
 		NULL,
 		ATTACKER_VICTIM
-	},*/
-
-	RESOURCE_ID_FOR_STRING(tongue_deathmsg_weapon1,T_DEATHMSGWEAPON_SHOTCYCLER),
-	ATTACKER_VICTIM,
-
-
+	},
 	WEAPON_SHOTCYCLER,
 	0,
 	NULL

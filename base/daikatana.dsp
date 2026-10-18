@@ -19,8 +19,15 @@ CFG=daikatana - Win32 Demo Debug
 !MESSAGE 
 !MESSAGE "daikatana - Win32 Release" (based on "Win32 (x86) Application")
 !MESSAGE "daikatana - Win32 Debug" (based on "Win32 (x86) Application")
+!MESSAGE "daikatana - Win32 French" (based on "Win32 (x86) Application")
+!MESSAGE "daikatana - Win32 German" (based on "Win32 (x86) Application")
+!MESSAGE "daikatana - Win32 Italian" (based on "Win32 (x86) Application")
+!MESSAGE "daikatana - Win32 Spanish" (based on "Win32 (x86) Application")
+!MESSAGE "daikatana - Win32 Japanese" (based on "Win32 (x86) Application")
+!MESSAGE "daikatana - Win32 FrenchDebug" (based on "Win32 (x86) Application")
 !MESSAGE "daikatana - Win32 Demo Debug" (based on "Win32 (x86) Application")
 !MESSAGE "daikatana - Win32 Demo Release" (based on "Win32 (x86) Application")
+!MESSAGE "daikatana - Win32 German Debug" (based on "Win32 (x86) Application")
 !MESSAGE 
 
 # Begin Project
@@ -45,8 +52,8 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /c
-# ADD CPP /nologo /G5 /MT /W3 /GX /O2 /I "." /I ".\dk_" /I ".\client" /I ".\win32" /I ".\qcommon" /I ".\server" /I "..\user" /I "..\audio" /I "..\user\collection" /I "..\libent" /D "DAIKATANA_OEM" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
-# SUBTRACT CPP /Z<none> /Fr
+# ADD CPP /nologo /G6 /MT /W3 /GX /O2 /I "." /I ".\dk_" /I ".\client" /I ".\win32" /I ".\qcommon" /I ".\server" /I "..\user" /I "..\audio" /I "..\user\collection" /I "..\libent" /D "TONGUE_ENGLISH" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
+# SUBTRACT CPP /Fr
 # ADD BASE MTL /nologo /D "NDEBUG" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
@@ -56,8 +63,8 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /machine:I386
-# ADD LINK32 winmm.lib wsock32.lib advapi32.lib kernel32.lib user32.lib gdi32.lib IonCommonRelease.lib mss32.lib /nologo /subsystem:windows /pdb:none /debug /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\dlls\world\release" /libpath:"..\libs"
-# SUBTRACT LINK32 /map /nodefaultlib
+# ADD LINK32 winmm.lib  advapi32.lib kernel32.lib user32.lib gdi32.lib IonCommonRelease.lib mss32.lib /nologo /subsystem:windows /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\dlls\world\release" /libpath:"..\libs"
+# SUBTRACT LINK32 /map /debug /nodefaultlib
 
 !ELSEIF  "$(CFG)" == "daikatana - Win32 Debug"
 
@@ -73,7 +80,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /c
-# ADD CPP /nologo /G5 /MTd /W3 /Gm /Gi /GX /ZI /Od /I "." /I ".\dk_" /I ".\client" /I ".\win32" /I ".\qcommon" /I ".\server" /I "..\user" /I "..\user\collection" /I "..\audio" /I "..\libent" /I "../../dk_" /D "AUDIO_DEBUG" /D "DAIKATANA_OEM" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FR /YX"client.h" /FD /c
+# ADD CPP /nologo /G6 /MTd /W3 /Gi /GX /ZI /Od /I "." /I ".\dk_" /I ".\client" /I ".\win32" /I ".\qcommon" /I ".\server" /I "..\user" /I "..\user\collection" /I "..\audio" /I "..\libent" /I "../../dk_" /D "AUDIO_DEBUG" /D "TONGUE_ENGLISH" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FR /YX"client.h" /FD /c
 # ADD BASE MTL /nologo /D "_DEBUG" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
@@ -83,7 +90,181 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /debug /machine:I386
-# ADD LINK32 imm32.lib winmm.lib wsock32.lib ole32.lib mss32.lib advapi32.lib kernel32.lib user32.lib gdi32.lib IonCommonDebug.lib imagehlp.lib /nologo /subsystem:windows /map /debug /machine:I386 /nodefaultlib:"libcd.lib" /nodefaultlib:"libc.lib" /libpath:"..\dlls\world\debug" /libpath:"..\libs"
+# ADD LINK32 winmm.lib  ole32.lib mss32.lib advapi32.lib kernel32.lib user32.lib gdi32.lib IonCommonDebug.lib imagehlp.lib /nologo /subsystem:windows /map /debug /machine:I386 /nodefaultlib:"libcd.lib" /nodefaultlib:"libc.lib" /libpath:"..\dlls\world\debug" /libpath:"..\libs"
+# SUBTRACT LINK32 /pdb:none /incremental:no
+
+!ELSEIF  "$(CFG)" == "daikatana - Win32 French"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "daikatana___Win32_French"
+# PROP BASE Intermediate_Dir "daikatana___Win32_French"
+# PROP BASE Ignore_Export_Lib 0
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir ".\French"
+# PROP Intermediate_Dir ".\French"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /G5 /MT /W3 /GX /O2 /I "." /I ".\dk_" /I ".\client" /I ".\win32" /I ".\qcommon" /I ".\server" /I "..\user" /I "..\audio" /I "..\user\collection" /I "..\libent" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FR /YX /FD /c
+# ADD CPP /nologo /G5 /MT /W3 /GX /O2 /I "." /I ".\dk_" /I ".\client" /I ".\win32" /I ".\qcommon" /I ".\server" /I "..\user" /I "..\audio" /I "..\user\collection" /I "..\libent" /D "TONGUE_FRENCH" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FR /YX /FD /c
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD BASE RSC /l 0x409 /d "NDEBUG"
+# ADD RSC /l 0x409 /d "NDEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 winmm.lib  advapi32.lib kernel32.lib user32.lib gdi32.lib IonCommonRelease.lib libentRelease.lib mss32.lib /nologo /subsystem:windows /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\dlls\world\release" /libpath:"..\libs"
+# SUBTRACT BASE LINK32 /map /debug /nodefaultlib
+# ADD LINK32 winmm.lib  advapi32.lib kernel32.lib user32.lib gdi32.lib mss32.lib IonCommonFrench.lib /nologo /subsystem:windows /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\dlls\world\release" /libpath:"..\libs"
+# SUBTRACT LINK32 /map /debug /nodefaultlib
+
+!ELSEIF  "$(CFG)" == "daikatana - Win32 German"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "daikatana___Win32_German"
+# PROP BASE Intermediate_Dir "daikatana___Win32_German"
+# PROP BASE Ignore_Export_Lib 0
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir ".\German"
+# PROP Intermediate_Dir ".\German"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /G5 /MT /W3 /GX /O2 /I "." /I ".\dk_" /I ".\client" /I ".\win32" /I ".\qcommon" /I ".\server" /I "..\user" /I "..\audio" /I "..\user\collection" /I "..\libent" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FR /YX /FD /c
+# ADD CPP /nologo /G5 /MT /W3 /GX /O2 /I "." /I ".\dk_" /I ".\client" /I ".\win32" /I ".\qcommon" /I ".\server" /I "..\user" /I "..\audio" /I "..\user\collection" /I "..\libent" /D "TONGUE_GERMAN" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FR /YX /FD /c
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD BASE RSC /l 0x409 /d "NDEBUG"
+# ADD RSC /l 0x409 /d "NDEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 winmm.lib  advapi32.lib kernel32.lib user32.lib gdi32.lib IonCommonRelease.lib libentRelease.lib mss32.lib /nologo /subsystem:windows /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\dlls\world\release" /libpath:"..\libs"
+# SUBTRACT BASE LINK32 /map /debug /nodefaultlib
+# ADD LINK32 winmm.lib  advapi32.lib kernel32.lib user32.lib gdi32.lib mss32.lib IonCommonGerman.lib binkw32.lib /nologo /subsystem:windows /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\dlls\world\release" /libpath:"..\libs"
+# SUBTRACT LINK32 /map /debug /nodefaultlib
+
+!ELSEIF  "$(CFG)" == "daikatana - Win32 Italian"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "daikatana___Win32_Italian"
+# PROP BASE Intermediate_Dir "daikatana___Win32_Italian"
+# PROP BASE Ignore_Export_Lib 0
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir ".\Italian"
+# PROP Intermediate_Dir ".\Italian"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /G5 /MT /W3 /GX /O2 /I "." /I ".\dk_" /I ".\client" /I ".\win32" /I ".\qcommon" /I ".\server" /I "..\user" /I "..\audio" /I "..\user\collection" /I "..\libent" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FR /YX /FD /c
+# ADD CPP /nologo /G5 /MT /W3 /GX /O2 /I "." /I ".\dk_" /I ".\client" /I ".\win32" /I ".\qcommon" /I ".\server" /I "..\user" /I "..\audio" /I "..\user\collection" /I "..\libent" /D "TONGUE_ITALIAN" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FR /YX /FD /c
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD BASE RSC /l 0x409 /d "NDEBUG"
+# ADD RSC /l 0x409 /d "NDEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 winmm.lib  advapi32.lib kernel32.lib user32.lib gdi32.lib IonCommonRelease.lib libentRelease.lib mss32.lib /nologo /subsystem:windows /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\dlls\world\release" /libpath:"..\libs"
+# SUBTRACT BASE LINK32 /map /debug /nodefaultlib
+# ADD LINK32 winmm.lib  advapi32.lib kernel32.lib user32.lib gdi32.lib mss32.lib IonCommonItalian.lib /nologo /subsystem:windows /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\dlls\world\release" /libpath:"..\libs"
+# SUBTRACT LINK32 /map /debug /nodefaultlib
+
+!ELSEIF  "$(CFG)" == "daikatana - Win32 Spanish"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "daikatana___Win32_Spanish"
+# PROP BASE Intermediate_Dir "daikatana___Win32_Spanish"
+# PROP BASE Ignore_Export_Lib 0
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir ".\Spanish"
+# PROP Intermediate_Dir ".\Spanish"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /G5 /MT /W3 /GX /O2 /I "." /I ".\dk_" /I ".\client" /I ".\win32" /I ".\qcommon" /I ".\server" /I "..\user" /I "..\audio" /I "..\user\collection" /I "..\libent" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FR /YX /FD /c
+# ADD CPP /nologo /G5 /MT /W3 /GX /O2 /I "." /I ".\dk_" /I ".\client" /I ".\win32" /I ".\qcommon" /I ".\server" /I "..\user" /I "..\audio" /I "..\user\collection" /I "..\libent" /D "TONGUE_SPANISH" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FR /YX /FD /c
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD BASE RSC /l 0x409 /d "NDEBUG"
+# ADD RSC /l 0x409 /d "NDEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 winmm.lib  advapi32.lib kernel32.lib user32.lib gdi32.lib IonCommonRelease.lib libentRelease.lib mss32.lib /nologo /subsystem:windows /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\dlls\world\release" /libpath:"..\libs"
+# SUBTRACT BASE LINK32 /map /debug /nodefaultlib
+# ADD LINK32 winmm.lib  advapi32.lib kernel32.lib user32.lib gdi32.lib mss32.lib IonCommonSpanish.lib /nologo /subsystem:windows /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\dlls\world\release" /libpath:"..\libs"
+# SUBTRACT LINK32 /map /debug /nodefaultlib
+
+!ELSEIF  "$(CFG)" == "daikatana - Win32 Japanese"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "daikatana___Win32_Japanese"
+# PROP BASE Intermediate_Dir "daikatana___Win32_Japanese"
+# PROP BASE Ignore_Export_Lib 0
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir ".\Japanese"
+# PROP Intermediate_Dir ".\Japanese"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /G5 /MT /W3 /GX /O2 /I "." /I ".\dk_" /I ".\client" /I ".\win32" /I ".\qcommon" /I ".\server" /I "..\user" /I "..\audio" /I "..\user\collection" /I "..\libent" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FR /YX /FD /c
+# ADD CPP /nologo /G5 /MT /W3 /GX /O2 /I "." /I ".\dk_" /I ".\client" /I ".\win32" /I ".\qcommon" /I ".\server" /I "..\user" /I "..\audio" /I "..\user\collection" /I "..\libent" /D "TONGUE_JAPANESE" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FR /YX /FD /c
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD BASE RSC /l 0x409 /d "NDEBUG"
+# ADD RSC /l 0x409 /d "NDEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 winmm.lib  advapi32.lib kernel32.lib user32.lib gdi32.lib IonCommonRelease.lib libentRelease.lib mss32.lib /nologo /subsystem:windows /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\dlls\world\release" /libpath:"..\libs"
+# SUBTRACT BASE LINK32 /map /debug /nodefaultlib
+# ADD LINK32 winmm.lib  advapi32.lib kernel32.lib user32.lib gdi32.lib mss32.lib IonCommonJapanese.lib /nologo /subsystem:windows /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\dlls\world\release" /libpath:"..\libs"
+# SUBTRACT LINK32 /map /debug /nodefaultlib
+
+!ELSEIF  "$(CFG)" == "daikatana - Win32 FrenchDebug"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 1
+# PROP BASE Output_Dir "daikatana___Win32_FrenchDebug"
+# PROP BASE Intermediate_Dir "daikatana___Win32_FrenchDebug"
+# PROP BASE Ignore_Export_Lib 0
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 1
+# PROP Output_Dir "FrenchDebug"
+# PROP Intermediate_Dir "FrenchDebug"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /G5 /MTd /W3 /Gi /GX /ZI /Od /I "." /I ".\dk_" /I ".\client" /I ".\win32" /I ".\qcommon" /I ".\server" /I "..\user" /I "..\user\collection" /I "..\audio" /I "..\libent" /I "../../dk_" /D "AUDIO_DEBUG" /D "TONGUE_ENGLISH" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FR /YX"client.h" /FD /c
+# ADD CPP /nologo /G5 /MTd /W3 /Gi /GX /ZI /Od /I "." /I ".\dk_" /I ".\client" /I ".\win32" /I ".\qcommon" /I ".\server" /I "..\user" /I "..\user\collection" /I "..\audio" /I "..\libent" /I "../../dk_" /D "AUDIO_DEBUG" /D "TONGUE_FRENCH" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /FR /YX"client.h" /FD /c
+# ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
+# ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
+# ADD BASE RSC /l 0x409 /d "_DEBUG"
+# ADD RSC /l 0x409 /d "_DEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 winmm.lib  ole32.lib mss32.lib advapi32.lib kernel32.lib user32.lib gdi32.lib IonCommonDebug.lib imagehlp.lib /nologo /subsystem:windows /map /debug /machine:I386 /nodefaultlib:"libcd.lib" /nodefaultlib:"libc.lib" /libpath:"..\dlls\world\debug" /libpath:"..\libs"
+# SUBTRACT BASE LINK32 /pdb:none /incremental:no
+# ADD LINK32 winmm.lib  ole32.lib mss32.lib advapi32.lib kernel32.lib user32.lib gdi32.lib IonCommonFrenchDebug.lib imagehlp.lib /nologo /subsystem:windows /map /debug /machine:I386 /nodefaultlib:"libcd.lib" /nodefaultlib:"libc.lib" /libpath:"..\dlls\world\debug" /libpath:"..\libs"
 # SUBTRACT LINK32 /pdb:none /incremental:no
 
 !ELSEIF  "$(CFG)" == "daikatana - Win32 Demo Debug"
@@ -110,9 +291,9 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 winmm.lib wsock32.lib ole32.lib mss32.lib advapi32.lib kernel32.lib user32.lib gdi32.lib IonCommonDebug.lib imagehlp.lib /nologo /subsystem:windows /map /debug /machine:I386 /nodefaultlib:"libcd.lib" /nodefaultlib:"libc.lib" /libpath:"..\dlls\world\debug" /libpath:"..\libs"
+# ADD BASE LINK32 winmm.lib  ole32.lib mss32.lib advapi32.lib kernel32.lib user32.lib gdi32.lib IonCommonDebug.lib imagehlp.lib /nologo /subsystem:windows /map /debug /machine:I386 /nodefaultlib:"libcd.lib" /nodefaultlib:"libc.lib" /libpath:"..\dlls\world\debug" /libpath:"..\libs"
 # SUBTRACT BASE LINK32 /pdb:none /incremental:no
-# ADD LINK32 winmm.lib wsock32.lib ole32.lib mss32.lib advapi32.lib kernel32.lib user32.lib gdi32.lib IonCommonDebug.lib imagehlp.lib /nologo /subsystem:windows /map /debug /machine:I386 /nodefaultlib:"libcd.lib" /nodefaultlib:"libc.lib" /libpath:"..\dlls\world\debug" /libpath:"..\libs"
+# ADD LINK32 winmm.lib  ole32.lib mss32.lib advapi32.lib kernel32.lib user32.lib gdi32.lib IonCommonDebug.lib imagehlp.lib /nologo /subsystem:windows /map /debug /machine:I386 /nodefaultlib:"libcd.lib" /nodefaultlib:"libc.lib" /libpath:"..\dlls\world\debug" /libpath:"..\libs"
 # SUBTRACT LINK32 /pdb:none /incremental:no
 
 !ELSEIF  "$(CFG)" == "daikatana - Win32 Demo Release"
@@ -141,10 +322,39 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 winmm.lib wsock32.lib advapi32.lib kernel32.lib user32.lib gdi32.lib IonCommonRelease.lib mss32.lib /nologo /subsystem:windows /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\dlls\world\release" /libpath:"..\libs"
+# ADD BASE LINK32 winmm.lib  advapi32.lib kernel32.lib user32.lib gdi32.lib IonCommonRelease.lib mss32.lib /nologo /subsystem:windows /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\dlls\world\release" /libpath:"..\libs"
 # SUBTRACT BASE LINK32 /map /debug /nodefaultlib
-# ADD LINK32 winmm.lib wsock32.lib advapi32.lib kernel32.lib user32.lib gdi32.lib IonCommonRelease.lib mss32.lib /nologo /subsystem:windows /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\dlls\world\release" /libpath:"..\libs"
+# ADD LINK32 winmm.lib  advapi32.lib kernel32.lib user32.lib gdi32.lib IonCommonRelease.lib mss32.lib /nologo /subsystem:windows /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\dlls\world\release" /libpath:"..\libs"
 # SUBTRACT LINK32 /map /debug /nodefaultlib
+
+!ELSEIF  "$(CFG)" == "daikatana - Win32 German Debug"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "daikatana___Win32_German_Debug"
+# PROP BASE Intermediate_Dir "daikatana___Win32_German_Debug"
+# PROP BASE Ignore_Export_Lib 0
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir ".\German_Debug"
+# PROP Intermediate_Dir ".\German_Debug"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /G5 /MT /W3 /GX /O2 /I "." /I ".\dk_" /I ".\client" /I ".\win32" /I ".\qcommon" /I ".\server" /I "..\user" /I "..\audio" /I "..\user\collection" /I "..\libent" /D "TONGUE_GERMAN" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FR /YX /FD /c
+# ADD CPP /nologo /G5 /MTd /W3 /GX /ZI /Od /I "." /I ".\dk_" /I ".\client" /I ".\win32" /I ".\qcommon" /I ".\server" /I "..\user" /I "..\audio" /I "..\user\collection" /I "..\libent" /D "TONGUE_GERMAN" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FAs /FR /YX /FD /c
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD BASE RSC /l 0x409 /d "NDEBUG"
+# ADD RSC /l 0x409 /d "NDEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 winmm.lib  advapi32.lib kernel32.lib user32.lib gdi32.lib mss32.lib IonCommonGerman.lib binkw32.lib /nologo /subsystem:windows /pdb:none /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\dlls\world\release" /libpath:"..\libs"
+# SUBTRACT BASE LINK32 /map /debug /nodefaultlib
+# ADD LINK32 winmm.lib  advapi32.lib kernel32.lib user32.lib gdi32.lib mss32.lib IonCommonGermanDebug.lib /nologo /subsystem:windows /pdb:none /debug /machine:I386 /nodefaultlib:"libc.lib" /libpath:"..\dlls\world\release" /libpath:"..\libs"
+# SUBTRACT LINK32 /map /nodefaultlib
 
 !ENDIF 
 
@@ -152,8 +362,15 @@ LINK32=link.exe
 
 # Name "daikatana - Win32 Release"
 # Name "daikatana - Win32 Debug"
+# Name "daikatana - Win32 French"
+# Name "daikatana - Win32 German"
+# Name "daikatana - Win32 Italian"
+# Name "daikatana - Win32 Spanish"
+# Name "daikatana - Win32 Japanese"
+# Name "daikatana - Win32 FrenchDebug"
 # Name "daikatana - Win32 Demo Debug"
 # Name "daikatana - Win32 Demo Release"
+# Name "daikatana - Win32 German Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;hpj;bat;for;f90"
@@ -226,6 +443,10 @@ SOURCE=.\dk_\dk_menu_demos.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\dk_\dk_menu_gldrivers.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\dk_\dk_menu_joystick.cpp
 # End Source File
 # Begin Source File
@@ -266,11 +487,13 @@ SOURCE=.\dk_\dk_menu_sound.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\dk_\dk_menu_video.cpp
-# End Source File
 # Begin Source File
 
 SOURCE=.\dk_\dk_menu_weapons.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\dk_\dk_menu_video.cpp
 # End Source File
 # Begin Source File
 
@@ -379,12 +602,29 @@ SOURCE=.\client.cpp
 
 # ADD CPP /Yc"client.h"
 
+!ELSEIF  "$(CFG)" == "daikatana - Win32 French"
+
+!ELSEIF  "$(CFG)" == "daikatana - Win32 German"
+
+!ELSEIF  "$(CFG)" == "daikatana - Win32 Italian"
+
+!ELSEIF  "$(CFG)" == "daikatana - Win32 Spanish"
+
+!ELSEIF  "$(CFG)" == "daikatana - Win32 Japanese"
+
+!ELSEIF  "$(CFG)" == "daikatana - Win32 FrenchDebug"
+
+# ADD BASE CPP /Yc"client.h"
+# ADD CPP /Yc"client.h"
+
 !ELSEIF  "$(CFG)" == "daikatana - Win32 Demo Debug"
 
 # ADD BASE CPP /Yc"client.h"
 # ADD CPP /Yc"client.h"
 
 !ELSEIF  "$(CFG)" == "daikatana - Win32 Demo Release"
+
+!ELSEIF  "$(CFG)" == "daikatana - Win32 German Debug"
 
 !ENDIF 
 
@@ -451,11 +691,7 @@ SOURCE=.\Goa\CEngine\hashtable.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\win32\Imeui.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\win32\in_win.cpp
+SOURCE=.\client\in_sdl3.cpp
 # End Source File
 # Begin Source File
 
@@ -479,7 +715,7 @@ SOURCE=.\qcommon\net_chan.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\win32\net_wins.cpp
+SOURCE=.\qcommon\net_sdl3.cpp
 # End Source File
 # Begin Source File
 
@@ -503,11 +739,11 @@ SOURCE=.\client\qmenu.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\server\sv_ccmds.cpp
+SOURCE=.\server\sv_clientString.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\server\sv_clientString.cpp
+SOURCE=.\server\sv_ccmds.cpp
 # End Source File
 # Begin Source File
 
@@ -744,10 +980,6 @@ SOURCE=.\Goa\CEngine\gutil.h
 # Begin Source File
 
 SOURCE=.\Goa\CEngine\hashtable.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\win32\ImeFull.h
 # End Source File
 # Begin Source File
 

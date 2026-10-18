@@ -91,7 +91,8 @@ enum svc_ops_enum
 	SVC_START_MP3,
 	SVC_STOP_MP3,
 	SVC_REVERB_PRESET,
-	SVC_START_STREAM
+	SVC_START_STREAM,
+	SVC_CLIENT_STRING,			// Daikatana 1.2 client-language formatted messages
 };
 
 #define SCOREBOARD_SINGLE	0x0		// SCG[1/5/00]: 
@@ -360,6 +361,34 @@ typedef struct entity_s entity_t;
 // functions provided by the main engine
 ///////////////////////////////////////////////////////////////////////////////
 
+
+// ---------------------------------------------------------------------------
+// Client-language string messaging (Daikatana 1.2)
+// ---------------------------------------------------------------------------
+typedef struct client_string_import_s
+{
+	void (*BeginSendString)();
+	void (*EndSendString)();
+	void (*SendStringID)(long strID);
+	void (*SendString)(char *str);
+	void (*SendInteger)(int val);
+	void (*SendFloat)(float val);
+	void (*SendSpecifierStr)(char *str, byte parmCount);
+	void (*SendSpecifierID)(long strID, byte parmCount);
+	void (*SendCount)(byte count);
+	void (*Continue)(qboolean bContinue);
+	void (*Multicast)(byte print_type, float msg_time);
+	void (*Unicast)(edict_t *ent, byte print_type, float msg_time);
+	char *(*StringForID)(long strID);
+} client_string_import_t;
+
+#define CS_print_normal  0
+#define CS_print_center  1
+#define CS_data_str_resource 1
+#define CS_data_str_literal  2
+#define CS_data_integer      3
+#define CS_data_float        4
+
 typedef struct game_import_t
 {
 	// special messages
@@ -376,7 +405,7 @@ typedef struct game_import_t
 	void	(*streamed_sound) (const char* name, float vol);
 
 	void	(*StartMusic) (const char* name, int chan, edict_t *ent);
-	void    (*StartMP3) (const char* name, int chan, float fvol, int play_count, qboolean bRestart, edict_t *ent);	
+	void    (*StartMP3) (const char* name, int chan, float fvol, int play_count, qboolean bRestart, edict_t *ent );	
 	void    (*StopMP3) (int chan, edict_t *ent);	
 
 	// config strings hold all the index strings, the lightstyles,
@@ -472,7 +501,6 @@ typedef struct game_import_t
 	int		(*dk_GetAnimSequences)	(int modelindex, frameData_t *pFrameData);
 
 	int		(*dk_GetModelSkinIndex) (int modelIndex);
-	char*		(*dk_GetModelSkinName) (int modelIndex);
 
 	char	*sv_prepped_refresh;		//	set to true when precached models have been loaded
 
@@ -519,6 +547,12 @@ typedef struct game_import_t
 	// these functions simply perform the test that network writes and sends perform on the buffer
 	qboolean (*TestMulticast)		(multicast_t to);
 	qboolean (*TestUnicast)			(edict_t *ent, qboolean reliable);
+
+	// Daikatana 1.2: deferred autosave request from game DLLs.
+	void	(*AutoSave)();
+
+	// Daikatana 1.2: client-language formatted message transport.
+	client_string_import_t cs;
 } game_import_t;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -591,4 +625,5 @@ typedef struct game_export_s
 	void		(*RegisterWorldFuncs)();
 
 	void		(*EntityLoadCleanup)( int nIndex );
+	bool		(*CanSave)( edict_t *ent, bool msg );
 } game_export_t;

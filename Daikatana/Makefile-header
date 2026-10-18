@@ -1,0 +1,145 @@
+#=============================================================================
+# Makefile-header: Global definitions for Daikatana makefiles.
+#
+# Makefiles must define DK_DIR before including Makefile-header.
+#
+# Created by Mike Danylchuk
+#=============================================================================
+
+SHELL = /bin/sh
+
+# Check OSTYPE, assume solaris if undefined.
+ifndef OSTYPE
+OSTYPE = solaris
+endif
+
+# Check MACHTYPE, assume intel if undefined.
+ifndef MACHTYPE
+MACHTYPE = i386
+endif
+
+#-----------------------------------------------------------------------------
+# Configuration
+#-----------------------------------------------------------------------------
+
+OS = $(OSTYPE)
+
+BUILD = debug
+BUILD_SUBDIR = $(BUILD)-$(MACHTYPE)
+
+ifeq ($(BUILD),release)
+BUILD_CXXFLAGS = -O2
+endif
+
+ifeq ($(BUILD),debug)
+BUILD_CXXFLAGS = -ggdb -D_DEBUG
+endif
+
+#-----------------------------------------------------------------------------
+# Directories
+#-----------------------------------------------------------------------------
+
+BASE_DIR			= $(DK_DIR)/base
+BIN_DIR				= $(DK_DIR)/bin
+DLLS_DIR			= $(DK_DIR)/dlls
+IONCOMMON_DIR		= $(DK_DIR)/ioncommon
+LIBENT_DIR			= $(DK_DIR)/libent
+LIBS_DIR			= $(DK_DIR)/libs
+SHARED_DIR			= $(DK_DIR)/shared
+USER_DIR			= $(DK_DIR)/user
+
+CLIENT_DIR			= $(BASE_DIR)/client
+DK__DIR				= $(BASE_DIR)/dk_
+NULL_DIR			= $(BASE_DIR)/null
+PHYSICS_DIR			= $(BASE_DIR)/physics
+QCOMMON_DIR			= $(BASE_DIR)/qcommon
+SERVER_DIR			= $(BASE_DIR)/server
+OS_DIR				= $(BASE_DIR)/$(OS)
+
+WEAPONS_DIR			= $(DLLS_DIR)/weapons
+WORLD_DIR			= $(DLLS_DIR)/world
+
+BASE_BUILD			= $(BASE_DIR)/$(BUILD_SUBDIR)
+IONCOMMON_BUILD		= $(IONCOMMON_DIR)/$(BUILD_SUBDIR)
+LIBENT_BUILD		= $(LIBENT_DIR)/$(BUILD_SUBDIR)
+PHYSICS_BUILD		= $(PHYSICS_DIR)/$(BUILD_SUBDIR)
+SWINGINGHOOK_BUILD	= $(SWINGINGHOOK_DIR)/$(BUILD_SUBDIR)
+WEAPONS_BUILD		= $(WEAPONS_DIR)/$(BUILD_SUBDIR)
+WORLD_BUILD			= $(WORLD_DIR)/$(BUILD_SUBDIR)
+
+OUTPUT_DIR			= $(BIN_DIR)/$(BUILD_SUBDIR)
+DLLS_SUBDIR			= dlls
+
+#-----------------------------------------------------------------------------
+# Output files
+#-----------------------------------------------------------------------------
+
+DKDED				= $(OUTPUT_DIR)/dkded
+
+IONCOMMON			= $(OUTPUT_DIR)/$(DLLS_SUBDIR)/ioncommon.so
+IONCOMMON_SONAME	= ioncommon.so
+
+LIBENT				= $(OUTPUT_DIR)//$(DLLS_SUBDIR)/libent.so
+LIBENT_SONAME		= libent.so
+
+PHYSICS				= $(OUTPUT_DIR)/$(DLLS_SUBDIR)/physics.so
+PHYSICS_SONAME		= physics.so
+
+WEAPONS				= $(OUTPUT_DIR)/$(DLLS_SUBDIR)/weapons.so
+WEAPONS_SONAME		= weapons.so
+
+WORLD				= $(OUTPUT_DIR)/$(DLLS_SUBDIR)/world.so
+WORLD_SONAME		= world.so
+
+#-----------------------------------------------------------------------------
+# Standard compiler/linker options
+#-----------------------------------------------------------------------------
+
+ifeq ($(MACHTYPE),sparc)
+PLATFORM_CXXFLAGS = -D__BIG_ENDIAN__
+else
+PLATFORM_CXXFLAGS = -D__i386__
+endif
+
+ifeq ($(OS),solaris)
+RPATH	= -R
+SHARED	= -G
+SONAME	= -h 
+LSOCKET	= -lsocket
+else
+RPATH	= -Wl,-rpath,
+SHARED	= -shared
+SONAME	= -Wl,-soname,
+LSOCKET	=
+endif
+
+STD_CXX			= g++
+STD_CXXFLAGS	= $(PLATFORM_CXXFLAGS) $(BUILD_CXXFLAGS) -fno-for-scope \
+				-DDEDICATED_ONLY=1 -Duse_t=_use_t 
+STD_LDFLAGS		= $(RPATH).
+STD_LIBS		= -lm -ldl -lnsl $(LSOCKET)
+
+
+#-----------------------------------------------------------------------------
+# TAGS
+#-----------------------------------------------------------------------------
+
+BASE_TAGS			= $(BASE_DIR)/*.h $(BASE_DIR)/*.cpp
+DK__TAGS			= $(DK__DIR)/*.h $(DK__DIR)/*.cpp
+NULL_TAGS			= $(NULL_DIR)/*.h $(NULL_DIR)/*.cpp
+LIBENT_TAGS			= $(LIBENT_DIR)/*.h $(LIBENT_DIR)/*.cpp
+PHYSICS_TAGS		= $(PHYSICS_DIR)/*.h $(PHYSICS_DIR)/*.cpp
+QCOMMON_TAGS		= $(QCOMMON_DIR)/*.h $(QCOMMON_DIR)/*.cpp
+SERVER_TAGS			= $(SERVER_DIR)/*.h $(SERVER_DIR)/*.cpp
+OS_TAGS				= $(OS_DIR)/*.h $(OS_DIR)/*.cpp
+WEAPONS_TAGS		= $(WEAPONS_DIR)/*.h $(WEAPONS_DIR)/*.cpp
+WORLD_TAGS			= $(WORLD_DIR)/*.h $(WORLD_DIR)/*.cpp
+STD_TAGS			= /usr/include/*.h /usr/include/sys/*.h
+
+ALL_TAGS = $(BASE_TAGS) $(DK__TAGS) $(NULL_TAGS) $(LIBENT_TAGS) \
+	$(PHYSICS_TAGS) $(QCOMMON_TAGS) $(SERVER_TAGS) $(OS_TAGS) \
+	$(WEAPONS_TAGS) $(WORLD_TAGS) $(STD_TAGS)
+
+#-----------------------------------------------------------------------------
+# End
+#-----------------------------------------------------------------------------

@@ -9,43 +9,15 @@
 
 #include    "l__language.h"
 
+
 ///////////////////////////////////////////////////////////////////////////////
 //	concmd_NoClip
 //
 //	toggles noclip movement for client
 ///////////////////////////////////////////////////////////////////////////////
 
-/*
-void concmd_NoClip (edict_t *ent)
-{
-	char	*msg;
 
-	if( SinglePlayerCheat() == FALSE )
-	{
-		if( p_cheats->value == 0 )
-		{
-			if( deathmatch->value )
-			{
-				gi.cprintf (ent, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
-			}
-			return;
-		}
-	}
 
-	if (ent->movetype == MOVETYPE_NOCLIP)
-	{
-		ent->movetype = MOVETYPE_WALK;
-		msg = "noclip OFF\n";
-	}
-	else
-	{
-		ent->movetype = MOVETYPE_NOCLIP;
-		msg = "noclip ON\n";
-	}
-
-	gi.cprintf (ent, PRINT_HIGH, msg);
-}
-*/
 ///////////////////////////////////////////////////////////////////////////////
 //	concmd_Scoreboard
 ///////////////////////////////////////////////////////////////////////////////
@@ -214,7 +186,7 @@ void concmd_Say (edict_t *ent)
 		if (!other->inuse || !other->client)
 			continue;
 
-		gi.cprintf(other, PRINT_CHAT, "\t%s", text);
+		gi.cprintf(other, PRINT_CHAT, "%s", text);
 	}
 }
 
@@ -359,7 +331,7 @@ void concmd_SayTeam (edict_t *ent)
 				if (!other->inuse || !other->client || (other->team != ent->team))
 					continue;
 
-				gi.cprintf(other, PRINT_CHAT, "\t%s", text);
+				gi.cprintf(other, PRINT_CHAT, "%s", text);
 			}
 			return;
 		}
@@ -373,7 +345,7 @@ void concmd_SayTeam (edict_t *ent)
 		if (!other->inuse || !other->client)
 			continue;
 
-		gi.cprintf(other, PRINT_CHAT, "\t%s", text);
+		gi.cprintf(other, PRINT_CHAT, "%s", text);
 	}
 }
 
@@ -383,7 +355,6 @@ void concmd_SayTeam (edict_t *ent)
 
 void	concmd_AddCommands (void)
 {
-//	gi.AddCommand ("noclip", concmd_NoClip);
 	gi.AddCommand ("scoreboard", concmd_Scoreboard);
 	
 	if(!(serverState.GetCvar("dedicated") > 0))

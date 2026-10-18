@@ -163,7 +163,6 @@ void P_FreeEdict (edict_t *ent)
 	if( ent->inventory != NULL )
 	{
 		P_InventoryFree( ent->inventory );
-		ent->inventory = NULL;
 	}
 
 	//	if this is a fake entity, remove it

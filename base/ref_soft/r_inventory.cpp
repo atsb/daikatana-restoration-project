@@ -181,7 +181,7 @@ void	inventory_DrawIcons (void)
 			if (icon->model != NULL)
 			{
 				if (i == selected)
-					inventory_DrawBox (origin [0] - ICON_HALF_WIDTH, origin [1] - ICON_HALF_HEIGHT, ICON_BOX_WIDTH, ICON_BOX_HEIGHT, 1.0 * r_newrefdef.inventoryAlpha);
+					inventory_DrawBox (origin [0] - ICON_HALF_WIDTH, origin [1] - ICON_HALF_HEIGHT, ICON_BOX_WIDTH, ICON_BOX_HEIGHT, 1.0 * r_newrefdef.inventory_alpha);
 			}
 		}
 	}
@@ -216,7 +216,7 @@ void	inventory_DrawIcons (void)
 			ent.skinnum		= 0;
 ///			ent.lightstyle	= 0;
 
-			ent.alpha = 1.0 *  r_newrefdef.inventoryAlpha;
+			ent.alpha = 1.0 *  r_newrefdef.inventory_alpha;
 			ent.flags = RF_TRANSLUCENT | RF_MINLIGHT | RF_FULLBRIGHT;
 
 			model = (model_t*)icon->model;

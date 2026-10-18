@@ -1,5 +1,0 @@
-LIBRARY AudioImp_IntelRSX.dll
-EXPORTS
-	GetPluginDesc			  @1
-	GetNumPlugins			  @2
-

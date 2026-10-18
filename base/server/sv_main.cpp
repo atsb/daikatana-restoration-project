@@ -1,10 +1,7 @@
 
-// added for Japanese version
-#ifdef JPN
-#include <windows.h>
-#endif // JPN
-
 #include "server.h"
+//GAMESPY
+#include "../GOA/SDK/goautil.h"
 
 netadr_t	master_adr[MAX_MASTERS];	// address of group servers
 client_t	*sv_client;			// current client
@@ -854,14 +851,6 @@ char *SV_MapName()
 	return sv.configstrings[0];
 }
 
-// cek[6-16-00]: fix autosave bug
-qboolean sv_doautosave = FALSE;
-void SV_DoAutoSave();
-void SV_AutoSave()
-{
-	sv_doautosave = TRUE;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 //	SV_Frame
 //
@@ -872,12 +861,6 @@ extern	int	traceCount;
 
 void SV_Frame (int msec)
 { 
-	// cek[6-16-00]: fix autosave bug
-	if (sv_doautosave)
-	{
-		sv_doautosave = FALSE;
-		SV_DoAutoSave();
-	}
 	traceCount = time_before_game = time_after_game = 0;
 
 	// if server is not active, do nothing
@@ -940,6 +923,12 @@ void SV_Frame (int msec)
 	sv_frameskip++;
 	if (sv_frameskip > MAX_FRAME_SKIP)
 		sv_frameskip = 0;
+
+    //GAMESPY
+    goa_process_queries();
+	// send a heartbeat to the master if needed
+	//	Nelno:	We ain't sending id NOTHING!!!!
+	//	Master_Heartbeat ();
 
 	// clear teleport flags, etc for next frame
 	SV_PrepWorldFrame ();
@@ -1028,23 +1017,9 @@ void SV_UserinfoChanged (client_t *cl)
 
     StripInvalidChars(cl->name,16);  // insure valid filename
 
-// Encompass MarkMa 041399
-//#ifdef	EXTASCII	// EXTASCII
-//#else 
-#ifdef	JPN	// JPN
-	// mask off high bit
-	for (i=0 ; i<sizeof(cl->name) ; i++)
-		if(IsDBCSLeadByte(cl->name[i]))
-			i++;
-		else
-			cl->name[i] &= 127;
-#else	// JPN
 	// mask off high bit
 	for (i=0 ; i<sizeof(cl->name) ; i++)
 		cl->name[i] &= 127;
-#endif	// JPN
-//#endif	// EXTASCII
-// Encompass MarkMa 041399
 
 
 	// single-player?  override with default settings
@@ -1158,8 +1133,8 @@ void SV_Init (void)
 	ctf		= Cvar_Get ("ctf", "0", CVAR_LATCH);	// WAW[11/12/99]: Added for CTF mode.
 	deathtag = Cvar_Get("deathtag","0",CVAR_LATCH);
 	Cvar_Get ("dmflags", va("%i", DF_INSTANT_ITEMS), CVAR_SERVERINFO);
-	Cvar_Get ("fraglimit", "0", CVAR_SERVERINFO|CVAR_LATCH|CVAR_ARCHIVE);
-	Cvar_Get ("timelimit", "0", CVAR_SERVERINFO|CVAR_LATCH|CVAR_ARCHIVE);
+	Cvar_Get ("fraglimit", "0", CVAR_SERVERINFO);
+	Cvar_Get ("timelimit", "0", CVAR_SERVERINFO);
 	Cvar_Get ("cheats", "0", CVAR_SERVERINFO|CVAR_LATCH);
 	Cvar_Get ("protocol", va("%i", PROTOCOL_VERSION), CVAR_SERVERINFO|CVAR_NOSET);;
 	maxclients = Cvar_Get ("maxclients", "1", CVAR_SERVERINFO | CVAR_LATCH);
@@ -1190,7 +1165,7 @@ void SV_Init (void)
 #endif
 
 	// WAW[12/7/99]: Make sure DM Varables are around for the Dedicated server.
-	Cvar_Get("rate", "25000", CVAR_USERINFO | CVAR_ARCHIVE);
+	Cvar_Get("rate", "2500", CVAR_USERINFO | CVAR_ARCHIVE);
 	Cvar_Get("dm_skill_level", "0", CVAR_SERVERINFO|CVAR_LATCH);
 	Cvar_Get("dm_max_players", "0", CVAR_SERVERINFO|CVAR_LATCH);
 	Cvar_Get("dm_weapons_stay", "0", CVAR_SERVERINFO|CVAR_LATCH);
@@ -1211,11 +1186,11 @@ void SV_Init (void)
     Cvar_Get("dm_item_respawn", "1", CVAR_SERVERINFO|CVAR_LATCH);
     Cvar_Get("dm_use_skill_system", "1", CVAR_SERVERINFO|CVAR_LATCH);
     Cvar_Get("dm_instagib", "0", CVAR_SERVERINFO|CVAR_LATCH);
+    Cvar_Get("maps_dm", "", CVAR_SERVERINFO|CVAR_LATCH|CVAR_ARCHIVE);
+    Cvar_Get("maps_deathtag", "", CVAR_SERVERINFO|CVAR_LATCH|CVAR_ARCHIVE);
+    Cvar_Get("maps_ctf", "", CVAR_SERVERINFO|CVAR_LATCH|CVAR_ARCHIVE);
+    Cvar_Get("motd", "", CVAR_ARCHIVE);
 
-	Cvar_Get("maps_dm","",CVAR_SERVERINFO|CVAR_LATCH|CVAR_ARCHIVE);
-	Cvar_Get("maps_deathtag","",CVAR_SERVERINFO|CVAR_LATCH|CVAR_ARCHIVE);
-	Cvar_Get("maps_ctf","",CVAR_SERVERINFO|CVAR_LATCH|CVAR_ARCHIVE);
-	Cvar_Get("motd","",CVAR_ARCHIVE);
 	
 	//	sv_violence
 	//	2 = show blood and gibs
@@ -1278,6 +1253,8 @@ void SV_Shutdown (const char *finalmsg, qboolean reconnect, qboolean unload_dlls
 	if (svs.clients)
 		SV_FinalMessage (finalmsg, reconnect);
 
+    //GAMESPY
+    goa_send_statechanged();
 	//Master_Shutdown ();
 
 	if (unload_dlls)

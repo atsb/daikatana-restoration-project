@@ -458,6 +458,9 @@ typedef enum enum_TASKTYPE
 	// test tasks
 	TASKTYPE_TESTMAP_ROAM,
 
+	// NSS[5/19/00]: Sidekicks can use Hosportals and Health Trees.
+	TASKTYPE_SIDEKICK_USEITEM,
+
     TASKTYPE_MAX,
 
 } TASKTYPE;
@@ -557,6 +560,9 @@ typedef enum enum_GOALTYPE
 
 	// test goals
 	GOALTYPE_TESTMAP_ROAM,
+
+	// NSS[5/19/00]: Sidekicks can use Hosportals and Health Trees.
+	GOALTYPE_USEHOSPORTAL,
 
 } GOALTYPE;
 

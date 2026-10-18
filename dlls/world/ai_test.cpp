@@ -335,7 +335,7 @@ void AI_TestLadder()
 // ----------------------------------------------------------------------------
 void AI_TestBoar()
 {
-	static nCounter = 0;
+	static int nCounter = 0;
 	if ( _stricmp( gstate->mapName, "battle1" ) == 0 )
 	{
 		static CVector pos1( -81, 200, 88 );

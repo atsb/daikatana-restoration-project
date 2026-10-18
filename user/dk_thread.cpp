@@ -20,7 +20,7 @@ CThreadSync::CThreadSync()
     Init( "CThreadSyncFileMap", "CThreadSyncObject" );
 }
 
-CThreadSync::CThreadSync( LPCTSTR lpFileMappingName, LPCTSTR lpObjectName )
+CThreadSync::CThreadSync( LPCSTR lpFileMappingName, LPCSTR lpObjectName )
 {
     Init( lpFileMappingName, lpObjectName );
 }
@@ -30,7 +30,7 @@ CThreadSync::~CThreadSync()
     Destroy();
 }
 
-BOOL CThreadSync::Init( LPCTSTR lpFileMappingName, LPCTSTR lpObjectName )
+BOOL CThreadSync::Init( LPCSTR lpFileMappingName, LPCSTR lpObjectName )
 {
     g_SWMRG.hMutexNoWriter  = NULL;
     g_SWMRG.hEventCanRead   = NULL;
@@ -63,22 +63,22 @@ BOOL CThreadSync::CreateFileMap()
     if ( !InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION) ) 
 	{
 		sprintf( buff, "unable to InitializeSecurityDescriptor, err == %d\n", GetLastError() );
-		MessageBox( NULL, buff, "ERROR", MB_OK );
+		MessageBoxA( NULL, buff, "ERROR", MB_OK );
 		return FALSE;
     }
 
     if ( !SetSecurityDescriptorDacl(&sd, TRUE, (PACL)NULL, FALSE) )
 	{
         sprintf(buff,"unable to SetSecurityDescriptorDacl, err == %d\n", GetLastError() );
-		MessageBox( NULL, buff, "ERROR", MB_OK );
+		MessageBoxA( NULL, buff, "ERROR", MB_OK );
 		return FALSE;
     }
 
-    SharedFile = CreateFileMapping( (HANDLE)-1, &sa, PAGE_READWRITE, 0, 256, szFileMappingName );
+    SharedFile = CreateFileMappingA( (HANDLE)-1, &sa, PAGE_READWRITE, 0, 256, szFileMappingName );
     if ( !SharedFile )
 	{
         sprintf( buff, "Unable to create file mapping object, err == %d\n", GetLastError() );
-		MessageBox( NULL, buff, "ERROR", MB_OK );
+		MessageBoxA( NULL, buff, "ERROR", MB_OK );
 		return FALSE;
     }
 
@@ -89,7 +89,7 @@ BOOL CThreadSync::OpenFileForRead()
 {
 	if ( !SharedFile )
     {
-	    SharedFile = OpenFileMapping( FILE_MAP_READ, TRUE, szFileMappingName );
+	    SharedFile = OpenFileMappingA( FILE_MAP_READ, TRUE, szFileMappingName );
         if (!SharedFile) 
 	    {
 		    return FALSE;
@@ -100,7 +100,7 @@ BOOL CThreadSync::OpenFileForRead()
     if ( !SharedMem )
 	{
         sprintf( buff, "Unable to map shared memory, err == %d\n", GetLastError() );
-		MessageBox( NULL, buff, "ERROR", MB_OK );
+		MessageBoxA( NULL, buff, "ERROR", MB_OK );
 		return FALSE;
     }
 
@@ -113,7 +113,7 @@ BOOL CThreadSync::OpenFileForWrite()
 {
     if ( !SharedFile )
     {	
-	    SharedFile = OpenFileMapping( FILE_MAP_WRITE, TRUE, szFileMappingName );
+	    SharedFile = OpenFileMappingA( FILE_MAP_WRITE, TRUE, szFileMappingName );
         if ( !SharedFile )
 	    {
 		    return FALSE;
@@ -124,7 +124,7 @@ BOOL CThreadSync::OpenFileForWrite()
     if ( !SharedMem ) 
 	{
         sprintf( buff, "Unable to map shared memory, err == %d\n", GetLastError() );
-		MessageBox( NULL, buff, "ERROR", MB_OK );
+		MessageBoxA( NULL, buff, "ERROR", MB_OK );
 		return FALSE;
     }
 

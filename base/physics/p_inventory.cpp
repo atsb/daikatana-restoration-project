@@ -673,105 +673,7 @@ void P_InventoryOperate(userEntity_t *self, int bHideDisplay)
 
 
 #define	MAX_DISPLAY_WEAPONS	6
-weaponInfo_t *com_FindWeaponInSlot (int display_order);		// com_weapons.cpp
 
-void	P_WeaponUpdateClient(userEntity_t *self, int hud_status)
-// send weapon icon and ammo count information to client
-{
-	
-	//Com_Printf("P_WeaponUpdateClient(%d)\n",hud_status);
-	
-	if (!self || !self->inventory)
-		return;
-	
-	if (!(self->flags & FL_CLIENT))  // must be client for update
-		return;
-	
-	
-	if (!hud_status) // if wanting to force the weapon hud off?
-	{
-		//	send the inventory message
-		gi.WriteByte (SVC_WEAPON_ICON);
-		gi.WriteByte(0);                 // this forces the interface hud off (true = hide)
-		gi.unicast (self, true);
-		
-		return;	// our work is done here
-	}
-
-	int i, current_weapon = -1;
-
-	weaponInfo_t	*winfo[MAX_DISPLAY_WEAPONS];
-	weapon_t        *weaponList[MAX_DISPLAY_WEAPONS];
-	memset(&weaponList[0],NULL,sizeof(weaponList)); // initialize
-	memset(&winfo[0],NULL,sizeof(winfo)); // initialize
-
-	for (i = 0; i < MAX_DISPLAY_WEAPONS; i++)
-	{
-		winfo[i] = com_FindWeaponInSlot(i);
-		if (!winfo[i])
-			continue;
-
-		weaponList[i] = (weapon_t *)P_InventoryFindItem(self->inventory,winfo[i]->weaponName);
-		if (weaponList[i] && (weaponList[i] == (weapon_t *)self->curWeapon))
-			current_weapon = i;
-	}
-
-	if( current_weapon == -1 )
-	{
-		return;
-	}
-	
-	// send the inventory message
-	gi.WriteByte (SVC_WEAPON_ICON);
-	gi.WriteByte(1);  // show hud on
-
-	short model, count;
-	for (i = 0; i < MAX_DISPLAY_WEAPONS; i++)
-	{
-		model = 0;
-		count = -1;
-
-		if (weaponList[i] != NULL)
-		{
-			model = weaponList[i]->modelIndex;
-			
-			if (weaponList[i]->ammo != NULL)
-			{
-				if (!strcmpi(weaponList[i]->ammo->name,"ammo_none"))  // melee weapon?
-					count = -1;                                  // doesn't use ammo
-				else
-					count = weaponList[i]->ammo->count;          // ammo count
-			}
-			else
-				count = 0;
-		}
-		else
-		{
-			if (winfo[i] != NULL)
-			{
-				ammo_t *ammo = (ammo_t *)P_InventoryFindItem(self->inventory,winfo[i]->ammoName);
-				if (ammo)
-				{
-					count = ammo->count;
-				}
-				// else use defaults set above
-			}
-		}
-
-		gi.WriteShort(model);  // model index
-		gi.WriteShort(count);  // ammo
-	}
-
-	gi.WriteShort(current_weapon); // current weapon selected
-	
-	gi.unicast (self, true);
-	
-	self->client->inventoryTime = p_realtime + INVMODE_DISPLAYTIME; // # seconds for display
-	if (serverState.InventorySetMode)
-		serverState.InventorySetMode(self,INV_MODE_WEAPONS,false);
-}
-
-/*
 void	P_WeaponUpdateClient(userEntity_t *self, int hud_status)
 // send weapon icon and ammo count information to client
 {
@@ -881,7 +783,6 @@ void	P_WeaponUpdateClient(userEntity_t *self, int hud_status)
 	if (serverState.InventorySetMode)
 		serverState.InventorySetMode(self,INV_MODE_WEAPONS,false);
 }
-*/
 
 int P_InventoryCount(userEntity_t *self)
 {
@@ -937,13 +838,10 @@ void P_WriteFunc( FILE *f, void *p, char *name )
 	fwrite (&index, sizeof( int ), 1, f);
 }
 
-bool P_ReadFunc( FILE *f, byte **p)
+void P_ReadFunc( FILE *f, byte **p)
 {
 	int index = 0;
-	if (!fread( &index, sizeof( int ), 1, f ))
-		return false;
-
-
+	fread( &index, sizeof( int ), 1, f );
 	if (index != -1)
 	{
 		*p = (byte *)P_GetFuncForIndex(index);
@@ -952,8 +850,6 @@ bool P_ReadFunc( FILE *f, byte **p)
 	{
 		*p = NULL;
 	}
-
-	return true;
 }
 
 #define WRITE(buffer,value,size)		{memcpy(buffer,value,size);buffer += size;}
@@ -1035,50 +931,28 @@ short P_ReadItem( void **buf, userEntity_t *self, int index)
 	if (index == -1)
 	{
 		FILE *f = (FILE *)(*buf);
-
-		if (!fread(&size,sizeof(int),1,f))
-			return 0;
-
+		fread(&size,sizeof(int),1,f);
 		if (size)
 		{
 			name = (char *)malloc(size+1);
 			memset(name,0,size+1);
-			if (!fread(name,sizeof(char),size,f))
-				return 0;
+			fread(name,sizeof(char),size,f);
 		}
-
-		// read the use func
-		if (!P_ReadFunc(f,&use))
-			return 0;
-
-		// read the command func
-		if (!P_ReadFunc(f,&command))
-			return 0;
-
-		// read the model
-		if (!fread(&model,sizeof(model),1,f))
-			return 0;
+		P_ReadFunc(f,&use);
+		P_ReadFunc(f,&command);
+//		fread(&modelIndex,sizeof(int),1,f);
+		fread(&model,sizeof(model),1,f);
 		if (strlen(model))
 			modelIndex = serverState.ModelIndex(model);
-
-		// read the item flags
-		if (!fread(&flags,sizeof(unsigned long),1,f))
-			return 0;
+		fread(&flags,sizeof(unsigned long),1,f);
 
 		size = sizeof(userInventory_t);
-
-		// read some specific things for key items
 		if (flags & ITF_KEY_ITEM)
 		{
-			if (!fread(target,sizeof(target),1,f))
-				return 0;
-
-			if (!fread(netname,sizeof(netname),1,f))
-				return 0;
-
-			if (!fread(sound,sizeof(sound),1,f))
-				return 0;
-
+			fread(target,sizeof(target),1,f);
+			fread(netname,sizeof(netname),1,f);
+//			fread(&soundIndex,sizeof(int),1,f);
+			fread(sound,sizeof(sound),1,f);
 			if (strlen(sound))
 				soundIndex = serverState.SoundIndex(sound);
 			size = sizeof(keyItem_t);
@@ -1201,11 +1075,7 @@ void P_InventoryLoad( void **buf, userEntity_t *self, int aryEntries )
 
 		for (int i = 0; i < count; i++)
 		{
-			if (!P_ReadItem(buf,self,-1))
-			{
-				serverState.Con_Dprintf("Error reading entity %s inventory.\n",self->className);
-				return;
-			}
+			P_ReadItem(buf,self,-1);
 		}
 	}
 	else

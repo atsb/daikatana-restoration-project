@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include "p_global.h"
 #include "p_user.h"
 #include "hooks.h"
@@ -461,7 +462,7 @@ static void Sent_BasicEpair(edict_t *ent)
 ///////////////////////////////////////////////////////////////////////////////
 
 #define	SPAWNFLAG_NOT_COOP			0x00001000
-typedef	(*func_t)(edict_t *);
+typedef void (*func_t)(edict_t *);
 
 void ParseWeaponData( userEntity_t *pEnt, client_persistant_t *pPersistant, userInventory_t *pInv )
 {
@@ -505,6 +506,7 @@ void ParseWeaponData( userEntity_t *pEnt, client_persistant_t *pPersistant, user
 		{
 			count += ammos->count;
 		}
+
 	}
 	else
 	{
@@ -751,11 +753,6 @@ void SaveClientData (void)
 			pPersistant->fTimeAcro				= pHook->acro_boost_time;
 			pPersistant->fTimeVita				= pHook->vita_boost_time;
 												
-			pPersistant->fPoisonTime			= pHook->poison_time;
-			pPersistant->fPoisonNextDamage		= pHook->poison_next_damage_time;
-			pPersistant->fPoisonDamage			= pHook->poison_damage;
-			pPersistant->fPoisonInterval		= pHook->poison_interval;
-
 			pPersistant->vAngles				= pEntArray[j]->s.angles;
 
 			pPersistant->nAIFlags				= pHook->ai_flags;
@@ -843,8 +840,7 @@ void SaveClientData (void)
 
 cvar_t *dm_weap_noallow;
 #define ARY_OFFSET(ep)				( (ep - 1) * 6 )
-#define FLAGS(ep)					( (((unsigned long)dm_weap_noallow->value) >> (6*(ep - 1))) & 0x0000003F )
-#define ALLOWED(ep,item)			( ( FLAGS(ep) & (1 << (item)) ) ? FALSE : TRUE )
+#define ALLOWED(item)				( ( ((unsigned long)dm_weap_noallow->value) & (1 << (item)) ) ? FALSE : TRUE )
 static char *weapons[] =
 {
 	"",
@@ -863,7 +859,7 @@ static char *weapons[] =
 
 	"",
 	"weapon_bolter",
-	"weapon_stavros",
+	"weapon_weapon_stavros",
 	"weapon_ballista",
 	"weapon_wyndrax",
 	"weapon_nightmare",
@@ -958,21 +954,21 @@ char *get_className(int episode, char *className)
 	if (item == -1)
 		return className;
 
-	if (ALLOWED(episode, item))
+	if (ALLOWED(item))
 	{
 		return className;
 	}
 	else
 	{
-		for (i = item + start - 1; i >= start; i--)
+		for (i = item - 1; i >= start; i--)
 		{
-			if (ALLOWED(episode, i - start) && (strlen(compare[i]) > 0))
+			if (ALLOWED(i - start) && (strlen(compare[i]) > 0))
 				return compare[i];
 		}
 
 		for (i = item + 1; i < end; i++)
 		{
-			if (ALLOWED(episode, i - start) && (strlen(compare[i]) > 0))
+			if (ALLOWED(i - start) && (strlen(compare[i]) > 0))
 				return compare[i];
 		}
 	}
@@ -1132,10 +1128,6 @@ void SpawnEntities( char *mapname, char *str, char *spawnpoint, qboolean bLoadga
 		// set classname
 //		ent->className = Sent_GetValue(ent->epair, "classname");
 		ent->className = get_className(serverState.episode,Sent_GetValue(ent->epair,"classname"));
-#ifdef _DEBUG
-			if ( stricmp(ent->className,Sent_GetValue(ent->epair,"classname")) )
-				serverState.Con_Dprintf("Entity %s changed to %s\n",Sent_GetValue(ent->epair,"classname"),ent->className);
-#endif
 		//NSS[11/20/99]:Uhhhh WE HAVE to check for classnames FIRST
 		if (!ent->className)
 		{

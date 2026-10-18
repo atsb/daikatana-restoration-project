@@ -351,35 +351,12 @@ void Client_Think (userEntity_t *ent, usercmd_t *ucmd)
 			&& (ucmd->buttons & BUTTON_ANY) ) ||
 			(deathmatch->value && (level.time > level.intermissiontime + 30)) )		// force continue in deathmatch
 		{
-/*
-			client->endIntermission = TRUE;
-
-			userEntity_t *self;
-			qboolean fail = FALSE;
-			for (i = 0; i < maxclients->value; i++)
-			{
-				self = g_edicts + 1 + i;
-
-				if (!self->inuse)
-					continue;
-
-				if (!self->client->endIntermission)
-				{
-					fail = TRUE;
-					break;
-				}
-			}
-
-			if (!fail)*/
-			{
-//				ent->client->showflags &= ~(SHOW_SCORES_NOW|SHOW_SCORES);
-				level.exitintermission = true;
-			}
+			ent->client->showflags &= ~(SHOW_SCORES_NOW|SHOW_SCORES);
+			level.exitintermission = true;
 		}
 		
 		return;
 	}
-
 
 	pm_passent = ent;
 

@@ -308,6 +308,52 @@ int RecursiveLightPoint (mnode_t *node, CVector start, CVector end, msurface_t *
 	return RecursiveLightPoint( node->children[!side], mid, end, pPointSurf );
 }
 
+static float R_DynamicLightFalloff(const dlight_t *dl, const CVector &p)
+{
+	float dx;
+	float dy;
+	float dz;
+	float distanceSq;
+	float intensity;
+	float distance;
+	float normalized;
+
+	intensity = dl->intensity;
+	if (intensity <= 0.0f)
+		return 0.0f;
+
+	dx = p.x - dl->origin.x;
+	dy = p.y - dl->origin.y;
+	dz = p.z - dl->origin.z;
+	distanceSq = dx * dx + dy * dy + dz * dz;
+
+	if (distanceSq >= intensity * intensity)
+		return 0.0f;
+
+	distance = sqrt(distanceSq);
+	normalized = 1.0f - distance / intensity;
+	return normalized * normalized * (intensity * (1.0f / 256.0f));
+}
+
+void R_DynamicLightPoint (CVector &p, CVector &color)
+{
+	int lnum;
+	dlight_t *dl;
+	float add;
+
+	color = vec3_origin;
+
+	dl = r_newrefdef.dlights;
+	for (lnum = 0; lnum < r_newrefdef.num_dlights; lnum++, dl++)
+	{
+		add = R_DynamicLightFalloff(dl, p);
+		if (add > 0.0f)
+			VectorMA(color, dl->color, add, color);
+	}
+
+	color = color * gl_modulate->value;
+}
+
 /*
 ===============
 R_LightPoint
@@ -323,7 +369,6 @@ bool R_LightPoint (CVector &p, CVector &color, CVector *pDLoc, msurface_t *pPoin
 	float		r;
 	int			lnum;
 	dlight_t	*dl;
-	CVector		dist;
 	float		add, bestAdd;
     int         bestDLight = 0;
     bool        fDLight=false;
@@ -357,53 +402,234 @@ bool R_LightPoint (CVector &p, CVector &color, CVector *pDLoc, msurface_t *pPoin
 
     if (pDLoc)
     {
-        // determine location of strongest dynamic light
-        fDLight = false;
+        CVector dynamicColor;
+
+        dynamicColor = vec3_origin;
         bestAdd = 0.0f;
         dl = r_newrefdef.dlights;
-    	for (lnum=0 ; lnum<r_newrefdef.num_dlights ; lnum++, dl++)
-    	{
-    		dist = currententity->origin - dl->origin;
-    		add = dl->intensity - dist.Length();
-    		add *= (1.0/256);
-    		if (add > 0)
-    		{
-    			VectorMA (color, dl->color, add, color);
-                
-                fDLight = true;
-                
-                if (add>bestAdd)
-                {
-                    bestAdd = add;
-                    bestDLight = lnum;
-                }
-    		}
-    	}
-    
-    	color = color * gl_modulate->value;
-        
-        if (fDLight)
+        for (lnum=0 ; lnum<r_newrefdef.num_dlights ; lnum++, dl++)
+        {
+            add = R_DynamicLightFalloff(dl, p);
+            if (add > 0.0f)
+                VectorMA(dynamicColor, dl->color, add, dynamicColor);
+
+            if (add > bestAdd)
+            {
+                bestAdd = add;
+                bestDLight = lnum;
+            }
+        }
+
+        dynamicColor = dynamicColor * gl_modulate->value;
+        color += dynamicColor;
+
+        if (bestAdd > 0.0f)
+        {
+            fDLight = true;
             *pDLoc = r_newrefdef.dlights[bestDLight].origin;
+        }
+
     }
     else
     {
-        dl = r_newrefdef.dlights;
-    	for (lnum=0 ; lnum<r_newrefdef.num_dlights ; lnum++, dl++)
-    	{
-    		dist = currententity->origin - dl->origin;
-    		add = dl->intensity - dist.Length();
-    		add *= (1.0/256);
-    		if (add > 0)
-    		{
-    			VectorMA (color, dl->color, add, color);
-    		}
-    	}
-    
-    	color = color * gl_modulate->value;
+        CVector dynamicColor;
+
+        R_DynamicLightPoint(p, dynamicColor);
+        color += dynamicColor;
     }
 
     return fDLight;
 
+}
+
+
+static int RecursiveLightPointLocal(mnode_t *node, CVector start, CVector end,
+	CVector &pointColor, CVector &outLightSpot, msurface_t *pPointSurf)
+{
+	float front, back, frac;
+	int side;
+	mplane_t *plane;
+	CVector mid;
+	msurface_t *pSurf;
+	int i;
+	int s, t, ds, dt;
+	mtexinfo_t *tex;
+	byte *lightmap;
+	int maps;
+	int r;
+
+	if (node->contents != -1)
+		return -1;
+
+	plane = node->plane;
+
+	switch (plane->type)
+	{
+	case PLANE_X:
+		front = start.x - plane->dist;
+		back = end.x - plane->dist;
+		break;
+	case PLANE_Y:
+		front = start.y - plane->dist;
+		back = end.y - plane->dist;
+		break;
+	case PLANE_Z:
+		front = start.z - plane->dist;
+		back = end.z - plane->dist;
+		break;
+	default:
+		front = DotProduct(start, plane->normal) - plane->dist;
+		back = DotProduct(end, plane->normal) - plane->dist;
+		break;
+	}
+
+	side = front < 0;
+
+	if ((back < 0) == side)
+		return RecursiveLightPointLocal(node->children[side], start, end, pointColor, outLightSpot, pPointSurf);
+
+	frac = front / (front - back);
+	mid = start + (end - start) * frac;
+
+	r = RecursiveLightPointLocal(node->children[side], start, mid, pointColor, outLightSpot, pPointSurf);
+	if (r >= 0)
+		return r;
+
+	if ((back < 0) == side)
+		return -1;
+
+	outLightSpot = mid;
+	pSurf = r_worldmodel->surfaces + node->firstsurface;
+
+	for (i = 0; i < node->numsurfaces; i++, pSurf++)
+	{
+		if (pSurf->flags & (SURF_DRAWSKY | SURF_NODRAW))
+			continue;
+		if (pSurf->texinfo->flags == (SURF_FOGPLANE | SURF_FULLBRIGHT))
+			continue;
+
+		tex = pSurf->texinfo;
+		s = DotProduct(mid, tex->s) + tex->s_offset;
+		t = DotProduct(mid, tex->t) + tex->t_offset;
+
+		if (s < pSurf->texturemins[0] || t < pSurf->texturemins[1])
+			continue;
+
+		ds = s - pSurf->texturemins[0];
+		dt = t - pSurf->texturemins[1];
+		if (ds > pSurf->extents[0] || dt > pSurf->extents[1])
+			continue;
+
+		if (!pSurf->samples)
+			return 0;
+
+		ds >>= 4;
+		dt >>= 4;
+		lightmap = pSurf->samples;
+		pointColor = vec3_origin;
+
+		lightmap += 3 * (dt * ((pSurf->extents[0] >> 4) + 1) + ds);
+		for (maps = 0; maps < MAXLIGHTMAPS && pSurf->styles[maps] != 255; maps++)
+		{
+			CVector scale;
+			scale.x = gl_modulate->value * r_newrefdef.lightstyles[pSurf->styles[maps]].rgb.x;
+			scale.y = gl_modulate->value * r_newrefdef.lightstyles[pSurf->styles[maps]].rgb.y;
+			scale.z = gl_modulate->value * r_newrefdef.lightstyles[pSurf->styles[maps]].rgb.z;
+
+			pointColor.x += lightmap[0] * scale.x * (1.0 / 255);
+			pointColor.y += lightmap[1] * scale.y * (1.0 / 255);
+			pointColor.z += lightmap[2] * scale.z * (1.0 / 255);
+
+			lightmap += 3 * ((pSurf->extents[0] >> 4) + 1) * ((pSurf->extents[1] >> 4) + 1);
+		}
+
+		if (pPointSurf)
+			*pPointSurf = *pSurf;
+
+		return 1;
+	}
+
+	return RecursiveLightPointLocal(node->children[!side], mid, end, pointColor, outLightSpot, pPointSurf);
+}
+
+bool R_LightPointThreadSafe(CVector &p, CVector &color, CVector *pDLoc, msurface_t *pPointSurf, CVector *pLightSpot)
+{
+	CVector end;
+	CVector localPointColor = vec3_origin;
+	CVector localLightSpot = vec3_origin;
+	float r;
+	int lnum;
+	float add, bestAdd;
+	int bestDLight = 0;
+	bool fDLight = false;
+
+	if (pLightSpot)
+		*pLightSpot = vec3_origin;
+
+	if ((r_worldmodel == NULL) || (r_worldmodel->lightdata == NULL) ||
+		(r_newrefdef.rdflags & RDF_NOWORLDMODEL))
+	{
+		color.x = color.y = color.z = 1.0f;
+		if (pPointSurf)
+			memset(pPointSurf, 0, sizeof(*pPointSurf));
+		if (pDLoc)
+			*pDLoc = vec3_origin;
+		return false;
+	}
+
+	end.x = p.x;
+	end.y = p.y;
+	end.z = p.z - 2048;
+
+	if (pPointSurf)
+		memset(pPointSurf, 0, sizeof(*pPointSurf));
+
+	r = RecursiveLightPointLocal(r_worldmodel->nodes, p, end, localPointColor, localLightSpot, pPointSurf);
+	if (pLightSpot)
+		*pLightSpot = localLightSpot;
+	if (r == -1)
+		color = vec3_origin;
+	else
+		color = localPointColor;
+
+	if (pDLoc)
+	{
+		CVector dynamicColor = vec3_origin;
+		bestAdd = 0.0f;
+		for (lnum = 0; lnum < r_newrefdef.num_dlights; lnum++)
+		{
+			dlight_t *dl = &r_newrefdef.dlights[lnum];
+			add = R_DynamicLightFalloff(dl, p);
+			if (add > 0.0f)
+				VectorMA(dynamicColor, dl->color, add, dynamicColor);
+			if (add > bestAdd)
+			{
+				bestAdd = add;
+				bestDLight = lnum;
+			}
+		}
+		dynamicColor = dynamicColor * gl_modulate->value;
+		color += dynamicColor;
+		if (bestAdd > 0.0f)
+		{
+			fDLight = true;
+			*pDLoc = r_newrefdef.dlights[bestDLight].origin;
+		}
+	}
+	else
+	{
+		CVector dynamicColor = vec3_origin;
+		for (lnum = 0; lnum < r_newrefdef.num_dlights; lnum++)
+		{
+			dlight_t *dl = &r_newrefdef.dlights[lnum];
+			add = R_DynamicLightFalloff(dl, p);
+			if (add > 0.0f)
+				VectorMA(dynamicColor, dl->color, add, dynamicColor);
+		}
+		color += dynamicColor * gl_modulate->value;
+	}
+
+	return fDLight;
 }
 
 

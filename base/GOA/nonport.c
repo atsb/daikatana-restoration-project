@@ -12,6 +12,7 @@ Fax(714)549-0757
 
 ******/
 #include "nonport.h"
+#include <stdlib.h>
 
 
 #ifdef __cplusplus
@@ -41,23 +42,6 @@ void msleep(unsigned long msec)
 
 }
 
-void SocketStartUp()
-{
-#ifdef _WIN32
-	WSADATA data;
-	WSAStartup(0x0101, &data);
-#endif;
-
-
-}
-
-void SocketShutDown()
-{
-#ifdef _WIN32
-	WSACleanup();
-#endif;
-
-}
 
 #ifndef _WIN32
 #include <string.h>

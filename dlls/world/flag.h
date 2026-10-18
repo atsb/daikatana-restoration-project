@@ -36,7 +36,6 @@ typedef struct ctfCaptureHook_s
 
 typedef struct ctfTeamInfo_s
 {
-	long		teamNameID;
 	char		*teamName;
 	char		*hiroSkin;
 	char		*mikikoSkin;
@@ -68,15 +67,6 @@ extern char *strTeamStart[CTF_TEAMS];
 
 
 // helpful utility functions for flags!
-#define FLAG_RETURN_MESSAGE(list1, index1, list2, index2, team)	gstate->cs.BeginSendString();				\
-gstate->cs.SendSpecifierID(RESOURCE_ID_FOR_STRING(list1, index1), 1);										\
-gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(list2, index2));												\
-gstate->cs.Continue(true);																					\
-gstate->cs.SendCount(1);																					\
-gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_ctf,teamInfo[teamConvert[team]].teamNameID));			\
-FLAG_CS_Message(0,NULL,2.0);																				\
-gstate->cs.EndSendString();
-
 void						FLAG_Init();
 
 void						FLAG_Return(userEntity_t *self);
@@ -87,7 +77,6 @@ void						FLAG_Grab(userEntity_t *flag, userEntity_t *other, bool bShowOnPlayer 
 userEntity_t				*FLAG_Drop(userEntity_t *self, CVector *origin_override = NULL);
 int							FLAG_ModelIndex(userEntity_t *flag, userEntity_t *plr);
 void						FLAG_Message( int team, userEntity_t *notthis, float time, const char *fmt, ... );
-void						FLAG_CS_Message( int team, userEntity_t *notthis, float time );
 void						FLAG_AwardPoints( int team, userEntity_t *skip, userEntity_t *InSightOf, int points );
 
 userEntity_t				*FLAG_Carrier(int team);

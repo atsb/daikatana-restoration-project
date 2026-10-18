@@ -1,23 +1,25 @@
-#ifndef _WIN32
-#  error You should not be including this file on this platform
-#endif
 #ifndef __GLW_WIN_H__
 #define __GLW_WIN_H__
 
+#include <SDL3/SDL.h>
+
+/*
+ * SDL3 owns the window and OpenGL context.  This state intentionally contains
+ * no Win32 window, device-context, pixel-format, or WGL handles.
+ */
 typedef struct
 {
-	HINSTANCE	hInstance;
-	void	*wndproc;
-	HDC     hDC;			// handle to device context
-	HWND    hWnd;			// handle to window
-	HGLRC   hGLRC;			// handle to GL rendering context
-	HINSTANCE hinstOpenGL;	// HINSTANCE for the OpenGL library
-	qboolean minidriver;
-	qboolean allowdisplaydepthchange;
-	qboolean mcd_accelerated;
-
-	PIXELFORMATDESCRIPTOR	pfd;
-	FILE *log_fp;
+    SDL_Window *window;
+    SDL_GLContext context;
+    qboolean sdl_video_initialized;
+    qboolean mcd_accelerated;
+    qboolean allowdisplaydepthchange;
+    int color_bits;
+    int depth_bits;
+    int msaa_samples;
+    FILE *log_fp;
 } glwstate_t;
+
 extern glwstate_t glw_state;
+
 #endif

@@ -1,3 +1,4 @@
+#include <stddef.h>
 // ==========================================================================
 //
 //  File:RockGat "Show up and Shoot Down!"
@@ -57,7 +58,7 @@ typedef struct	turretHook_s
 	int				sound[6];		// sound played when firing
 } turretHook_t;
 
-#define	TURRETHOOK(x) (int)&(((turretHook_t *)0)->x)
+#define	TURRETHOOK(x) (int)offsetof(turretHook_t,x)
 field_t turret_hook_fields[] = 
 {
 	{"modelindex",	TURRETHOOK(modelindex),		F_INT},

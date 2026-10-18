@@ -41,6 +41,8 @@ int AI_StartFly( userEntity_t *self );
 /* **************************** Extern Functions *************************** */
 
 void AI_StartDie( userEntity_t *self, userEntity_t *inflictor, userEntity_t *attacker, int damage, CVector &destPoint );
+int AI_HasTaskInQue( userEntity_t *self, TASKTYPE SearchTask );
+int AI_HasGoalInQueue( userEntity_t *self, GOALTYPE SearchGoal );
 
 /* ******************************* exports ********************************* */
 
@@ -123,8 +125,7 @@ void CHAINGANG_Think_Start(userEntity_t *self)
 
 
 
-int AI_HasTaskInQue( userEntity_t *self, TASKTYPE SearchTask );
-int AI_HasGoalInQueue( userEntity_t *self, GOALTYPE SearchGoal );
+
 // ----------------------------------------------------------------------------
 //
 // Name:		CHAINGANG_Attack_Think
@@ -159,7 +160,7 @@ void CHAINGANG_Attack_Think( userEntity_t *self )
 	//Generic stuff so far, there will be changes to this
 	if ( AI_IsLineOfSight( self, self->enemy ) && !AI_HasTaskInQue(self,TASKTYPE_CHAINGANG_CHASE) )
 	{
-		AI_RemoveCurrentTask(self,TASKTYPE_CHAINGANG_CHASE,self, FALSE);
+		AI_RemoveCurrentTask(self,TASKTYPE_CHAINGANG_CHASE,self,FALSE);
 	}
 	else if( !AI_HasTaskInQue(self,TASKTYPE_CHASE))
 	{
@@ -1037,8 +1038,7 @@ void CHAINGANG_StartGround( userEntity_t *self )
 
 	TASK_PTR pCurrentTask = GOALSTACK_GetCurrentTask( pGoalStack );
 	AIDATA_PTR pAIData = TASK_GetData( pCurrentTask );
-
-
+	
 	CVector LandSpot,DumpSpot;
 
 	DumpSpot = self->s.origin;
@@ -1054,7 +1054,7 @@ void CHAINGANG_StartGround( userEntity_t *self )
 	{
 		AI_RemoveCurrentTask(self);
 	}
-	
+
 	MAPNODE_PTR Node = 	NODE_FindClosestNode( pGroundNodes, NODETYPE_GROUND, LandSpot );
 
 	pAIData->destPoint = Node->position;

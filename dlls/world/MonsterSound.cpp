@@ -6,8 +6,6 @@
 //
 // ==========================================================================
 
-#include <algorithm>
-
 #if _MSC_VER
 #include <crtdbg.h>
 #endif
@@ -26,8 +24,6 @@
 
 /* ***************************** define types ****************************** */
 
-using namespace std;
-
 #define CSV_SIGHT_SKIP_ELEMENTS 8
 
 class CSightSounds
@@ -35,8 +31,8 @@ class CSightSounds
 public:
     CSightSounds();
     ~CSightSounds();
-
 	void FreeSounds();
+
     void AddSound( int nType, char *szSound, float chance );
     CPtrArray *GetArray( int nType );
 	float *GetChances( int nType );
@@ -144,6 +140,7 @@ float *CSightSounds::GetChances( int nType )
 }
 
 // ----------------------------------------------------------------------------
+
 void SIGHTSOUND_FreeSounds()
 {
 	sightSounds.FreeSounds();
@@ -1292,7 +1289,7 @@ void ai_frame_sounds( userEntity_t *self )
 // Note:
 //
 // ----------------------------------------------------------------------------
-frameData_t *FRAMES_GetSequence( userEntity_t *self, char *name )
+frameData_t *FRAMES_GetSequence( userEntity_t *self, const char *name )
 {
 	if(!self->pMapAnimationToSequence)
 		return NULL;

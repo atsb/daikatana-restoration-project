@@ -7,21 +7,20 @@ Notices: Copyright (c) 1995-1997 Jeffrey Richter
 #include "CmnHdr.H"                  /* See Appendix C. */
 #include <windows.h>
 #include <string.h>
-#include <tchar.h>
 #include "SWMRG.H"		      // The header file
 
 
 /////////////////////////////////////////////////////////////
 
 
-static LPCTSTR ConstructObjName( LPCTSTR lpszPrefix, LPCTSTR lpszSuffix, LPTSTR lpszFullName, size_t cbFullName, PBOOL fOk) 
+static LPCSTR ConstructObjName( LPCSTR lpszPrefix, LPCSTR lpszSuffix, LPSTR lpszFullName, size_t cbFullName, PBOOL fOk) 
 {
 	*fOk = TRUE;	// Assume success.
 
 	if (lpszSuffix == NULL)
 		return(NULL);
 
-	if ((_tcslen(lpszPrefix) + _tcslen(lpszSuffix)) >= cbFullName) 
+	if ((strlen(lpszPrefix) + strlen(lpszSuffix)) >= cbFullName) 
 	{
 		// If the strings will overflow the buffer,
 		// indicate an error.
@@ -29,8 +28,8 @@ static LPCTSTR ConstructObjName( LPCTSTR lpszPrefix, LPCTSTR lpszSuffix, LPTSTR 
 		return(NULL);
 	}
 
-	_tcscpy(lpszFullName, lpszPrefix);
-	_tcscat(lpszFullName, lpszSuffix);
+	strcpy(lpszFullName, lpszPrefix);
+	strcat(lpszFullName, lpszSuffix);
 	return(lpszFullName);
 }
 
@@ -39,10 +38,10 @@ static LPCTSTR ConstructObjName( LPCTSTR lpszPrefix, LPCTSTR lpszSuffix, LPTSTR 
 
 // nFlag == 0 => CreateEvent
 // nFlag == 1 => OpenEvent
-BOOL SWMRGInitialize(PSWMRG pSWMRG, LPCTSTR lpszName, int nFlag ) 
+BOOL SWMRGInitialize(PSWMRG pSWMRG, LPCSTR lpszName, int nFlag ) 
 {
-	TCHAR szFullObjName[100];
-	LPCTSTR lpszObjName;
+	char szFullObjName[100];
+	LPCSTR lpszObjName;
 	BOOL fOk;
 
 	// Initialize all data members to NULL so that we can
@@ -55,68 +54,68 @@ BOOL SWMRGInitialize(PSWMRG pSWMRG, LPCTSTR lpszName, int nFlag )
 	// managed by this data structure and also indicates 
 	// whether there are any writer threads writing.
 	// Initially no thread owns the mutex.
-	lpszObjName = ConstructObjName(	__TEXT("SWMRGMutexNoWriter"), lpszName,
+	lpszObjName = ConstructObjName(	"SWMRGMutexNoWriter", lpszName,
 				szFullObjName, chDIMOF(szFullObjName), &fOk);
 	if (fOk)
 	{
 		if ( nFlag == 0 )
 		{
-			pSWMRG->hMutexNoWriter = CreateMutex(NULL, FALSE, lpszObjName);
+			pSWMRG->hMutexNoWriter = CreateMutexA(NULL, FALSE, lpszObjName);
 		}
 		else
 		{
-			pSWMRG->hMutexNoWriter = OpenMutex(MUTEX_ALL_ACCESS | SYNCHRONIZE, FALSE, lpszObjName);
+			pSWMRG->hMutexNoWriter = OpenMutexA(MUTEX_ALL_ACCESS | SYNCHRONIZE, FALSE, lpszObjName);
 		}
 	}
 
 	// Create the manual-reset event that is signalled when 
 	// no reader threads are reading.
 	// Initially no reader threads are reading.
-	lpszObjName = ConstructObjName( __TEXT("SWMRGEventNoWriter"), lpszName,
+	lpszObjName = ConstructObjName( "SWMRGEventNoWriter", lpszName,
 		szFullObjName, chDIMOF(szFullObjName), &fOk);
 	if (fOk)
 	{
 		if ( nFlag == 0 )
 		{
-			pSWMRG->hEventCanRead = CreateEvent(NULL, TRUE, FALSE, lpszObjName);
+			pSWMRG->hEventCanRead = CreateEventA(NULL, TRUE, FALSE, lpszObjName);
 		}
 		else
 		{
-			pSWMRG->hEventCanRead = OpenEvent(EVENT_MODIFY_STATE | SYNCHRONIZE, FALSE, lpszObjName);
+			pSWMRG->hEventCanRead = OpenEventA(EVENT_MODIFY_STATE | SYNCHRONIZE, FALSE, lpszObjName);
 		}
 	}
 
 	// Create the manual-reset event that is signalled when 
 	// no reader threads are reading.
 	// Initially no reader threads are reading.
-	lpszObjName = ConstructObjName( __TEXT("SWMRGEventNoReaders"), lpszName,
+	lpszObjName = ConstructObjName( "SWMRGEventNoReaders", lpszName,
 		szFullObjName, chDIMOF(szFullObjName), &fOk);
 	if (fOk)
 	{
 		if ( nFlag == 0 )
 		{
-			pSWMRG->hEventNoReaders = CreateEvent(NULL, TRUE, TRUE, lpszObjName);
+			pSWMRG->hEventNoReaders = CreateEventA(NULL, TRUE, TRUE, lpszObjName);
 		}
 		else
 		{
-			pSWMRG->hEventNoReaders = OpenEvent(EVENT_MODIFY_STATE | SYNCHRONIZE, FALSE, lpszObjName);
+			pSWMRG->hEventNoReaders = OpenEventA(EVENT_MODIFY_STATE | SYNCHRONIZE, FALSE, lpszObjName);
 		}
 	}
 
 	// Initialize the variable that indicates the number of 
 	// reader threads that are reading.
 	// Initially no reader threads are reading.
-	lpszObjName = ConstructObjName( __TEXT("SWMRGSemNumReaders"), lpszName,
+	lpszObjName = ConstructObjName( "SWMRGSemNumReaders", lpszName,
 		szFullObjName, chDIMOF(szFullObjName), &fOk);
 	if (fOk)
 	{
 		if ( nFlag == 0 )
 		{
-			pSWMRG->hSemNumReaders = CreateSemaphore(NULL, 0, 0x7FFFFFFF, lpszObjName);
+			pSWMRG->hSemNumReaders = CreateSemaphoreA(NULL, 0, 0x7FFFFFFF, lpszObjName);
 		}
 		else
 		{
-			pSWMRG->hSemNumReaders = OpenSemaphore(SEMAPHORE_MODIFY_STATE | SYNCHRONIZE, FALSE, lpszObjName);
+			pSWMRG->hSemNumReaders = OpenSemaphoreA(SEMAPHORE_MODIFY_STATE | SYNCHRONIZE, FALSE, lpszObjName);
 		}
 	}
 

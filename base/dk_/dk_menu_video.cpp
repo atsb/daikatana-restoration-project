@@ -12,6 +12,11 @@
 
 #include "l__language.h"
 
+extern int32 msaa_samples;
+extern int32 anisotropic;
+extern int32 texture_filter;
+extern bool overbright;
+
 
 ///////////////////////////////////////////////////////////////////////////////////
 //
@@ -19,11 +24,75 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////
 
+static int VideoMSAAIndex(int32 value)
+{
+	if (value >= 8) return 3;
+	if (value >= 4) return 2;
+	if (value >= 2) return 1;
+	return 0;
+}
+
+static int32 VideoMSAAValue(int index)
+{
+	switch (index)
+	{
+	case 3: return 8;
+	case 2: return 4;
+	case 1: return 2;
+	default: return 0;
+	}
+}
+
+static int VideoTextureFilterIndex(int32 value)
+{
+	if (value == 1) return 1;
+	if (value == 2) return 2;
+	return 0;
+}
+
+static int32 VideoTextureFilterValue(int index)
+{
+	if (index == 1) return 1;
+	if (index == 2) return 2;
+	return 0;
+}
+
+static int VideoAnisotropicIndex(int32 value)
+{
+	if (value >= 16) return 4;
+	if (value >= 8) return 3;
+	if (value >= 4) return 2;
+	if (value >= 2) return 1;
+	return 0;
+}
+
+static int32 VideoAnisotropicValue(int index)
+{
+	switch (index)
+	{
+	case 4: return 16;
+	case 3: return 8;
+	case 2: return 4;
+	case 1: return 2;
+	default: return 1;
+	}
+}
+
+static int VideoVSyncIndex(int32 value)
+{
+	return value != 0 ? 1 : 0;
+}
+
+static int32 VideoVSyncValue(int index)
+{
+	return index != 0 ? 1 : 0;
+}
+
 //#define FUCKEDPALETTETEST
 
 #define VIDEO_LEFT											100
 #define VIDEO_TOP											125
-#define video_line_y(i)										(VIDEO_TOP + (i) * 18)
+#define video_line_y(i)										(VIDEO_TOP + (i) * 12)
 															
 #define VIDEO_DRIVER_LIST_LENGTH							4
 #define VIDEO_GLDRIVER_LIST_LENGTH							6
@@ -44,7 +113,7 @@
 #define VIDEO_GLDRIVER_HILIGHT_TOP							(video_line_y(0) - 2)
 #define VIDEO_GLDRIVER_HILIGHT_RIGHT						(VIDEO_GLDRIVER_NAME_RIGHT + 1)
 #define VIDEO_GLDRIVER_HILIGHT_BOTTOM						(video_line_y(1) + 5)
-													
+															
 #define video_driver_line_y(i)								(video_line_y(i + 2))
 #define VIDEO_DRIVER_LIST_LEFT								(VIDEO_DRIVER_HILIGHT_LEFT)
 #define VIDEO_DRIVER_LIST_TOP								(video_driver_line_y(-0.5) - 3)
@@ -79,22 +148,37 @@
 															
 #define VIDEO_TESSELLATE_TOP								( VIDEO_SCREEN_SIZE_TOP + VIDEO_SLIDER_VSPACING )
 
-#define VIDEO_APPLY_LEFT									(180)
-#define VIDEO_APPLY_TOP										(396)
+#define VIDEO_APPLY_LEFT                                    (180)
+#define VIDEO_APPLY_TOP                                     (452)
 
-#define VIDEO_OPTIONS_SPACING								(20)
-#define VIDEO_OPTIONS_LEFT									(VIDEO_SLIDER_RIGHT + 20)
-#define VIDEO_OPTIONS_TOP(idx)								(VIDEO_RESOLUTION_TOP + (VIDEO_OPTIONS_SPACING * idx))
+#define VIDEO_OPTIONS_SPACING                               (20)
+#define VIDEO_OPTIONS_LEFT                                  (VIDEO_SLIDER_RIGHT + 20)
+#define VIDEO_OPTIONS_TOP(idx)                              (VIDEO_RESOLUTION_TOP + (VIDEO_OPTIONS_SPACING * idx))
 
-#define VIDEO_FULLSCREEN_TOP								(VIDEO_OPTIONS_TOP(0))
-#define VIDEO_SHADOWS_TOP									(VIDEO_OPTIONS_TOP(1))
-#define VIDEO_ENVMAP_TOP									(VIDEO_OPTIONS_TOP(2))
-#define VIDEO_BUlLETHOLES									(VIDEO_OPTIONS_TOP(3))
-#define VIDEO_SHOW_FOG										(VIDEO_OPTIONS_TOP(4))
-#define VIDEO_SNOW_RAIN										(VIDEO_OPTIONS_TOP(5))
+#define VIDEO_FULLSCREEN_TOP                                (VIDEO_OPTIONS_TOP(0))
+#define VIDEO_SHADOWS_TOP                                   (VIDEO_OPTIONS_TOP(1))
+#define VIDEO_ENVMAP_TOP                                    (VIDEO_OPTIONS_TOP(2))
+#define VIDEO_BUlLETHOLES                                    (VIDEO_OPTIONS_TOP(3))
+#define VIDEO_SHOW_FOG                                       (VIDEO_OPTIONS_TOP(4))
+#define VIDEO_SNOW_RAIN                                       (VIDEO_OPTIONS_TOP(5))
 
-#define VIDEO_MODULATE_TOP									(VIDEO_OPTIONS_TOP(7))
-#define VIDEO_MODULATE_WIDTH								(100)
+/* Modern controls share the original 640x480 logical column. */
+#define VIDEO_MODERN_OPTIONS_TOP                             (VIDEO_SCREEN_SIZE_TOP + 56)
+#define VIDEO_MODERN_OPTIONS_SPACING                         (20)
+#define VIDEO_MSAA_TOP                                       (VIDEO_MODERN_OPTIONS_TOP)
+#define VIDEO_MODULATE_TOP                                   (VIDEO_MODERN_OPTIONS_TOP + VIDEO_MODERN_OPTIONS_SPACING)
+#define VIDEO_TEXTURE_FILTER_TOP                             (VIDEO_MODERN_OPTIONS_TOP + (VIDEO_MODERN_OPTIONS_SPACING * 2))
+#define VIDEO_ANISOTROPIC_LEVEL_TOP                          (VIDEO_MODERN_OPTIONS_TOP + (VIDEO_MODERN_OPTIONS_SPACING * 3))
+#define VIDEO_VSYNC_TOP                                      (VIDEO_MODERN_OPTIONS_TOP + (VIDEO_MODERN_OPTIONS_SPACING * 4))
+#define VIDEO_OVERBRIGHT_TOP                                 (VIDEO_SNOW_RAIN + VIDEO_OPTIONS_SPACING)
+#define VIDEO_MSAA_WIDTH                                     (110)
+#define VIDEO_MODULATE_WIDTH                                 (110)
+#define VIDEO_TEXTURE_FILTER_WIDTH                           (130)
+#define VIDEO_ANISOTROPIC_LEVEL_WIDTH                        (110)
+#define VIDEO_VSYNC_WIDTH                                    (110)
+#define VIDEO_OPTION_LABEL_LEFT                              (VIDEO_SLIDER_LEFT)
+#define VIDEO_OPTION_PICKER_LEFT                             (VIDEO_SLIDER_RIGHT)
+#define VIDEO_OPTION_LABEL_Y_OFFSET                          (-2)
 
 #define VIDEO_FULLSCREEN_CVAR								"vid_fullscreen"
 #define VIDEO_SHADOWS_CVAR									"gl_shadows"
@@ -113,6 +197,7 @@ extern cvar_t *vid_fullscreen;
 
 static cvar_t *gl_mode;
 static cvar_t *gl_driver;
+static cvar_t *gl_swapinterval_menu;
 static cvar_t *gl_picmip;
 //static cvar_t *gl_subdivide_size;
 static cvar_t *gl_shadows_cvar;
@@ -123,48 +208,21 @@ static cvar_t *gl_ext_palettedtexture;
 //the names we display for the different modes.
 static char *video_mode_names[VM_NUM_MODES];
 
-array_obj<gl_driver_info_t>	gl_driver_info;
-int							gl_driver_info_count;
+extern array_obj<gl_driver_info_t>	gl_driver_info;
+extern int							            gl_driver_info_count;
 
 void DKM_LoadVideoSettings(bool setDefaults);
 bool DKM_VideoSettingsChanged();
 void DKM_UpdateVideoSettings();
 
-//the different resolutions available
-static char *video_resolutions[] =
-{
-  "320 x 240",
-  "400 x 300",
-  "512 x 384",
-  "640 x 480",
-  "800 x 600",
-  "960 x 720",
-  "1024 x 768",
-  "1152 x 864",
-  "1280 x 960",
-  "1600 x 1200"
-};
+extern void VID_RefreshModeList(void);
+extern int VID_GetModeCount(void);
+extern const char *VID_GetModeDescription(int mode);
 
-static int32 video_num_resolutions = sizeof(video_resolutions)/sizeof(char *);
 
-gl_driver_info_t	driverOpenGLdefault;
-gl_driver_info_t	driver3DFXMiniGL;
-gl_driver_info_t	driverNECMiniGL;
 
 CMenuSubVideo::CMenuSubVideo()
 {
-	driverOpenGLdefault.szFilename.Set( "opengl32" );
-	driverOpenGLdefault.szRenderer.Set( "OpenGL Default" );
-	driver3DFXMiniGL.szFilename.Set( "3dfxgl" );
-	driver3DFXMiniGL.szRenderer.Set( "Voodoo Mini ICD" );
-	driverNECMiniGL.szFilename.Set( "pvrgl" );
-	driverNECMiniGL.szRenderer.Set( "PVR Mini ICD" );
-
-	gl_driver_info.Add( driverOpenGLdefault );
-	gl_driver_info.Add( driver3DFXMiniGL );
-	gl_driver_info.Add( driverNECMiniGL );
-	gl_driver_info_count = gl_driver_info.Num();
-		
 //cur_mode = VM_SOFTWARE;
 	cur_mode = VM_OPENGL;
 
@@ -178,8 +236,8 @@ CMenuSubVideo::CMenuSubVideo()
 //	mode_hilight.Init(VIDEO_DRIVER_HILIGHT_LEFT, VIDEO_DRIVER_HILIGHT_TOP, VIDEO_DRIVER_HILIGHT_RIGHT, VIDEO_DRIVER_HILIGHT_BOTTOM, 2);
 //	mode_list_box.Init(VIDEO_DRIVER_LIST_LEFT, VIDEO_DRIVER_LIST_TOP, VIDEO_DRIVER_LIST_RIGHT, VIDEO_DRIVER_LIST_BOTTOM, 2);
 
-	driver_list_box.Init(VIDEO_GLDRIVER_LIST_LEFT, VIDEO_GLDRIVER_LIST_TOP, VIDEO_GLDRIVER_LIST_RIGHT, VIDEO_GLDRIVER_LIST_BOTTOM, 1);
-	driver_hilight.Init(VIDEO_GLDRIVER_HILIGHT_LEFT, VIDEO_GLDRIVER_HILIGHT_TOP, VIDEO_GLDRIVER_HILIGHT_RIGHT, VIDEO_GLDRIVER_HILIGHT_BOTTOM, 1);
+	driver_list_box.Init(VIDEO_GLDRIVER_LIST_LEFT, VIDEO_GLDRIVER_LIST_TOP, VIDEO_GLDRIVER_LIST_RIGHT, VIDEO_GLDRIVER_LIST_BOTTOM, 2);
+	driver_hilight.Init(VIDEO_GLDRIVER_HILIGHT_LEFT, VIDEO_GLDRIVER_HILIGHT_TOP, VIDEO_GLDRIVER_HILIGHT_RIGHT, VIDEO_GLDRIVER_HILIGHT_BOTTOM, 2);
 
 #ifndef FUCKEDPALETTETEST
 	separator.Init(VIDEO_LEFT, video_line_y(1.5), VIDEO_GLDRIVER_LIST_RIGHT, 2);
@@ -194,6 +252,24 @@ CMenuSubVideo::CMenuSubVideo()
     picker_modulate.AddString("7");
     picker_modulate.AddString("8");
     picker_modulate.AddString("9");
+
+    picker_msaa.AddString("Off");
+    picker_msaa.AddString("2x");
+    picker_msaa.AddString("4x");
+    picker_msaa.AddString("8x");
+
+    picker_texture_filter.AddString("Bilinear");
+    picker_texture_filter.AddString("Anisotropic");
+    picker_texture_filter.AddString("N64");
+
+    picker_anisotropic_level.AddString("1x");
+    picker_anisotropic_level.AddString("2x");
+    picker_anisotropic_level.AddString("4x");
+    picker_anisotropic_level.AddString("8x");
+    picker_anisotropic_level.AddString("16x");
+
+    picker_vsync.AddString("Off");
+    picker_vsync.AddString("On");
 }
 
 void CMenuSubVideo::Exit()
@@ -210,18 +286,25 @@ void CMenuSubVideo::Exit()
 //	tesselation_quality = ( 256 - int32(gl_tessellation_slider.Position() ) + 64 );
 
 	modulate = picker_modulate.CurrentIndex() + 1;
-
-    GetDriver();
-	current_gl_driver = cur_driver;
+	msaa_samples = VideoMSAAValue(picker_msaa.CurrentIndex());
+	anisotropic = VideoAnisotropicValue(picker_anisotropic_level.CurrentIndex());
+	texture_filter = VideoTextureFilterValue(picker_texture_filter.CurrentIndex());
+	Cvar_SetValue("gl_swapinterval", (float)VideoVSyncValue(picker_vsync.CurrentIndex()));
 }
 
 void CMenuSubVideo::Enter()
 {
 
+    // Refresh the resolution list from the actual display before validating
+    // gl_mode.  The legacy 4:3 modes retain their original indices; real
+    // fullscreen modes such as 1920x1080 and 2560x1440 are appended.
+    VID_RefreshModeList();
+
     //get pointers to our vars.
     gl_mode = Cvar_Get("gl_mode", "3", CVAR_ARCHIVE);  // ttd: change default to 0 soon
 
 	// quick boundary check
+    const int video_num_resolutions = VID_GetModeCount();
 	if (gl_mode->value >= video_num_resolutions)
 		Cvar_SetValue("gl_mode", 0);                         // set to default
 	else if (gl_mode->value < 0)											// ditto
@@ -240,6 +323,7 @@ void CMenuSubVideo::Enter()
     //sw_mode = Cvar_Get("sw_mode", "0", 0);
     //sw_stipplealpha = Cvar_Get("sw_stipplealpha", "0", CVAR_ARCHIVE);
     gl_shadows_cvar = Cvar_Get("gl_shadows", "0", CVAR_ARCHIVE);
+    gl_swapinterval_menu = Cvar_Get("gl_swapinterval", "1", CVAR_ARCHIVE);
 
 
     apply_changes.Init(VIDEO_APPLY_LEFT, VIDEO_APPLY_TOP, menu_font, menu_font_bright, button_font);
@@ -280,7 +364,12 @@ void CMenuSubVideo::Enter()
 	btn_showFog.Init(VIDEO_OPTIONS_LEFT,VIDEO_SHOW_FOG,menu_font,menu_font_bright, tongue_menu_options[T_MENU_VIDEO_SHOW_FOG]);
 	btn_snow_rain.Init(VIDEO_OPTIONS_LEFT,VIDEO_SNOW_RAIN,menu_font,menu_font_bright, tongue_menu_options[T_MENU_VIDEO_SNOW_RAIN]);
 
-	picker_modulate.Init(VIDEO_OPTIONS_LEFT,VIDEO_MODULATE_TOP, VIDEO_MODULATE_WIDTH, menu_font, menu_font_bright, button_font, tongue_menu[T_MENU_MODULATE]);
+	picker_msaa.Init(VIDEO_OPTION_PICKER_LEFT, VIDEO_MSAA_TOP, VIDEO_MSAA_WIDTH, menu_font, menu_font_bright, button_font, "");
+	picker_modulate.Init(VIDEO_OPTION_PICKER_LEFT, VIDEO_MODULATE_TOP, VIDEO_MODULATE_WIDTH, menu_font, menu_font_bright, button_font, "");
+	picker_texture_filter.Init(VIDEO_OPTION_PICKER_LEFT, VIDEO_TEXTURE_FILTER_TOP, VIDEO_TEXTURE_FILTER_WIDTH, menu_font, menu_font_bright, button_font, "");
+	picker_anisotropic_level.Init(VIDEO_OPTION_PICKER_LEFT, VIDEO_ANISOTROPIC_LEVEL_TOP, VIDEO_ANISOTROPIC_LEVEL_WIDTH, menu_font, menu_font_bright, button_font, "");
+	picker_vsync.Init(VIDEO_OPTION_PICKER_LEFT, VIDEO_VSYNC_TOP, VIDEO_VSYNC_WIDTH, menu_font, menu_font_bright, button_font, "");
+	btn_overbright.Init(VIDEO_OPTIONS_LEFT, VIDEO_OVERBRIGHT_TOP, menu_font, menu_font_bright, "Bloom & Overbrights");
 
     //soft_fullscreen.Init(VIDEO_SLIDER_LEFT, VIDEO_SOFT_FULLSCREEN_TOP, menu_font, menu_font_bright, tongue_menu_options[T_MENU_VIDEO_FULLSCREEN]);
     //soft_stipple_alpha.Init(VIDEO_SLIDER_LEFT, VIDEO_SOFT_STIPPLE_TOP, menu_font, menu_font_bright, tongue_menu_options[T_MENU_VIDEO_STIPPLE_ALPHA]);
@@ -320,9 +409,7 @@ float GetCurrentBrightness() {
 void CMenuSubVideo::GetDriver() {
 	gl_driver_info_t driver;
 
-//#pragma message( "enumeration hack" )
-	// SCG[5/26/00]: Should never get here because of manual driver additions in CMenuSubVideo::CMenuSubVideo()
-/*
+#pragma message( "enumeration hack" )
 	if( gl_driver_info_count == 0 )
 	{
 		driver.szFilename.Set( gl_driver->string );
@@ -338,7 +425,7 @@ void CMenuSubVideo::GetDriver() {
 		gl_driver_info.Add( driver );
 		gl_driver_info_count = 1;
 	}
-*/
+
 	cur_driver = 0;
 	for( int i = 0; i < gl_driver_info_count; i++ )
 	{
@@ -436,6 +523,11 @@ void CMenuSubVideo::GetMode() {
 //    gl_tessellation_slider.Position(( 256 - int32(tesselation_quality) + 64 ));
 
 	picker_modulate.SetCurrentString(modulate - 1);
+	picker_msaa.SetCurrentString(VideoMSAAIndex(msaa_samples));
+	picker_texture_filter.SetCurrentString(VideoTextureFilterIndex(texture_filter));
+	picker_anisotropic_level.SetCurrentString(VideoAnisotropicIndex(anisotropic));
+	picker_anisotropic_level.Enable(texture_filter == 1);
+	picker_vsync.SetCurrentString(VideoVSyncIndex((int32)gl_swapinterval_menu->value));
 }
 
 
@@ -467,8 +559,8 @@ void CMenuSubVideo::ModeListHilight(int32 line) {
         //mode_list_hilight_box.Init(VIDEO_DRIVER_LIST_LEFT + 3, video_driver_line_y(line) - 3, 
         //                           VIDEO_DRIVER_LIST_RIGHT - 3, video_driver_line_y(line + 1), 2);
 
-		mode_list_hilight_box.Init(VIDEO_DRIVER_LIST_LEFT  + 2, video_driver_line_y(line) - 1 , 
-									VIDEO_DRIVER_LIST_RIGHT - 2, video_driver_line_y(line + 2), 2);
+        mode_list_hilight_box.Init(VIDEO_DRIVER_LIST_LEFT  + 2, video_driver_line_y(line) - 1 , 
+                                   VIDEO_DRIVER_LIST_RIGHT - 2, video_driver_line_y(line + 2), 2);
 
 
     }
@@ -479,13 +571,11 @@ void CMenuSubVideo::DriverListHilight(int32 line) {
 
     if (line != -1) {
         //move the hilight box.
-//        driver_list_hilight_box.Init(VIDEO_GLDRIVER_LIST_LEFT + 3, video_driver_line_y(line) - 3, 
-//                                   VIDEO_GLDRIVER_LIST_RIGHT - 3, video_driver_line_y(line + 1), 2);
+        //driver_list_hilight_box.Init(VIDEO_GLDRIVER_LIST_LEFT + 3, video_driver_line_y(line) - 3, 
+        //                           VIDEO_GLDRIVER_LIST_RIGHT - 3, video_driver_line_y(line + 1), 2);
 
-//        driver_list_hilight_box.Init(VIDEO_GLDRIVER_LIST_LEFT  + 2, video_driver_line_y(line) - 2, 
-//                                     VIDEO_GLDRIVER_LIST_RIGHT - 2, video_driver_line_y(line + 1) + 4, 2);
-        driver_list_hilight_box.Init(VIDEO_GLDRIVER_LIST_LEFT, video_driver_line_y(line), 
-                                     VIDEO_GLDRIVER_LIST_RIGHT, video_driver_line_y(line + 1), 2);
+        driver_list_hilight_box.Init(VIDEO_GLDRIVER_LIST_LEFT  + 2, video_driver_line_y(line) - 2, 
+                                     VIDEO_GLDRIVER_LIST_RIGHT - 2, video_driver_line_y(line + 1) + 4, 2);
 
 
     }
@@ -505,7 +595,6 @@ bool CMenuSubVideo::ShowApplyChanges()
     if (gl_mode(cur_mode) && fabs(start_gl_gamma - brightness_slider.Position()) > 0.001f) return true;
 
     return false;*/
-	current_gl_driver = cur_driver;
 	return DKM_VideoSettingsChanged();
 }
 
@@ -566,7 +655,12 @@ void CMenuSubVideo::DrawBackground()
 			btn_shadows.DrawBackground();
 			btn_envMap.DrawBackground();
 			btn_bulletholes.DrawBackground();
+			picker_msaa.DrawBackground();
 			picker_modulate.DrawBackground();
+			picker_texture_filter.DrawBackground();
+			picker_anisotropic_level.DrawBackground();
+			picker_vsync.DrawBackground();
+			btn_overbright.DrawBackground();
 			btn_showFog.DrawBackground();
 			btn_snow_rain.DrawBackground();
         }
@@ -582,16 +676,18 @@ void CMenuSubVideo::DrawBackground()
 void CMenuSubVideo::DrawForeground()
 {
 	gl_driver_info_t	driver;
+/*
 	//DKM_DrawString(VIDEO_LEFT, video_line_y(0), "Driver", NULL, false, false);
 	DKM_DrawString(VIDEO_LEFT, video_line_y(0), tongue_menu_options[T_MENU_VIDEO_DRIVER], NULL, false, false);
 
-	DKM_DrawString(VIDEO_DRIVER_NAME_LEFT, video_line_y(0), video_mode_names[cur_mode], NULL, false, false);
+  DKM_DrawString(VIDEO_DRIVER_NAME_LEFT, video_line_y(0), video_mode_names[cur_mode], NULL, false, false);
 
 	if( gl_mode( cur_mode ) ) 
 	{
 		driver = gl_driver_info.Item( cur_driver );
-		DKM_DrawString(VIDEO_GLDRIVER_NAME_LEFT, video_line_y(0), ( const char * ) driver.szRenderer, NULL, false, false);
+    DKM_DrawString(VIDEO_GLDRIVER_NAME_LEFT, video_line_y(0), ( const char * ) driver.szRenderer, NULL, false, false);
 	}
+*/
 /*
   if (picking_mode == true)
   {
@@ -601,14 +697,14 @@ void CMenuSubVideo::DrawForeground()
   }
 	else 
 */
-	if( picking_driver == true )
-	{
-		for( int32 i = 0; i < gl_driver_info_count; i++ )
-		{
-			driver = gl_driver_info.Item( i );
-			DKM_DrawString(VIDEO_GLDRIVER_LIST_LEFT + 6, video_driver_line_y(i), ( const char * ) driver.szRenderer, NULL, false, false);
-		}
-	}
+    if( picking_driver == true )
+    {
+		  for( int32 i = 0; i < gl_driver_info_count; i++ )
+		  {
+			  driver = gl_driver_info.Item( i );
+        DKM_DrawString(VIDEO_GLDRIVER_LIST_LEFT + 6, video_driver_line_y(i), ( const char * ) driver.szRenderer, NULL, false, false);
+		  }
+	  }
     else 
     {
       //draw the resolution slider and labels.
@@ -625,16 +721,10 @@ void CMenuSubVideo::DrawForeground()
         resolution = 3;
 
 
-//      DKM_DrawString(VIDEO_SLIDER_RIGHT + 10, VIDEO_RESOLUTION_TOP, video_resolutions[resolution], NULL, false, false);
+//      DKM_DrawString(VIDEO_SLIDER_RIGHT + 10, VIDEO_RESOLUTION_TOP, VID_GetModeDescription(resolution), NULL, false, false);
 
-	  buffer64 strBuf("%s - %s",tongue_menu_options[T_MENU_VIDEO_RESOLUTION],video_resolutions[resolution]);
-// Encompass MarkMa 041299
-#ifdef JPN	// JPN - changed by yokoyama
-      DKM_DrawString(VIDEO_SLIDER_LEFT, VIDEO_RESOLUTION_TOP /*-2*/ - VIDEO_SLIDER_HEIGHT, strBuf, NULL, false, false);
-#else	// JPN
+	  buffer64 strBuf("%s - %s",tongue_menu_options[T_MENU_VIDEO_RESOLUTION],VID_GetModeDescription(resolution));
       DKM_DrawString(VIDEO_SLIDER_LEFT, VIDEO_RESOLUTION_TOP - VIDEO_SLIDER_HEIGHT, strBuf, NULL, false, false);
-#endif	// JPN
-// Encompass MarkMa 041299
 
 
 
@@ -645,13 +735,7 @@ void CMenuSubVideo::DrawForeground()
 //      buffer64 buf("%d%%", int32(0.1f + 100 * brightness_slider.Position()));
 //      DKM_DrawString(VIDEO_SLIDER_RIGHT + 10, VIDEO_BRIGHTNESS_TOP, buf, NULL, false, false);
 	strBuf.Set("%s - %d%%",tongue_menu_options[T_MENU_VIDEO_BRIGHTNESS],int32(0.1f + 100 * brightness_slider.Position()));
-// Encompass MarkMa 041299
-#ifdef JPN	// JPN - changed by yokoyama
-	DKM_DrawString(VIDEO_SLIDER_LEFT, VIDEO_BRIGHTNESS_TOP /*-2*/ - VIDEO_SLIDER_HEIGHT, strBuf, NULL, false, false);
-#else	// JPN
 	DKM_DrawString(VIDEO_SLIDER_LEFT, VIDEO_BRIGHTNESS_TOP - VIDEO_SLIDER_HEIGHT, strBuf, NULL, false, false);
-#endif	// JPN
-// Encompass MarkMa 041299
      
 			//draw screen size slider and labels.
     screen_size_slider.DrawForeground();
@@ -705,13 +789,7 @@ void CMenuSubVideo::DrawForeground()
 
 			int32 quality = int32(gl_texture_slider.Position() + 0.001f);
 			strBuf.Set("%s - %s",tongue_menu_options[T_MENU_VIDEO_TEXTURE_QUALITY],texture_quality_desc[quality]);
-// Encompass MarkMa 041299
-#ifdef JPN	// JPN - changed by yokoyama
-			DKM_DrawString(VIDEO_SLIDER_LEFT, VIDEO_GL_TEXTURE_QUALITY_TOP /* -2 */- VIDEO_SLIDER_HEIGHT, strBuf, NULL, false, false);
-#else	// JPN
 			DKM_DrawString(VIDEO_SLIDER_LEFT, VIDEO_GL_TEXTURE_QUALITY_TOP - VIDEO_SLIDER_HEIGHT, strBuf, NULL, false, false);
-#endif	// JPN
-// Encompass MarkMa 041299
 /*
 			gl_tessellation_slider.DrawForeground();
 
@@ -720,7 +798,23 @@ void CMenuSubVideo::DrawForeground()
 			strBuf.Set("%s - %s",tongue_menu_options[T_MENU_OPTS_TESSELLATION],texture_quality_desc[quality - 1]);
 			DKM_DrawString(VIDEO_SLIDER_LEFT, VIDEO_TESSELLATE_TOP - VIDEO_SLIDER_HEIGHT, strBuf, NULL, false, false);
 */
+			DKM_DrawString(VIDEO_OPTION_LABEL_LEFT, VIDEO_MSAA_TOP + VIDEO_OPTION_LABEL_Y_OFFSET, "Anti-Aliasing", NULL, false, picker_msaa.IsMouseOver());
+			picker_msaa.DrawForeground();
+
+			DKM_DrawString(VIDEO_OPTION_LABEL_LEFT, VIDEO_MODULATE_TOP + VIDEO_OPTION_LABEL_Y_OFFSET, tongue_menu[T_MENU_MODULATE], NULL, false, picker_modulate.IsMouseOver());
 			picker_modulate.DrawForeground();
+
+			DKM_DrawString(VIDEO_OPTION_LABEL_LEFT, VIDEO_TEXTURE_FILTER_TOP + VIDEO_OPTION_LABEL_Y_OFFSET, "Texture Filtering", NULL, false, picker_texture_filter.IsMouseOver());
+			picker_texture_filter.DrawForeground();
+
+			DKM_DrawString(VIDEO_OPTION_LABEL_LEFT, VIDEO_ANISOTROPIC_LEVEL_TOP + VIDEO_OPTION_LABEL_Y_OFFSET, "Anisotropic Level", NULL, false, picker_anisotropic_level.IsMouseOver());
+			picker_anisotropic_level.DrawForeground();
+
+			btn_overbright.Check(overbright);
+			btn_overbright.DrawForeground();
+
+			DKM_DrawString(VIDEO_OPTION_LABEL_LEFT, VIDEO_VSYNC_TOP + VIDEO_OPTION_LABEL_Y_OFFSET, "VSync", NULL, false, picker_vsync.IsMouseOver());
+			picker_vsync.DrawForeground();
         }
 
 
@@ -762,9 +856,15 @@ void CMenuSubVideo::PlaceEntities() {
         separator.PlaceEntities();
 #endif
 
-    if (gl_mode(cur_mode))
-		picker_modulate.PlaceEntities();
     }
+    if (gl_mode(cur_mode))
+	{
+		picker_msaa.PlaceEntities();
+		picker_modulate.PlaceEntities();
+		picker_texture_filter.PlaceEntities();
+		picker_anisotropic_level.PlaceEntities();
+		picker_vsync.PlaceEntities();
+	}
 }
 
 bool CMenuSubVideo::Keydown(int32 key) {
@@ -795,7 +895,7 @@ bool CMenuSubVideo::Keydown(int32 key) {
 
 bool CMenuSubVideo::MousePos(int32 norm_x, int32 norm_y) 
 {
-///*
+/*
     //check if we are over the driver name.
     if (norm_x > VIDEO_DRIVER_HILIGHT_LEFT && norm_x < VIDEO_DRIVER_HILIGHT_RIGHT &&
         norm_y > VIDEO_DRIVER_HILIGHT_TOP && norm_y < VIDEO_DRIVER_HILIGHT_BOTTOM)
@@ -817,7 +917,7 @@ bool CMenuSubVideo::MousePos(int32 norm_x, int32 norm_y)
         mode_hilighted = false;
         driver_hilighted = false;
     }
-//*/
+*/
 /*
     if (picking_mode == true) {
         //the mode list is down.
@@ -859,7 +959,12 @@ bool CMenuSubVideo::MousePos(int32 norm_x, int32 norm_y)
             if (btn_fullscreen.MousePos(norm_x, norm_y) == true) ret = true;
 			if (btn_showFog.MousePos(norm_x, norm_y) == true) ret = true;
 			if (btn_snow_rain.MousePos(norm_x, norm_y) == true) ret = true;
+			if (picker_msaa.MousePos(norm_x,norm_y)) ret = true;
 			if (picker_modulate.MousePos(norm_x,norm_y)) ret = true;
+			if (picker_texture_filter.MousePos(norm_x,norm_y)) ret = true;
+			if (picker_anisotropic_level.MousePos(norm_x,norm_y)) ret = true;
+			if (picker_vsync.MousePos(norm_x,norm_y)) ret = true;
+			if (btn_overbright.MousePos(norm_x,norm_y)) ret = true;
         }
 
         if (ShowApplyChanges() == true && apply_changes.MousePos(norm_x, norm_y) == true) ret = true;
@@ -872,7 +977,7 @@ bool CMenuSubVideo::MousePos(int32 norm_x, int32 norm_y)
 
 bool CMenuSubVideo::MouseDown(int32 norm_x, int32 norm_y) {
     //check if we clicked on the mode
-///*
+/*
     if (norm_x > VIDEO_DRIVER_HILIGHT_LEFT && norm_x < VIDEO_DRIVER_HILIGHT_RIGHT &&
         norm_y > VIDEO_DRIVER_HILIGHT_TOP && norm_y < VIDEO_DRIVER_HILIGHT_BOTTOM && !picking_driver)
     {
@@ -881,13 +986,13 @@ bool CMenuSubVideo::MouseDown(int32 norm_x, int32 norm_y) {
         return true;
     }
 	else 
-//*/
+*/
   if (norm_x > VIDEO_GLDRIVER_HILIGHT_LEFT && norm_x < VIDEO_GLDRIVER_HILIGHT_RIGHT &&
 //			norm_y > VIDEO_GLDRIVER_HILIGHT_TOP && norm_y < VIDEO_GLDRIVER_HILIGHT_BOTTOM && !picking_mode)
 			norm_y > VIDEO_GLDRIVER_HILIGHT_TOP && norm_y < VIDEO_GLDRIVER_HILIGHT_BOTTOM )
     {
         //we are on the driver name.
-        picking_driver = true;
+//        picking_driver = true;
         return true;
     }
 
@@ -959,7 +1064,12 @@ bool CMenuSubVideo::MouseDown(int32 norm_x, int32 norm_y) {
             if (btn_fullscreen.MouseDown(norm_x, norm_y) == true) return true;
 			if (btn_showFog.MouseDown(norm_x, norm_y) == true) return true;
 			if (btn_snow_rain.MouseDown(norm_x, norm_y) == true) return true;
+			if (picker_msaa.MouseDown(norm_x,norm_y)) return true;
 			if (picker_modulate.MouseDown(norm_x,norm_y)) return true;
+			if (picker_texture_filter.MouseDown(norm_x,norm_y)) return true;
+			if (picker_anisotropic_level.MouseDown(norm_x,norm_y)) return true;
+			if (picker_vsync.MouseDown(norm_x,norm_y)) return true;
+			if (btn_overbright.MouseDown(norm_x,norm_y)) return true;
         }
 
         if (ShowApplyChanges() == true && apply_changes.MouseDown(norm_x, norm_y) == true) return true;
@@ -1092,6 +1202,12 @@ bool CMenuSubVideo::MouseUp(int32 norm_x, int32 norm_y)
                 return true;
             }
 
+			if (picker_msaa.MouseUp(norm_x, norm_y) == true)
+			{
+				Exit();
+				return true;
+			}
+
 			if (picker_modulate.MouseUp(norm_x, norm_y) == true)
 			{
 				Exit();
@@ -1101,6 +1217,33 @@ bool CMenuSubVideo::MouseUp(int32 norm_x, int32 norm_y)
 				//set the cvar value.
 //				Cvar_SetValue("gl_modulate", (float)newvalue + 1);
 
+				return true;
+			}
+
+			if (picker_texture_filter.MouseUp(norm_x, norm_y) == true)
+			{
+				Exit();
+				picker_anisotropic_level.Enable(texture_filter == 1);
+				return true;
+			}
+
+			if (picker_anisotropic_level.MouseUp(norm_x, norm_y) == true)
+			{
+				Exit();
+				return true;
+			}
+
+
+			if (picker_vsync.MouseUp(norm_x, norm_y) == true)
+			{
+				Exit();
+				return true;
+			}
+
+			if (btn_overbright.MouseUp(norm_x, norm_y) == true)
+			{
+				overbright = !overbright;
+				btn_overbright.Check(overbright);
 				return true;
 			}
         }
@@ -1129,12 +1272,11 @@ void CMenuSubVideo::ApplyChanges()
 //        Cvar_Set("vid_ref", "soft");
 //    }
 //	else {
-/*
-	gl_driver_info_t	driver = gl_driver_info.Item( cur_driver );
+		gl_driver_info_t	driver = gl_driver_info.Item( cur_driver );
 
     Cvar_Set("vid_ref", "gl");
     Cvar_Set("gl_driver", driver.szFilename );
-*/
+
 
 //	}
 

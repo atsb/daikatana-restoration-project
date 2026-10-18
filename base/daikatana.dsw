@@ -3,14 +3,166 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
-Project: "daikatana"=.\daikatana.dsp - Package Owner=<4>
+Project: "IonCommon"="..\IonCommon\IonCommon.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
+    begin source code control
+    "$/Daikatana/IonCommon", ECGAAAAA
+    ..\ioncommon
+    end source code control
 }}}
 
 Package=<4>
 {{{
+}}}
+
+###############################################################################
+
+Project: "daikatana"=".\daikatana.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    "$/Daikatana/base", OTAAAAAA
+    .
+    end source code control
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name IonCommon
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libent
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "gce"="..\dlls\gce\gce.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    "$/Daikatana/dlls/gce", RPCAAAAA
+    ..\dlls\gce
+    end source code control
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name IonCommon
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libent
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "libent"="..\libent\libent.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    "$/Daikatana/libent", XJGAAAAA
+    ..\libent
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "physics"=".\physics\physics.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    "$/Daikatana/base/physics", KNEAAAAA
+    .\physics
+    end source code control
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name IonCommon
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libent
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "ref_gl"=".\ref_gl\ref_gl.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    "$/Daikatana/base/ref_gl", SXAAAAAA
+    .\ref_gl
+    end source code control
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name IonCommon
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libent
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "weapons"="..\dlls\weapons\Weapons.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    "$/Daikatana/dlls/weapons", YJBAAAAA
+    ..\dlls\weapons
+    end source code control
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name IonCommon
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libent
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "world"="..\dlls\world\world.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    "$/Daikatana/dlls/world", CGBAAAAA
+    ..\dlls\world
+    end source code control
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name IonCommon
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libent
+    End Project Dependency
 }}}
 
 ###############################################################################

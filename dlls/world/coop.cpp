@@ -121,18 +121,7 @@ void CoopSelectCharacter( userEntity_t *self, char *userinfo )
 
 	int character = -1,pc = 0;
 	char *modelname = "";
-	char skin[MAX_QPATH];
-	int skinNum = -1;
-
-	// find the skin this player is using.
-	char *s = Info_ValueForKey      ((char *)self->client->pers.userinfo, "skinname");    // get skin
-	char *pos = strstr(s,"_bod_");
-	if (pos)
-	{
-		pos += 5;	// increment past "_bod_";
-		skinNum = atoi(pos);
-	}
-
+	char *skinname = "";
 	if (gstate->GetCvar("dedicated"))		// doesn't really matter which character you get!
 	{
 		// What user are we?
@@ -159,28 +148,19 @@ void CoopSelectCharacter( userEntity_t *self, char *userinfo )
 			pc = PLAYERCLASS_HIRO;
 			character = 0;
 			modelname = DEFAULT_CHARACTER_MODEL;
-			if (skinNum != -1)
-				Com_sprintf(skin,sizeof(skin),"skins/hiro_bod_%d.wal",skinNum);
-			else
-				Com_sprintf(skin,sizeof(skin),"%s",DEFAULT_HIRO_SKIN );
+			skinname = DEFAULT_HIRO_SKIN;
 			break;
 		case 1:
 			pc = PLAYERCLASS_MIKIKO;
 			character = 1;
 			modelname = "models/global/m_mikiko.dkm";
-			if (skinNum != -1)
-				Com_sprintf(skin,sizeof(skin),"skins/miko_bod_%d.wal",skinNum);
-			else
-				Com_sprintf(skin,sizeof(skin),"%s",DEFAULT_MIKIKO_SKIN );
+			skinname = DEFAULT_MIKIKO_SKIN;
 			break;
 		case 2:
 			pc = PLAYERCLASS_SUPERFLY;
 			character = 2;
 			modelname = "models/global/m_superfly.dkm";
-			if (skinNum != -1)
-				Com_sprintf(skin,sizeof(skin),"skins/sfly_bod_%d.wal",skinNum);
-			else
-				Com_sprintf(skin,sizeof(skin),"%s",DEFAULT_SUPERFLY_SKIN );
+			skinname = DEFAULT_SUPERFLY_SKIN;
 			break;
 		}
 	}
@@ -191,10 +171,7 @@ void CoopSelectCharacter( userEntity_t *self, char *userinfo )
 			pc = PLAYERCLASS_HIRO;
 			character = 0;
 			modelname = DEFAULT_CHARACTER_MODEL;
-			if (skinNum != -1)
-				Com_sprintf(skin,sizeof(skin),"skins/hiro_bod_%d.wal",skinNum);
-			else
-				Com_sprintf(skin,sizeof(skin),"%s",DEFAULT_HIRO_SKIN );
+			skinname = DEFAULT_HIRO_SKIN;
 		}
 		else
 		{
@@ -226,20 +203,14 @@ void CoopSelectCharacter( userEntity_t *self, char *userinfo )
 				pc = PLAYERCLASS_MIKIKO;
 				character = 1;
 				modelname = "models/global/m_mikiko.dkm";
-				if (skinNum != -1)
-					Com_sprintf(skin,sizeof(skin),"skins/miko_bod_%d.wal",skinNum);
-				else
-					Com_sprintf(skin,sizeof(skin),"%s",DEFAULT_MIKIKO_SKIN );
+				skinname = DEFAULT_MIKIKO_SKIN;
 			}
 			else
 			{
 				pc = PLAYERCLASS_SUPERFLY;
 				character = 2;
 				modelname = "models/global/m_superfly.dkm";
-				if (skinNum != -1)
-					Com_sprintf(skin,sizeof(skin),"skins/sfly_bod_%d.wal",skinNum);
-				else
-					Com_sprintf(skin,sizeof(skin),"%s",DEFAULT_SUPERFLY_SKIN );
+				skinname = DEFAULT_SUPERFLY_SKIN;
 			}
 		}
 	}
@@ -251,14 +222,14 @@ void CoopSelectCharacter( userEntity_t *self, char *userinfo )
 	CoopFindPlayers( &hiro, &mikiko, &superfly, false);
 	Info_SetValueForKey(userinfo, "character", va("%d",character)); 
 	Info_SetValueForKey(userinfo, "modelname", modelname ); 
-	Info_SetValueForKey(userinfo, "skinname",  skin);
+	Info_SetValueForKey(userinfo, "skinname",  skinname);
 
 	strncpy(self->client->pers.body_info.modelname,modelname,sizeof(self->client->pers.body_info.modelname)-1);
-	strncpy(self->client->pers.body_info.skinname, skin,sizeof(self->client->pers.body_info.skinname)-1);
+	strncpy(self->client->pers.body_info.skinname, skinname,sizeof(self->client->pers.body_info.skinname)-1);
 	self->client->pers.body_info.character = character;
 
     int playernum = self - gstate->g_edicts - 1; // get player number
-	gstate->ConfigString (CS_PLAYERSKINS + playernum, va("%s\\%s\\%s\\%d", self->netname, modelname, skin, character) );
+	gstate->ConfigString (CS_PLAYERSKINS + playernum, va("%s\\%s\\%s\\%d", self->netname, modelname, skinname, character) );
 
 	// update the animations to the new character model.
 	Client_InitClientModel ( self );
@@ -487,7 +458,7 @@ void CoopFindPlayers(userEntity_t **hiro, userEntity_t **mikiko, userEntity_t **
 	}
 }
 
-typedef	(*func_t)(edict_t *);
+typedef void (*func_t)(edict_t *);
 void InventoryItemDrop(userEntity_t *self, userInventory_t *inv)
 {
 	// early out for a nodrop weapon.

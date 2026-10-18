@@ -25,10 +25,7 @@ enum
 };
 
 // weapon info def
-weaponInfo_t bolterWeaponInfo = 
-{
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_BOLTER),
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_BOLTER_AMMO),
+weaponInfo_t bolterWeaponInfo = {
     // names, net names, icon
     "weapon_bolter",
     tongue_weapons[T_WEAPON_BOLTER],
@@ -101,15 +98,11 @@ weaponInfo_t bolterWeaponInfo =
 	0.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 0.0f,
 
-/*	{
+	{
 		tongue_deathmsg_weapon3[T_DEATHMSGWEAPON_BOLTER],
 		NULL,
 		VICTIM_ATTACKER
-	},*/
-
-	RESOURCE_ID_FOR_STRING(tongue_deathmsg_weapon3,T_DEATHMSGWEAPON_BOLTER),
-	VICTIM_ATTACKER,
-
+	},
     WEAPON_BOLTER,
     0,
     NULL

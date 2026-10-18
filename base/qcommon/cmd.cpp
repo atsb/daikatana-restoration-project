@@ -2,7 +2,7 @@
 
 #include "qcommon.h"
 
-#ifndef DEDICATED_ONLY
+#if !DEDICATED_ONLY
 void Cmd_ForwardToServer (void);
 #endif
 
@@ -537,7 +537,7 @@ static	char		*cmd_argv[MAX_STRING_TOKENS];
 static	char		*cmd_null_string = "";
 static	char		cmd_args[MAX_STRING_CHARS];
 
-static	cmd_function_t	*cmd_functions = NULL;		// possible commands to execute
+static	cmd_function_t	*cmd_functions;		// possible commands to execute
 
 /*
 ============
@@ -1005,10 +1005,10 @@ void	Cmd_ExecuteString (const char *text)
 	if (Cvar_Command ())
 		return;
 
-//#if !DEDICATED_ONLY
+#if !DEDICATED_ONLY
 	// send it as a server command if we are connected
-	//Cmd_ForwardToServer ();
-//#endif
+	Cmd_ForwardToServer ();
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////

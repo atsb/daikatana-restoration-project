@@ -1,3 +1,4 @@
+#include <math.h>
 // cl_ents.c -- entity parsing and management
 #include	"client.h"
 #include	"dk_gce_main.h"
@@ -950,9 +951,9 @@ void CL_DeltaEntity (frame_t *frame, int newnum, entity_state_t *old, int bits, 
 //		state->modelindex2 != ent->current.modelindex2		||	// amw: this is not necessary for our code
 //		state->modelindex3 != ent->current.modelindex3		||
 //		state->modelindex4 != ent->current.modelindex4		|| 
-		abs(state->origin.x - ent->current.origin.x) > 512	|| 
-		abs(state->origin.y - ent->current.origin.y) > 512	|| 
-		abs(state->origin.z - ent->current.origin.z) > 512	|| 
+		fabs(state->origin.x - ent->current.origin.x) > 512	|| 
+		fabs(state->origin.y - ent->current.origin.y) > 512	|| 
+		fabs(state->origin.z - ent->current.origin.z) > 512	|| 
 		state->event == EV_PLAYER_TELEPORT					|| 
 		state->event == EV_ENTITY_FORCEMOVE)
 	{
@@ -1585,8 +1586,7 @@ void CL_AddPacketEntities (frame_t *frame)
 
 		if (effects2 & EF2_BLOODY_GIB)
 		{
-// SCG[6/5/00]: #ifdef TONGUE_GERMAN
-#ifdef NO_VIOLENCE
+#ifdef TONGUE_GERMAN
 			continue;
 #endif
 			if (sv_violence->value > 0.0)
@@ -1719,7 +1719,7 @@ void CL_AddPacketEntities (frame_t *frame)
                 // FUCKING FLOATING POINT INACCURATE BULLSHIT!!!
                 // when 1.0 + 0.02 = 1.0199999809265 as far as the system is concerned, 
                 // hacks like THIS are necessary. this is so wrong!
-                if(fabs(VITA_SCALE - s1->render_scale.x) > 0.01)
+                if(fabs((double)(VITA_SCALE - s1->render_scale.x)) > 0.01)
                 {
                     s1->render_scale.x -= 0.02f;
                     s1->render_scale.y -= 0.02f;
@@ -1728,7 +1728,7 @@ void CL_AddPacketEntities (frame_t *frame)
                 }
             } else if (s1->render_scale.x < VITA_SCALE ) {
                 // DITTO!!!!
-                if(fabs(VITA_SCALE - s1->render_scale.x) > 0.01)
+                if(fabs((double)(VITA_SCALE - s1->render_scale.x)) > 0.01)
                 {
                     s1->render_scale.x += 0.02f;
                     s1->render_scale.y += 0.02f;
@@ -1837,7 +1837,7 @@ void CL_AddPacketEntities (frame_t *frame)
 			//					( ( ent.render_scale.y - ent.origin.y ) * 0.5f ) +
 			//					( ( ent.render_scale.z - ent.origin.z ) * 0.5f );
 
-			V_AddLight( cent->current.render_scale, 75, ent.color.x, ent.color.y, ent.color.z );
+			V_AddLight( ent.render_scale, 75, ent.color.x, ent.color.y, ent.color.z );
 		}
 
 //		ent.render_scale = s1->render_scale;
@@ -2273,12 +2273,12 @@ Sets cl.refdef view values
 */
 
 // SCG[1/21/00]: fabs is for floating point. ops->pmove.origin is a short!
-//#define player_teleported(ps, ops) (fabs(ops->pmove.origin[0] - ps->pmove.origin[0]) > 256 * 8 || \
-//                                    fabs(ops->pmove.origin[1] - ps->pmove.origin[1]) > 256 * 8 || \
-//                                    fabs(ops->pmove.origin[2] - ps->pmove.origin[2]) > 256 * 8)
-#define player_teleported(ps, ops) (abs(ops->pmove.origin[0] - ps->pmove.origin[0]) > 256 * 8 || \
-                                    abs(ops->pmove.origin[1] - ps->pmove.origin[1]) > 256 * 8 || \
-                                    abs(ops->pmove.origin[2] - ps->pmove.origin[2]) > 256 * 8)
+//#define player_teleported(ps, ops) (ffabs(ops->pmove.origin[0] - ps->pmove.origin[0]) > 256 * 8 || \
+//                                    ffabs(ops->pmove.origin[1] - ps->pmove.origin[1]) > 256 * 8 || \
+//                                    ffabs(ops->pmove.origin[2] - ps->pmove.origin[2]) > 256 * 8)
+#define player_teleported(ps, ops) (fabs(ops->pmove.origin[0] - ps->pmove.origin[0]) > 256 * 8 || \
+                                    fabs(ops->pmove.origin[1] - ps->pmove.origin[1]) > 256 * 8 || \
+                                    fabs(ops->pmove.origin[2] - ps->pmove.origin[2]) > 256 * 8)
 
 void CL_ViewSpecial(void)
 {
@@ -2724,7 +2724,7 @@ void CL_AddWeaponBob(entity_t *ent, centity_t *cent)
 
 
     fDistX = cos(fBobTime)*(fBobRadius);
-    fDistY = fabs(fDistX);
+    fDistY = (float)fabs((double)fDistX);
     vecBobOffset = cl.refdef.viewangles;
     vecBobOffset.AngleToVectors(vecForward, vecRight, vecUp);
     vecBobOffset = vecRight * fDistX;

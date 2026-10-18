@@ -1,3 +1,4 @@
+#include <math.h>
 // ==========================================================================
 //
 //  File:
@@ -176,7 +177,7 @@ void crox_think(userEntity_t *self)
 		//NSS[11/16/99]:Check for player distance in the Z axis.. if > than 350.0f go into wander
 		if(pGoal->nGoalType == GOALTYPE_KILLENEMY && self->enemy)
 		{
-			if(abs(self->enemy->s.origin.z - self->s.origin.z) > 100.0f)
+			if(fabs(self->enemy->s.origin.z - self->s.origin.z) > 100.0f)
 			{
 				AI_AddNewGoal(self,GOALTYPE_WANDER);
 				hook->ai_flags |= AI_IGNORE_PLAYER;
@@ -186,7 +187,7 @@ void crox_think(userEntity_t *self)
 		}
 		else if(pGoal->nGoalType == GOALTYPE_WANDER && self->enemy)
 		{
-			if(abs(self->enemy->s.origin.z - self->s.origin.z) <= 100.0f)
+			if(fabs(self->enemy->s.origin.z - self->s.origin.z) <= 100.0f)
 			{
 				AI_RemoveCurrentGoal(self);
 				hook->ai_flags &= ~AI_IGNORE_PLAYER;

@@ -24,7 +24,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 extern	float	ref_laserRotation;
-extern	void R_DrawAliasIcon (entity_t *ent);
+extern	void R_DrawAliasIcon(entity_t* ent);
 //extern void *scoreboard_font;
 
 #define ICON_ITEM_XOFFSET     54
@@ -35,86 +35,105 @@ extern	void R_DrawAliasIcon (entity_t *ent);
 #define ICON_WEAPON_YOFFSET  436
 #define ICON_WEAPON_HEIGHT		61
 
+static float InventoryHUDScale(void)
+{
+	cvar_t* hud_scale_cvar;
+	float user_scale;
+
+	hud_scale_cvar = ri.Cvar_Get("hud_scale", "1.00", CVAR_ARCHIVE);
+	user_scale = hud_scale_cvar ? hud_scale_cvar->value : 1.0f;
+	if (user_scale < 1.00f) user_scale = 1.00f;
+	if (user_scale > 3.00f) user_scale = 3.00f;
+
+	/* vid is already the physical display size.  HUD scaling here is
+	   strictly the user-selected 100..300 percent factor. */
+	return user_scale;
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //	inventory_DrawIcons
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-void	inventory_DrawIcons (void)
+void	inventory_DrawIcons(void)
 // this routine will draw the model icons for weapon and item inventories
 {
 	int			i, sx, sy;
 	entity_t	ent;
-	invenIcon_t	*icon;
+	invenIcon_t* icon;
 	CVector		origin;
-	int			viewportHeight, viewportSY, numIcons, viewportSX;
+	int			viewportHeight, viewportSY, numIcons, viewportSX, viewportWidth;
 	int			icon_height, icon_xoffset;
 	float		scale_x, scale_y, scale_z;
+	float			hud_scale;
 
-	if ( r_newrefdef.rdflags & (RDF_LETTERBOX|RDF_NO_ICONS) )
+	if (r_newrefdef.rdflags & (RDF_LETTERBOX | RDF_NO_ICONS))
 	{
 		return;
 	}
 
 	if (r_newrefdef.inventory_mode != INVMODE_WEAPON_ICONS && // no weapon icons?
-			r_newrefdef.inventory_mode != INVMODE_ITEM_ICONS)			// no icons display mode?
-	  return;
+		r_newrefdef.inventory_mode != INVMODE_ITEM_ICONS)			// no icons display mode?
+		return;
 
 	// SCG[11/23/99]: Make sure depth writing is enabled
-	GL_SetState( GLSTATE_PRESET1 );
+	GL_SetState(GLSTATE_PRESET1);
 
 	//	clear the zbuffer
 	qglClear(GL_DEPTH_BUFFER_BIT);
 
 	numIcons = r_newrefdef.numInventoryIcons;
 
+	hud_scale = InventoryHUDScale();
+
 	// set coordinates for specific inventory modes
 	if (r_newrefdef.inventory_mode == INVMODE_ITEM_ICONS)
 	{
-		// item icons
-		icon_xoffset = ICON_ITEM_XOFFSET;
-		icon_height  = ICON_ITEM_HEIGHT;
-
-		sy = vid.height - ICON_ITEM_YOFFSET;
-		scale_x = scale_y = scale_z = 1.4;
+		icon_xoffset = (int)(ICON_ITEM_XOFFSET * hud_scale + 0.5f);
+		icon_height = (int)(ICON_ITEM_HEIGHT * hud_scale + 0.5f);
+		sy = vid.height - (int)(ICON_ITEM_YOFFSET * hud_scale + 0.5f);
+		scale_x = scale_y = scale_z = 1.4f * hud_scale;
 	}
 	else
-	{ 
-		// weapon icons
-		icon_xoffset = ICON_WEAPON_XOFFSET;
-		icon_height  = ICON_WEAPON_HEIGHT;
-
-		sy = vid.height - ICON_WEAPON_YOFFSET;
-		scale_x = scale_y = scale_z = 2.5;
+	{
+		icon_xoffset = (int)(ICON_WEAPON_XOFFSET * hud_scale + 0.5f);
+		icon_height = (int)(ICON_WEAPON_HEIGHT * hud_scale + 0.5f);
+		sy = vid.height - (int)(ICON_WEAPON_YOFFSET * hud_scale + 0.5f);
+		scale_x = scale_y = scale_z = 2.5f * hud_scale;
 	}
 
-	viewportSX    = vid.width - ICON_WIDTH;
-	viewportSY    = 0;
+	viewportWidth = (int)(ICON_WIDTH * hud_scale + 0.5f);
+	if (viewportWidth < 1)
+		viewportWidth = 1;
+	if (viewportWidth > vid.width)
+		viewportWidth = vid.width;
+	viewportSX = vid.width - viewportWidth;
+	viewportSY = 0;
 	viewportHeight = vid.height;
 
-	qglViewport (viewportSX,      // x
+	qglViewport(viewportSX,      // x
 		viewportSY,      // y
-		ICON_WIDTH,      // width
+		viewportWidth,   // width
 		viewportHeight); // height
 
 	qglMatrixMode(GL_PROJECTION);
-	qglPushMatrix ();
-	qglLoadIdentity ();
+	qglPushMatrix();
+	qglLoadIdentity();
 
-	qglOrtho  (0,                         // left
-				ICON_WIDTH,                // right
-				viewportHeight,            // bottom
-				0,                         // top
-				-9999, 9999);              // near/far 
-				
+	qglOrtho(0,                         // left
+		viewportWidth,             // right
+		viewportHeight,            // bottom
+		0,                         // top
+		-9999, 9999);              // near/far 
+
 	qglMatrixMode(GL_MODELVIEW);
-	qglPushMatrix ();
-	qglLoadIdentity ();
+	qglPushMatrix();
+	qglLoadIdentity();
 
 	sx = icon_xoffset;
 
-	memset (&ent, 0x00, sizeof (entity_t));
+	memset(&ent, 0x00, sizeof(entity_t));
 
 	origin.x = sx;
 	origin.y = sy;
@@ -123,17 +142,17 @@ void	inventory_DrawIcons (void)
 	//	draw the icon models
 	icon = r_newrefdef.inventoryIcons;
 
-	qglDepthMask( 1 );
-//	GL_SetState( GLSTATE_TEXTURE_2D | GLSTATE_BLEND | GLSTATE_DEPTH_MASK | GLSTATE_DEPTH_TEST | GLSTATE_CULL_FACE | GLSTATE_CULL_FACE_FRONT);
+	qglDepthMask(1);
+	//	GL_SetState( GLSTATE_TEXTURE_2D | GLSTATE_BLEND | GLSTATE_DEPTH_MASK | GLSTATE_DEPTH_TEST | GLSTATE_CULL_FACE | GLSTATE_CULL_FACE_FRONT);
 	for (i = 0; i < numIcons; i++, icon++)
 	{
-		if (icon->model != NULL && r_newrefdef.inventory_alpha != 0 )
+		if (icon->model != NULL && r_newrefdef.inventory_alpha != 0)
 		{
 			//	set up an entity so we can draw the model
-			memset (&ent, 0x00, sizeof (entity_t));
+			memset(&ent, 0x00, sizeof(entity_t));
 
 			ent.model = icon->model;
-	
+
 			ent.origin = origin;
 			ent.angles.x += ref_laserRotation * 2;
 			ent.angles.z = -45;
@@ -148,11 +167,11 @@ void	inventory_DrawIcons (void)
 			ent.flags = RF_FULLBRIGHT | RF_TRANSLUCENT;
 			ent.alpha = r_newrefdef.inventory_alpha;
 
-			ent.render_scale.Set(scale_x,scale_y,scale_y);
+			ent.render_scale.Set(scale_x, scale_y, scale_y);
 
 			currententity = &ent;
-//			GL_SetState( 0 );
-			R_DrawAliasIcon (&ent);
+			//			GL_SetState( 0 );
+			R_DrawAliasIcon(&ent);
 		}
 
 		origin.y += icon_height;
@@ -170,21 +189,21 @@ void	inventory_DrawIcons (void)
 
 	for (i = 0; i < numIcons; i++, icon++)
 	{
-    if (icon->model != NULL && icon->count >= 0)
-      inventory_DrawNum (origin.x + ICON_NUM_X, origin.y + ICON_NUM_Y, icon->count);
+	if (icon->model != NULL && icon->count >= 0)
+	  inventory_DrawNum (origin.x + ICON_NUM_X, origin.y + ICON_NUM_Y, icon->count);
 
 		origin.y += icon_height;
 	}
 	*/
 
 	qglMatrixMode(GL_MODELVIEW);
-	qglPopMatrix ();
+	qglPopMatrix();
 
 	qglMatrixMode(GL_PROJECTION);
-	qglPopMatrix ();
+	qglPopMatrix();
 
-	qglViewport (0, 0, vid.width, vid.height);
-	qglShadeModel (GL_FLAT);
-	GL_SetState( 0 );
+	qglViewport(0, 0, vid.width, vid.height);
+	qglShadeModel(GL_FLAT);
+	GL_SetState(0);
 }
 

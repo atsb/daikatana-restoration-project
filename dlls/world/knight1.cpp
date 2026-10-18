@@ -458,8 +458,6 @@ void world_ai_paladin_register_func()
 	gstate->RegisterFunc("knight1_begin_attack",knight1_begin_attack);
 	gstate->RegisterFunc("knight1_attack",knight1_attack);
 	gstate->RegisterFunc("Knight1_ParseEpairs",Knight1_ParseEpairs);
-	gstate->RegisterFunc("KNIGHT1_Think",KNIGHT1_Think);
-
 }
 
 

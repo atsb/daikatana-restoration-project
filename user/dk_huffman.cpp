@@ -17,6 +17,7 @@ huffman_table::~huffman_table() {
 
 //creates the tree with given the data
 void huffman_table::Init(byte *data, int data_length) {
+    int i;
     //first count the number of occurences of each byte value.
     int data_counts[256];
 

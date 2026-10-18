@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include "world.h"
 #include "light.h"
 
@@ -29,7 +30,7 @@ DllExport	void	light_e4 (userEntity_t *self);
 ////////////////////////////////////////////////////////////////////////////////////
 
 // SCG[11/20/99]: Save game stuff
-#define	LIGHTHOOK(x) (int)&(((lightHook_t *)0)->x)
+#define	LIGHTHOOK(x) (int)offsetof(lightHook_t,x)
 field_t light_hook_fields[] = 
 {
 	{"ambient_sound",	LIGHTHOOK(ambient_sound),	F_LSTRING},

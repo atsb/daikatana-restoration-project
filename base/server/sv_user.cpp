@@ -201,6 +201,9 @@ void SV_Begin_f (void)
 	
 	sv_client->state = cs_spawned;
 
+	//	Nelno:	set the ent->inuse flag -- it's ridiculous that Quake DLLs do that!!
+//	sv_player->inuse = true;
+
 	// call the game begin function
 	ge->ClientBegin (sv_player, sv.loadgame);
 

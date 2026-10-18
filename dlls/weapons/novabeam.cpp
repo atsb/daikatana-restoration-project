@@ -23,8 +23,6 @@ enum
 // weapon info def
 weaponInfo_t novabeamWeaponInfo = 
 {
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_NOVABEAM),
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_NOVABEAM_AMMO),
 	// names, net names, icon
 	"weapon_novabeam",
 	tongue_weapons[T_WEAPON_NOVABEAM],
@@ -101,15 +99,11 @@ weaponInfo_t novabeamWeaponInfo =
 	0.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 0.0f,
 
-/*	{
+	{
 		tongue_deathmsg_weapon4[T_DEATHMSGWEAPON_NOVABEAM],
 		NULL,
 		ATTACKER_VICTIM
-	},*/
-
-	RESOURCE_ID_FOR_STRING(tongue_deathmsg_weapon4,T_DEATHMSGWEAPON_NOVABEAM),
-	ATTACKER_VICTIM,
-
+	},
 	WEAPON_NOVABEAM,
 	0,
 	NULL

@@ -1,3 +1,4 @@
+#include <stddef.h>
 ///////////////////////////////////////////////////////////////////////////////
 //	target.cpp
 //
@@ -32,7 +33,7 @@ DllExport	void	target_monster_spawn (userEntity_t *self);
 // SCG[12/5/99]: DllExport	void	target_turret (userEntity_t *self);
 
 // SCG[11/19/99]: 
-#define	MONSTERSPAWNHOOK(x) (int)&(((monsterSpawnHook_t *)0)->x)
+#define	MONSTERSPAWNHOOK(x) (int)offsetof(monsterSpawnHook_t,x)
 field_t monster_spawn_hook_fields[] = 
 {
 	{"sound",			MONSTERSPAWNHOOK(sound),		F_INT},
@@ -42,7 +43,7 @@ field_t monster_spawn_hook_fields[] =
 };
 
 // SCG[11/19/99]: 
-#define	LIGHTRAMPHOOK(x) (int)&(((lightrampHook_t *)0)->x)
+#define	LIGHTRAMPHOOK(x) (int)offsetof(lightrampHook_t,x)
 field_t lightramp_hook_fields[] = 
 {
 	{"timestamp",	LIGHTRAMPHOOK(timestamp),	F_FLOAT},
@@ -88,7 +89,7 @@ typedef	struct	laserHook_s
 	int			soundIndex;
 } laserHook_t;
 
-#define	LASERHOOK(x) (int)&(((laserHook_t *)0)->x)
+#define	LASERHOOK(x) (int)offsetof(laserHook_t,x)
 field_t laser_hook_fields[] = 
 {
 	{"damage",	LASERHOOK(damage),			F_EDICT},
@@ -109,7 +110,7 @@ typedef	struct	quakeHook_s
 	float		end_time;
 } quakeHook_t;
 
-#define	QUAKEHOOK(x) (int)&(((quakeHook_t *)0)->x)
+#define	QUAKEHOOK(x) (int)offsetof(quakeHook_t,x)
 field_t quake_hook_fields[] = 
 {
 	{"severity",		QUAKEHOOK(severity),		F_INT},
@@ -131,7 +132,7 @@ typedef struct	frameChangeHook_s
 	char		*sound;
 } frameChangeHook_t;
 
-#define	FRAMECHANGEHOOK(x) (int)&(((frameChangeHook_t *)0)->x)
+#define	FRAMECHANGEHOOK(x) (int)offsetof(frameChangeHook_t,x)
 field_t frame_change_hook_fields[] = 
 {
 	{"seq",			FRAMECHANGEHOOK(seq),			F_INT},
@@ -175,7 +176,7 @@ or a direction.
 // SCG[12/2/99]: Great, thanks for making two fucking turretHook_t 
 // SCG[12/2/99]: structures and making them ALMOST exactly the same..
 /*
-#define	TURRETHOOK(x) (int)&(((turretHook_t *)0)->x)
+#define	TURRETHOOK(x) (int)offsetof(turretHook_t,x)
 field_t turret_hook_fields2[] = 
 {
 	{"modelindex",	TURRETHOOK(modelindex),		F_INT},
@@ -1205,7 +1206,7 @@ float rand_table[16] =
 };
 int rand_count;
 // SCG[11/19/99]: Save game stuff
-#define	EFFECTHOOK(x) (int)&(((effectHook_t *)0)->x)
+#define	EFFECTHOOK(x) (int)offsetof(effectHook_t,x)
 field_t effect_hook_fields[] = 
 {
 	{"spawn_type",		EFFECTHOOK(spawn_type),		F_INT},
@@ -1222,7 +1223,7 @@ field_t effect_hook_fields[] =
 };
 
 // SCG[11/19/99]: Save game stuff
-#define	ATTRACTORHOOK(x) (int)&(((attractorHook_t *)0)->x)
+#define	ATTRACTORHOOK(x) (int)offsetof(attractorHook_t,x)
 field_t attractor_hook_fields[] = 
 {
 	{"emitter",			ATTRACTORHOOK(emitter),			F_EDICT},
@@ -1500,8 +1501,7 @@ void target_effect (userEntity_t *self)
 		self->use = target_effect_use;
 	}
 
-// SCG[6/5/00]: #ifndef TONGUE_GERMAN
-#ifndef NO_VIOLENCE
+#ifndef TONGUE_GERMAN
 	if( sv_violence->value != 0)
 #endif
 	{

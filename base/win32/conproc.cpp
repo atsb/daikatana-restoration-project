@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <process.h>
 #include <windows.h>
+#include <stdint.h>
 #include "conproc.h"
 
 #define CCOM_WRITE_TEXT		0x2
@@ -77,19 +78,19 @@ void InitConProc (int argc, char **argv)
 	if ((t = CCheckParm ("-HFILE")) > 0)
 	{
 		if (t < argc)
-			hFile = (HANDLE)atoi (ccom_argv[t+1]);
+			hFile = (HANDLE)(uintptr_t)strtoull (ccom_argv[t+1], NULL, 10);
 	}
 		
 	if ((t = CCheckParm ("-HPARENT")) > 0)
 	{
 		if (t < argc)
-			heventParent = (HANDLE)atoi (ccom_argv[t+1]);
+			heventParent = (HANDLE)(uintptr_t)strtoull (ccom_argv[t+1], NULL, 10);
 	}
 		
 	if ((t = CCheckParm ("-HCHILD")) > 0)
 	{
 		if (t < argc)
-			heventChild = (HANDLE)atoi (ccom_argv[t+1]);
+			heventChild = (HANDLE)(uintptr_t)strtoull (ccom_argv[t+1], NULL, 10);
 	}
 
 

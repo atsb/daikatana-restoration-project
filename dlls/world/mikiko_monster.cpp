@@ -225,11 +225,7 @@ void mikiko_start_die( userEntity_t *self, userEntity_t *inflictor, userEntity_t
 		{
 			AI_ForceSequence( self, "dieb" ); // collapse
 		}
-		self->think			= NULL;
-		self->s.renderfx	|= RF_NODRAW|SPR_ALPHACHANNEL;
-		self->s.alpha		= 0.0f;
 	}
-
 }
 
 void MM_Think(userEntity_t *self)
@@ -360,6 +356,7 @@ void monster_mikiko( userEntity_t *self )
 	gstate->LinkEntity(self);
 
 	hook->acro_boost = 0;
+
 }
 
 

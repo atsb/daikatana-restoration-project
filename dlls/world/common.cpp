@@ -25,19 +25,7 @@ int com_DoKeyFunctions( userEntity_t *self, userEntity_t *other, char *message )
 				{
 					if( pKey != NULL )
 					{
-#ifdef JPN
- #ifdef MAN // for MAN
 						Com_sprintf( outmessage, sizeof( outmessage ), "%s %s.\n", message, pKey->netname );
- #else
-  #ifdef TIW// for TIW
-						Com_sprintf( outmessage, sizeof( outmessage ), "%s %s.\n", message, pKey->netname );
-  #else // for JPN
-						Com_sprintf( outmessage, sizeof( outmessage ), "%s %s.\n", pKey->netname, message );
-  #endif // TIW
- #endif // MAN
-#else
-						Com_sprintf( outmessage, sizeof( outmessage ), "%s %s.\n", message, pKey->netname );
-#endif // JPN
 					}
 					else if (!stricmp(self->keyname,"item_bomb"))		// cek[2-13-00]: hacky hacky
 					{
@@ -52,37 +40,11 @@ int com_DoKeyFunctions( userEntity_t *self, userEntity_t *other, char *message )
 						userEntity_t *pNewKey = com->SpawnDynamicEntity( self, self->keyname, FALSE );
 						if (pNewKey)
 						{
-#ifdef JPN
- #ifdef MAN // for MAN
 							Com_sprintf( outmessage, sizeof( outmessage ), "%s %s.\n", message, pNewKey->netname );
- #else
-  #ifdef TIW// for TIW
-							Com_sprintf( outmessage, sizeof( outmessage ), "%s %s.\n", message, pNewKey->netname );
-  #else // for JPN
-							Com_sprintf( outmessage, sizeof( outmessage ), "%s %s.\n", pNewKey->netname, message );
-  #endif // TIW
- #endif // MAN
-#else
-							Com_sprintf( outmessage, sizeof( outmessage ), "%s %s.\n", message, pNewKey->netname );
-#endif // JPN
 							gstate->RemoveEntity(pNewKey);
 						}
 						else
-						{
-#ifdef JPN
- #ifdef MAN // for MAN
-							Com_sprintf( outmessage, sizeof( outmessage ), "%s %s.\n", message, self->keyname );
- #else
-  #ifdef TIW// for TIW
-							Com_sprintf( outmessage, sizeof( outmessage ), "%s %s.\n", message, self->keyname );
-  #else // for JPN
-							Com_sprintf( outmessage, sizeof( outmessage ), "%s %s.\n", self->keyname, message );
-  #endif // TIW
- #endif // MAN
-#else
 							Com_sprintf( outmessage, sizeof( outmessage ), "%s %s.\n", message, self->keyname );	// well, I tried..
-#endif // JPN
-						}
 					}
 					gstate->centerprint( other, 2.0, outmessage );
 				}

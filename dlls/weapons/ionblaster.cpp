@@ -38,8 +38,6 @@ enum
 // weapon info def
 weaponInfo_t ionblasterWeaponInfo = 
 {
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_IONBLASTER),
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_IONBLASTER_AMMO),
 	// names, net names, icon
 	"weapon_ionblaster",
 	tongue_weapons[T_WEAPON_IONBLASTER],
@@ -128,15 +126,11 @@ weaponInfo_t ionblasterWeaponInfo =
 	0.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 0.0f,
 
-/*	{ 
+	{ 
 		tongue_deathmsg_weapon1[T_DEATHMSGWEAPON_IONBLASTER],
 		NULL,
 		VICTIM_ATTACKER
-	},*/
-
-	RESOURCE_ID_FOR_STRING(tongue_deathmsg_weapon1,T_DEATHMSGWEAPON_IONBLASTER),
-	VICTIM_ATTACKER,
-
+	},
 	WEAPON_IONBLASTER,
 	0,
 	NULL

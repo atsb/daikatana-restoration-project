@@ -3850,7 +3850,6 @@ void ai_prethink( userEntity_t *self )
 		//	do damage
 		if ( hook->poison_next_damage_time <= 0 )
 		{
-			gstate->Con_Printf ("poisoning\n");
 			com->Damage (self, self, self, zero_vector, zero_vector, hook->poison_damage, DAMAGE_POISON | DAMAGE_NO_BLOOD);
 			hook->poison_next_damage_time = hook->poison_interval;
 		}

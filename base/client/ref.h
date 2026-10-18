@@ -1,3 +1,4 @@
+#include <stdint.h>
 #ifndef _ref_h
 #define _ref_h
 
@@ -64,6 +65,8 @@ typedef enum {
 #define DSFLAG_FLIPX		0x00000100		// SCG[1/13/00]: mirror image in x
 #define DSFLAG_FLIPY		0x00000200		// SCG[1/13/00]: mirror image in y
 #define DSFLAG_NOMIP		0x00000400		// SCG[3/14/00]: No mipmapping
+#define DSFLAG_CLAMP		0x00000800		// clamp 2D picture texture edges
+#define DSFLAG_NO_N64FILTER	0x00010000		// do not use the N64 texture filter
 
 typedef struct __DRAWSTRUCT
 {
@@ -477,7 +480,6 @@ typedef struct refexport_s
 
 	//  andrew: added this to get the skins currently used on a model
 	int		(*GetModelSkinIndex) (void *modelPtr);
-	char*	(*GetModelSkinName)	(void *modelPtr);
 
 	// andrew: get a hardpoint from a model
 	void	(*GetModelHardpoint)(char *pSurfName, int curFrame, int lastFrame, entity_t &ent, CVector &hardPt);
@@ -558,9 +560,10 @@ typedef struct refimport_s
 	qboolean	(*Vid_GetModeInfo)( int *width, int *height, int mode );
 	void		(*Vid_MenuInit)();
 	void		(*Vid_NewWindow)( int width, int height );
+	void		(*Vid_SetSDLWindow)( void *window );
 
-	void		(*CL_GenerateVolumeParticles) (int key, int type, CVector &mins, CVector &maxs, float dist, int flags);
-	void		(*CL_RemoveParticleVolume) (int key);
+	void		(*CL_GenerateVolumeParticles) (uintptr_t key, int type, CVector &mins, CVector &maxs, float dist, int flags);
+	void		(*CL_RemoveParticleVolume) (uintptr_t key);
 
 	void		(*dk_printxy) (int x, int y, char *fmt, ...);
 
@@ -581,6 +584,7 @@ typedef struct refimport_s
 #endif
 	void	(*X_Free) (void* mem);
 	int		(*Mem_Heap_Walk) (int stats);
+	void	(*Vid_RefreshModeList) (void);
 } refimport_t;
 
 

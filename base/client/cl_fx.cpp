@@ -719,8 +719,7 @@ void CL_BloodSplash (void)
     MSG_ReadPos (&net_message, org);
     MSG_ReadDir (&net_message, dir);
 
-// SCG[6/5/00]: #ifdef TONGUE_GERMAN
-#ifdef NO_VIOLENCE
+#ifdef TONGUE_GERMAN
 	return;
 #endif
 

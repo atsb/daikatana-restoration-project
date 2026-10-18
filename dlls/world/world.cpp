@@ -99,6 +99,8 @@ cvar_t	*sv_episode;
 cvar_t	*sv_violence;
 cvar_t  *sv_sidekickweapons;
 cvar_t  *sv_aiwander;
+cvar_t  *sv_sidekick_invincible;
+cvar_t  *sv_no_sidekicks;
 cvar_t	*ai_scriptedit;
 cvar_t	*ai_scriptrunning;
 cvar_t	*sv_demomode;
@@ -130,9 +132,8 @@ cvar_t	*dm_friendly_fire;
 cvar_t	*dm_footsteps;
 cvar_t  *dm_allow_hook;
 cvar_t  *dm_item_respawn;
-cvar_t	*dm_instagib;
-cvar_t	*unlimited_saves;
-
+cvar_t  *dm_instagib;
+cvar_t  *unlimited_saves;
 cvar_t  *p_cheats;
 cvar_t  *gib_damage_point;
 cvar_t	*gib_enable;
@@ -235,23 +236,6 @@ void	path_to_player (userEntity_t *self);
 void	WorldCINInit();
 void    WorldCINKill();
 
-#ifndef _WIN32
-#include <string.h>
-#include<ctype.h>
-
-char *_strlwr(char *str)
-{
-  unsigned char *p = (unsigned char *)str;
-
-  while (*p) {
-     *p = tolower((unsigned char)*p);
-      p++;
-  }
-
-  return str;
-}
-#endif
-
 //#ifdef _DEBUG
 #pragma message( "// SCG[1/11/00]: Remove for Release build" )
 void	af_powerup (userEntity_t *self);
@@ -259,6 +243,75 @@ void	af_powerdown (userEntity_t *self);
 //#endif
 
 void	world_register_funcs();
+
+static void WORLD_SpawnBothSidekicks(userEntity_t *self)
+{
+	if (!self)
+		return;
+
+	if (SinglePlayerCheat() == FALSE && gstate->GetCvar("cheats") == 0)
+		return;
+
+	if (coop->value)
+	{
+		gstate->sprint(self, "Sidekick spawning is unavailable in co-op.\n");
+		return;
+	}
+
+	SIDEKICK_SpawnSuperfly2(self);
+	SIDEKICK_SpawnMikiko2(self);
+}
+
+static void WORLD_StartFirstLevelWithSidekicks(userEntity_t *self)
+{
+	if (!self)
+		return;
+
+	if (SinglePlayerCheat() == FALSE && gstate->GetCvar("cheats") == 0)
+		return;
+
+	if (coop->value)
+	{
+		gstate->sprint(self, "Sidekick spawning is unavailable in co-op.\n");
+		return;
+	}
+
+	gstate->CBuf_AddText("map e1m1a\nspawn_both_sidekicks\n");
+}
+
+static void WORLD_SpawnBothSidekicksWithWeapons(userEntity_t *self)
+{
+	if (!self)
+		return;
+
+	if (SinglePlayerCheat() == FALSE && gstate->GetCvar("cheats") == 0)
+		return;
+
+	if (coop->value)
+	{
+		gstate->sprint(self, "Sidekick spawning is unavailable in co-op.\n");
+		return;
+	}
+
+	SIDEKICK_SpawnBothWithEpisode1TestWeapons(self);
+}
+
+static void WORLD_StartFirstLevelWithSidekicksAndWeapons(userEntity_t *self)
+{
+	if (!self)
+		return;
+
+	if (SinglePlayerCheat() == FALSE && gstate->GetCvar("cheats") == 0)
+		return;
+
+	if (coop->value)
+	{
+		gstate->sprint(self, "Sidekick spawning is unavailable in co-op.\n");
+		return;
+	}
+
+	gstate->CBuf_AddText("map e1m1a\nspawn_both_sidekicks_weapons\n");
+}
 
 int SinglePlayerCheat()
 {
@@ -332,6 +385,7 @@ int SinglePlayerCheat()
 //	standard DLL startup/exit routine.  We don't have to do anything in here
 //	because Daikatana calls dll_Entry at appropriate times.
 ///////////////////////////////////////////////////////////////////////////////
+
 BOOL WINAPI DllMain (HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
 {
 	return TRUE;
@@ -342,8 +396,7 @@ BOOL WINAPI DllMain (HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
 //
 //	player skin testing
 ///////////////////////////////////////////////////////////////////////////////
-// SCG[7/11/00]: 
-/*
+
 void	next_skin (userEntity_t *self)
 {
 	playerHook_t	*hook = AI_GetPlayerHook( self );
@@ -353,8 +406,15 @@ void	next_skin (userEntity_t *self)
 		self->s.skinnum = 0;
 
 	gstate->Con_Printf ("skin = %i\n", self->s.skinnum);
-}
+
+/*
+	hook->legs->s.skinnum = self->s.skinnum;
+	hook->torso->s.skinnum = self->s.skinnum;
+	hook->head->s.skinnum = self->s.skinnum;
+	hook->weapon->s.skinnum = self->s.skinnum;
 */
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //	show_contents
 ///////////////////////////////////////////////////////////////////////////////
@@ -1051,12 +1111,10 @@ void nav_test( userEntity_t *self )
 }
 */
 
-/*
 void dump_stack( userEntity_t *self )
 {
     DumpStack( AFX_STACK_DUMP_TARGET_CLIPBOARD );
 }
-*/
 
 void script( userEntity_t *self )
 {
@@ -1530,6 +1588,8 @@ void	world_InitCVars (void)
 	
 	sv_sidekickweapons  = gstate->cvar ("sv_sidekickweapons", "0", CVAR_SERVERINFO | CVAR_LATCH);
 	sv_aiwander			= gstate->cvar ("sv_aiwander", "0", CVAR_SERVERINFO);
+	sv_sidekick_invincible = gstate->cvar ("sv_sidekick_invincible", "0", CVAR_ARCHIVE);
+	sv_no_sidekicks       = gstate->cvar ("sv_no_sidekicks", "0", CVAR_ARCHIVE);
 
 
 	sv_demomode			= gstate->cvar ("sv_demomode", "1", CVAR_SERVERINFO | CVAR_LATCH);
@@ -1558,9 +1618,9 @@ void	world_InitCVars (void)
     dm_footsteps        = gstate->cvar ("dm_footsteps", "1", CVAR_SERVERINFO|CVAR_LATCH);
     dm_allow_hook       = gstate->cvar ("dm_allow_hook", "1", CVAR_SERVERINFO|CVAR_LATCH);
     dm_item_respawn     = gstate->cvar ("dm_item_respawn", "1", CVAR_SERVERINFO|CVAR_LATCH);
+    dm_instagib         = gstate->cvar ("dm_instagib", "0", CVAR_SERVERINFO|CVAR_LATCH);
+    unlimited_saves     = gstate->cvar ("unlimited_saves", "0", CVAR_ARCHIVE);
 	dm_levellimit		= gstate->cvar ("dm_levellimit","0",CVAR_SERVERINFO|CVAR_LATCH);
-	dm_instagib			= gstate->cvar ("dm_instagib", "0", CVAR_SERVERINFO|CVAR_LATCH);
-	unlimited_saves		= gstate->cvar ("unlimited_saves", "0", CVAR_ARCHIVE);
     
     gib_damage_point    = gstate->cvar ("gib_damage", "0.30", CVAR_ARCHIVE );
     gib_enable			= gstate->cvar ("gib_enable", "1", CVAR_ARCHIVE );
@@ -1698,7 +1758,7 @@ void UseUniqueID_f( userEntity_t *self )
 	}
 }
 
-typedef	(*func_t)(edict_t *);
+typedef void (*func_t)(edict_t *);
 void SpawnItem_f( userEntity_t *self )
 {
 	char *pItemName = NULL;
@@ -1757,7 +1817,7 @@ void	dll_ServerLoad (serverState_t *state)
 	gstate->AddCommand ("health", Client_HealthCheat);
 	gstate->AddCommand ("showstats", Client_ShowStats);
 	gstate->AddCommand ("notarget", Client_NoTarget);
-	gstate->AddCommand( "noclip", Client_NoClip);
+	gstate->AddCommand ("noclip", Client_NoClip);
 //	gstate->AddCommand ("crash",  crash_test); 
 //	gstate->AddCommand ("assert", assert_test);
 
@@ -1873,8 +1933,12 @@ void	dll_ServerLoad (serverState_t *state)
 
 
 	//	client commands
+	gstate->AddCommand ("spawn_both_sidekicks", WORLD_SpawnBothSidekicks);
+	gstate->AddCommand ("spawn_both_sidekicks_weapons", WORLD_SpawnBothSidekicksWithWeapons);
+	gstate->AddCommand ("e1m1_sidekicks", WORLD_StartFirstLevelWithSidekicks);
+	gstate->AddCommand ("e1m1_sidekicks_weapons", WORLD_StartFirstLevelWithSidekicksAndWeapons);
 	gstate->AddCommand ("client_model", client_model);
-// SCG[7/11/00]: 	gstate->AddCommand ("next_skin", next_skin);
+	gstate->AddCommand ("next_skin", next_skin);
 	
 	gstate->AddCommand( "Superfly", CLIENT_IssueCommandToSidekicks );
 	gstate->AddCommand( "Mikiko",   CLIENT_IssueCommandToSidekicks );
@@ -1933,7 +1997,7 @@ void	dll_ServerLoad (serverState_t *state)
 	// navigation test
 //	gstate->AddCommand( "nav_test", nav_test );
 
-//    gstate->AddCommand( "dumpstack", dump_stack );
+    gstate->AddCommand( "dumpstack", dump_stack );
 
     gstate->AddCommand( "script", script );
 
@@ -2239,7 +2303,6 @@ int Sys_Milliseconds (void)
 userEntity_t *AIINFO_GetPlayer();
 void InitMonsterCount()
 {
-	gstate->Con_Dprintf("InitMonsterCount()\n");
 	userEntity_t	*pEntity;
 
 	if( gstate->numMonsters == 0 )
@@ -2916,8 +2979,6 @@ void worldspawn (userEntity_t *self)
 		}
 
 		gstate->SoundIndex( "global/matchcomplete.wav" );
-		gstate->SoundIndex( "global/dmsg_daikatana.wav" );
-		gstate->SoundIndex( "global/dmsg_telefragged.wav" );
 	}
 #endif
 
@@ -3171,9 +3232,6 @@ void world_viewthing_register_func();
 void flag_register_func();
 void coop_register_func();
 
-// cek[6-16-00]: register your functions!!!
-void camera_register_func(void);
-
 void	world_register_funcs()
 {
 	// register all of the callback functions for world.dll
@@ -3288,7 +3346,4 @@ void	world_register_funcs()
 	flag_register_func();
 	coop_register_func();
 	world_ai_dopefish_register_func();
-
-// cek[6-16-00]: register your functions!!!
-	camera_register_func();
 }

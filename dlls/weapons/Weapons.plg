@@ -1,0 +1,120 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: weapons - Win32 Spanish--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\WINDOWS\TEMP\RSP2110.TMP" with contents
+[
+/nologo /G5 /MT /W3 /GX /O2 /I "..\..\user" /I "..\..\base\audio" /I "..\..\user\Collection" /I "..\..\libent" /D "TONGUE_SPANISH" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FR".\Spanish/" /Fp".\Spanish/Weapons.pch" /YX /Fo".\Spanish/" /Fd".\Spanish/" /FD /c 
+"C:\Source Safe\dlls\weapons\c4.cpp"
+"C:\Source Safe\dlls\weapons\disruptor.cpp"
+"C:\Source Safe\dlls\weapons\gashands.cpp"
+"C:\Source Safe\dlls\weapons\ionblaster.cpp"
+"C:\Source Safe\dlls\weapons\shockwave.cpp"
+"C:\Source Safe\dlls\weapons\shotcycler.cpp"
+"C:\Source Safe\dlls\weapons\sidewinder.cpp"
+"C:\Source Safe\dlls\weapons\discus.cpp"
+"C:\Source Safe\dlls\weapons\hammer.cpp"
+"C:\Source Safe\dlls\weapons\sunflare.cpp"
+"C:\Source Safe\dlls\weapons\trident.cpp"
+"C:\Source Safe\dlls\weapons\venomous.cpp"
+"C:\Source Safe\dlls\weapons\zeus.cpp"
+"C:\Source Safe\dlls\weapons\ballista.cpp"
+"C:\Source Safe\dlls\weapons\bolter.cpp"
+"C:\Source Safe\dlls\weapons\nightmare.cpp"
+"C:\Source Safe\dlls\weapons\silverclaw.cpp"
+"C:\Source Safe\dlls\weapons\stavros.cpp"
+"C:\Source Safe\dlls\weapons\wyndrax.cpp"
+"C:\Source Safe\dlls\weapons\glock.cpp"
+"C:\Source Safe\dlls\weapons\kineticore.cpp"
+"C:\Source Safe\dlls\weapons\metamaser.cpp"
+"C:\Source Safe\dlls\weapons\novabeam.cpp"
+"C:\Source Safe\dlls\weapons\ripgun.cpp"
+"C:\Source Safe\dlls\weapons\slugger.cpp"
+"C:\Source Safe\dlls\weapons\daikatana.cpp"
+"C:\Source Safe\dlls\weapons\main.cpp"
+"C:\Source Safe\dlls\weapons\w_attribute.cpp"
+"C:\Source Safe\dlls\weapons\weapon_funcs.cpp"
+]
+Creating command line "cl.exe @C:\WINDOWS\TEMP\RSP2110.TMP" 
+Creating temporary file "C:\WINDOWS\TEMP\RSP2111.TMP" with contents
+[
+winspool.lib comdlg32.lib advapi32.lib shell32.lib uuid.lib kernel32.lib user32.lib gdi32.lib world.lib IonCommonSpanish.lib wsock32.lib /nologo /subsystem:windows /dll /incremental:no /pdb:".\Spanish/weapons.pdb" /machine:I386 /nodefaultlib:"libc.lib" /out:"spanish\weapons.dll" /implib:".\Spanish/weapons.lib" /libpath:"..\world\release" /libpath:"..\..\libs" 
+".\Spanish\c4.obj"
+".\Spanish\disruptor.obj"
+".\Spanish\gashands.obj"
+".\Spanish\ionblaster.obj"
+".\Spanish\shockwave.obj"
+".\Spanish\shotcycler.obj"
+".\Spanish\sidewinder.obj"
+".\Spanish\discus.obj"
+".\Spanish\hammer.obj"
+".\Spanish\sunflare.obj"
+".\Spanish\trident.obj"
+".\Spanish\venomous.obj"
+".\Spanish\zeus.obj"
+".\Spanish\ballista.obj"
+".\Spanish\bolter.obj"
+".\Spanish\nightmare.obj"
+".\Spanish\silverclaw.obj"
+".\Spanish\stavros.obj"
+".\Spanish\wyndrax.obj"
+".\Spanish\glock.obj"
+".\Spanish\kineticore.obj"
+".\Spanish\metamaser.obj"
+".\Spanish\novabeam.obj"
+".\Spanish\ripgun.obj"
+".\Spanish\slugger.obj"
+".\Spanish\daikatana.obj"
+".\Spanish\main.obj"
+".\Spanish\w_attribute.obj"
+".\Spanish\weapon_funcs.obj"
+"\Source Safe\libs\IonCommonSpanish.lib"
+"\Source Safe\libs\libentSpanish.lib"
+]
+Creating command line "link.exe @C:\WINDOWS\TEMP\RSP2111.TMP"
+<h3>Output Window</h3>
+Compiling...
+c4.cpp
+disruptor.cpp
+gashands.cpp
+ionblaster.cpp
+shockwave.cpp
+shotcycler.cpp
+sidewinder.cpp
+discus.cpp
+hammer.cpp
+sunflare.cpp
+trident.cpp
+venomous.cpp
+zeus.cpp
+ballista.cpp
+bolter.cpp
+nightmare.cpp
+silverclaw.cpp
+stavros.cpp
+wyndrax.cpp
+glock.cpp
+kineticore.cpp
+metamaser.cpp
+novabeam.cpp
+ripgun.cpp
+slugger.cpp
+daikatana.cpp
+main.cpp
+w_attribute.cpp
+weapon_funcs.cpp
+Linking...
+LINK : fatal error LNK1181: cannot open input file "world.lib"
+Error executing link.exe.
+
+
+
+<h3>Results</h3>
+weapons.dll - 1 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

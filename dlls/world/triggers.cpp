@@ -1,3 +1,4 @@
+#include <stddef.h>
 // Triggers
 // FIXME: default sounds for each trigger type
 
@@ -40,13 +41,13 @@ DllExport void trigger_push( userEntity_t *self );
 DllExport void trigger_hurt( userEntity_t *self );
 DllExport void trigger_changelevel( userEntity_t *self );
 DllExport void func_wall_explode( userEntity_t *self );
-//DllExport void trigger_fog_value( userEntity_t *self );
+DllExport void trigger_fog_value( userEntity_t *self );
 //DllExport void trigger_warp( userEntity_t *self );
 //DllExport void info_warp_destination( userEntity_t *self );
 DllExport void warp_cylinder( userEntity_t *self );
 DllExport void trigger_change_sfx( userEntity_t *self );
 DllExport void trigger_secret(userEntity_t *self );
-//DllExport void trigger_monsterjump( userEntity_t *self );
+DllExport void trigger_monsterjump( userEntity_t *self );
 DllExport void trigger_cinematic( userEntity_t *self );	//amw INVALID... remove soon
 DllExport void trigger_script( userEntity_t *self );
 DllExport void trigger_changetarget( userEntity_t *self );
@@ -106,8 +107,8 @@ int			func_wall_explode_count;
 #define		NO_ANGLE_ADJUST		4
 
 //	info_warp_destination spawnflags
-//#define		INFOWARP_SKIPTO		1
-//#define		INFOWARP_GLOW		2
+#define		INFOWARP_SKIPTO		1
+#define		INFOWARP_GLOW		2
 
 // trigger_change_sfx
 #define		SFX_NORMAL			0x01
@@ -142,7 +143,7 @@ typedef	struct	warpHook_s
 	CVector		render_scale;
 } warpHook_t;
 
-#define	WARPHOOK(x) (int)&(((warpHook_t *)0)->x)
+#define	WARPHOOK(x) (int)offsetof(warpHook_t,x)
 field_t warp_hook_fields[] = 
 {
 	{"think",			WARPHOOK(think),		F_FUNC},
@@ -162,7 +163,7 @@ typedef struct sfxTrigHook_s
 	int		fxStyle;
 } sfxTrigHook_t;
 
-#define	SFXTRIGHOOK(x) (int)&(((sfxTrigHook_t *)0)->x)
+#define	SFXTRIGHOOK(x) (int)offsetof(sfxTrigHook_t,x)
 field_t sfx_trig_hook_fields[] = 
 {
 	{"volume",	SFXTRIGHOOK(volume),	F_FLOAT},
@@ -179,7 +180,7 @@ typedef struct scriptTrigHook_s
 	float	nextTriggerTime;
 } scriptTrigHook_t;
 
-#define	SCRIPTTRIGHOOK(x) (int)&(((scriptTrigHook_t *)0)->x)
+#define	SCRIPTTRIGHOOK(x) (int)offsetof(scriptTrigHook_t,x)
 field_t script_trig_hook_fields[] = 
 {
 	{"pAiScript",		SCRIPTTRIGHOOK(pAiScript),			F_LSTRING},
@@ -190,7 +191,7 @@ field_t script_trig_hook_fields[] =
 };
 
 // SCG[11/19/99]: Save game stuff
-#define	TRIGHOOK(x) (int)&(((trigHook_t *)0)->x)
+#define	TRIGHOOK(x) (int)offsetof(trigHook_t,x)
 field_t trig_hook_fields[] = 
 {
 	{"wait",				TRIGHOOK(wait),					F_FLOAT},
@@ -216,7 +217,7 @@ field_t trig_hook_fields[] =
 };
 
 // SCG[11/19/99]: Save game stuff
-#define	ROCKHOOK(x) (int)&(((rockHook_t *)0)->x)
+#define	ROCKHOOK(x) (int)offsetof(rockHook_t,x)
 field_t rock_hook_fields[] = 
 {
 	{"remove_time",		ROCKHOOK(remove_time),		F_FLOAT},
@@ -409,7 +410,14 @@ void multi_trigger( userEntity_t *self, userEntity_t *other, userEntity_t *activ
 */
 	if( !( self->spawnflags & TRIGGER_INCLUDE_SIDEKICKS ) )
 	{
-		nRejectFlag = FL_BOT;
+		/* Advanced Reasoning sidekicks may physically discover trigger_secret
+		 * volumes even when ordinary sidekicks are excluded.  The trigger still
+		 * requires an actual touch, so normal level semantics are preserved. */
+		if (!(self->className && !stricmp(self->className, "trigger_secret") &&
+			gstate->GetCvar("dk_advanced_reasoning") > 0.0f))
+		{
+			nRejectFlag = FL_BOT;
+		}
 	}
 
 	if( !( self->spawnflags & TRIGGER_INCLUDE_MONSTERS ) )
@@ -439,16 +447,10 @@ void multi_trigger( userEntity_t *self, userEntity_t *other, userEntity_t *activ
 	if ( (self->className != NULL ) && !stricmp (self->className, "trigger_secret"))
 	{
 		//  increment number of secrets found in this map
-		gstate->cs.BeginSendString();
-		gstate->cs.SendSpecifierID(RESOURCE_ID_FOR_STRING(tongue_world,T_FOUND_SECRET),0);
-
 		if (activator->flags & FL_CLIENT)
-			gstate->cs.Unicast(activator,CS_print_center,2.0);
+			gstate->centerprint(activator, 2.0, tongue_world[T_FOUND_SECRET]);
 		else if (other->flags & FL_CLIENT)
-			gstate->cs.Unicast(other,CS_print_center,2.0);
-
-		gstate->cs.EndSendString();
-
+			gstate->centerprint(other, 2.0, tongue_world[T_FOUND_SECRET]);
 		gstate->numSecretsFound++;	
 	}
 
@@ -467,7 +469,7 @@ void multi_trigger( userEntity_t *self, userEntity_t *other, userEntity_t *activ
 		}
 		else
 		{
-			gstate->StartMP3( hook->mp3file, CHAN_CINE_1, 1.0, 1 );
+			gstate->StartMP3( hook->mp3file, CHAN_CINE_1, 1.0, 1, TRUE, NULL );
 		}
 	}
 
@@ -582,6 +584,9 @@ void multi_touch( userEntity_t *self, userEntity_t *other, cplane_t *plane, csur
 
 	hook->activator = other;
 	multi_trigger (self, other, other, FALSE);
+
+	//if (self->message && other->flags & FL_CLIENT)
+	//	gstate->centerprintf (other, self->message);
 
 	if (hook->triggerSound)
 	{
@@ -1460,6 +1465,8 @@ void	onlyreg_touch( userEntity_t *self, userEntity_t *other, cplane_t *plane, cs
 	{
 		if (self->message && other->flags & FL_CLIENT)
 		{
+			//gstate->centerprintf (other, self->message);
+
 			if (hook->triggerSound)
 				gstate->StartEntitySound(self, CHAN_AUTO, hook->triggerSound, 0.85f, ATTN_NORM_MIN, ATTN_NORM_MAX);
 		}
@@ -1470,7 +1477,6 @@ void	onlyreg_touch( userEntity_t *self, userEntity_t *other, cplane_t *plane, cs
 //	trigger_onlyregistered
 ///////////////////////////////////////////////////////////////////////////////
 
-/*
 void	trigger_onlyregistered( userEntity_t *self )
 {
 	int			i;
@@ -1500,7 +1506,7 @@ void	trigger_onlyregistered( userEntity_t *self )
 
 	self->touch = onlyreg_touch;
 }
-*/
+
 ///////////////////////////////////////////////////////////////////////////////
 //	trigger_hurt_reset
 ///////////////////////////////////////////////////////////////////////////////
@@ -1563,6 +1569,9 @@ void	trigger_hurt_touch( userEntity_t *self, userEntity_t *other, cplane_t *plan
 			com->Damage (other, self, self, damageVec, damageVec, hook->damage, DAMAGE_TRIGGER | DAMAGE_NO_BLOOD);
 		}
 	}
+
+	//if (self->message && other->flags & FL_CLIENT)
+	//	gstate->centerprintf (other, self->message);
 
 	self->think = trigger_hurt_reset;
 	self->nextthink = gstate->time + hook->wait;
@@ -1780,23 +1789,14 @@ void trigger_counter_use(userEntity_t *self, userEntity_t *other, userEntity_t *
 	{
 		if (! (self->spawnflags & SPAWNFLAG_NOMESSAGE))
 		{
-			gstate->cs.BeginSendString();
-			gstate->cs.SendSpecifierStr("%i %s...\n",2);
-			gstate->cs.SendInteger(hook->count);
-			gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_world,T_TRIGGERS_COUNTER));
-			gstate->cs.Unicast(activator, CS_print_center,2.0);
-			gstate->cs.EndSendString();
+			gstate->centerprint(activator, 2.0, "%i %s...", hook->count,tongue_world[T_TRIGGERS_COUNTER]);
 		}
 		return;
 	}
 	
 	if ( !(self->spawnflags & SPAWNFLAG_NOMESSAGE) && (activator->flags & FL_CLIENT))
 	{
-		gstate->cs.BeginSendString();
-		gstate->cs.SendSpecifierStr("%s!\n",1);
-		gstate->cs.SendStringID(RESOURCE_ID_FOR_STRING(tongue_world,T_TRIGGERS_SEQUENCE_COMPLETE));
-		gstate->cs.Unicast(activator, CS_print_center,2.0);
-		gstate->cs.EndSendString();
+		gstate->centerprint(activator, 2.0, "%s!",tongue_world[T_TRIGGERS_SEQUENCE_COMPLETE]);
 	}
 
 	self->enemy = activator;  //&&& this was self->activator ... 
@@ -2014,7 +2014,7 @@ void changelevel_execute( userEntity_t *self )
 void AI_DetermineAttributeModification( void )
 {
 	playerHook_t *hook;
-	float SpeedM,VitalityM,PowerM;
+	float SpeedM = 0.0f,VitalityM = 0.0f,PowerM = 0.0f;
 	int		num_clients = 0;
 	
 	// NSS[3/6/00]:Parse through all of the clients
@@ -2080,40 +2080,7 @@ void trigger_changelevel_cinematic_think( userEntity_t *self )
 	}
 }
 
-void trigger_changelevel_delay_think( userEntity_t *self )
-{
-	if( self->enemy )
-	{
-		if( self->enemy->use )
-		{
-			self->enemy->use( self->enemy, self->groundEntity, self->owner );
-		}
-	}
-
-	gstate->RemoveEntity( self );
-}
-
-void SpawnDelay2HackShitFuckThisSucksAss( userEntity_t *self, userEntity_t *other, userEntity_t *activator )
-{
-	userEntity_t	*temp;
-
-	temp = gstate->SpawnEntity();
-	temp->className = "DelayedUse";
-	temp->solid = SOLID_NOT;
-	temp->movetype = MOVETYPE_NONE;
-	temp->owner = activator;
-	temp->enemy = self;
-	temp->groundEntity = other;
-
-	temp->nextthink = gstate->time + 1.0;
-
-	temp->think = trigger_changelevel_delay_think;
-	temp->message = self->message;
-	temp->target = self->target;
-	temp->killtarget = self->killtarget;
-}
-
-extern void CIN_RemoveAllEntities();
+void CIN_RemoveAllEntities();
 void trigger_changelevel_use( userEntity_t *self, userEntity_t *other, userEntity_t *activator)
 {
 	trigHook_t *pTrigHook = ( trigHook_t * ) self->userHook;
@@ -2124,10 +2091,6 @@ void trigger_changelevel_use( userEntity_t *self, userEntity_t *other, userEntit
 	{
 		if( gstate->g_edicts[i + 1].deadflag != DEAD_NO )
 		{
-			if( coop->value != 0 )
-			{
-				SpawnDelay2HackShitFuckThisSucksAss( other, self, activator );
-			}
 			return;
 		}
 	}
@@ -2318,6 +2281,9 @@ int trigger_sidekick_detect(userEntity_t *self, userEntity_t *other, int Mikiko_
 	{
 		return 0;
 	}
+
+	if (sv_no_sidekicks && sv_no_sidekicks->value > 0.0f)
+		return 0;
 	
 	// SCG[10/18/99]: make sure we do not leave without the sidekicks
 	// SCG[11/17/99]: These are specified in spawnflags
@@ -2379,8 +2345,6 @@ int trigger_sidekick_detect(userEntity_t *self, userEntity_t *other, int Mikiko_
 
 	if( ( bRequiresSuperfly && !bSuperflyVisible ) || ( bRequiresMikiko && !bMikikoVisible ) )
 	{
-// changed by yokoyama for Japanese version
-#ifndef JPN  // Original
 		if( bDisplaySuperflyMessage && bDisplayMikikoMessage )
 		{
 			Com_sprintf( message, sizeof(message),"%s %s and %s\n", 
@@ -2404,91 +2368,13 @@ int trigger_sidekick_detect(userEntity_t *self, userEntity_t *other, int Mikiko_
 			Value = 1;
 
 		}
-
-#else // for JPN
-
-#ifdef MAN // for MAN
-		if( bDisplaySuperflyMessage && bDisplayMikikoMessage )
-		{
-			Com_sprintf( message, sizeof(message),"%s %s and %s\n", 
-				tongue_world[tongue_message], 
-				tongue_world[T_SUPERFLY_JOHNSON], 
-				tongue_world[T_MIKIKO_IBIHARA] );
-			Value = 3;
-		}
-		else if( bDisplaySuperflyMessage )
-		{
-			Com_sprintf( message, sizeof(message),"%s %s\n", 
-				tongue_world[tongue_message], 
-				tongue_world[T_SUPERFLY_JOHNSON] );
-			Value = 2;
-		}
-		else if( bDisplayMikikoMessage )
-		{
-			Com_sprintf( message, sizeof(message),"%s %s\n", 
-				tongue_world[tongue_message], 
-				tongue_world[T_MIKIKO_IBIHARA] );
-			Value = 1;
-
-		}
-#else
-#ifdef TIW // for TIW
-		if( bDisplaySuperflyMessage && bDisplayMikikoMessage )
-		{
-			Com_sprintf( message, sizeof(message),"%s %s and %s\n", 
-				tongue_world[tongue_message], 
-				tongue_world[T_SUPERFLY_JOHNSON], 
-				tongue_world[T_MIKIKO_IBIHARA] );
-			Value = 3;
-		}
-		else if( bDisplaySuperflyMessage )
-		{
-			Com_sprintf( message, sizeof(message),"%s %s\n", 
-				tongue_world[tongue_message], 
-				tongue_world[T_SUPERFLY_JOHNSON] );
-			Value = 2;
-		}
-		else if( bDisplayMikikoMessage )
-		{
-			Com_sprintf( message, sizeof(message),"%s %s\n", 
-				tongue_world[tongue_message], 
-				tongue_world[T_MIKIKO_IBIHARA] );
-			Value = 1;
-
-		}
-#else // for JPN
-		if( bDisplaySuperflyMessage && bDisplayMikikoMessage )
-		{
-			Com_sprintf( message, sizeof(message),"%s , %s\n%s\n", 
-				tongue_world[T_SUPERFLY_JOHNSON], 
-				tongue_world[T_MIKIKO_IBIHARA],
-				tongue_world[tongue_message]);
-			Value = 3;
-		}
-		else if( bDisplaySuperflyMessage )
-		{
-			Com_sprintf( message, sizeof(message),"%s %s\n", 
-				tongue_world[T_SUPERFLY_JOHNSON],
-				tongue_world[tongue_message]);
-			Value = 2;
-		}
-		else if( bDisplayMikikoMessage )
-		{
-			Com_sprintf( message, sizeof(message),"%s %s\n", 
-				tongue_world[T_MIKIKO_IBIHARA],
-				tongue_world[tongue_message]);
-			Value = 1;
-
-		}
-#endif // TIW
-#endif // MAN
-#endif // JPN
 
 		gstate->centerprint( other, 2.0, message );
 		self->touch = NULL;
 		self->think = trigger_changelevel_message_reset;
 		self->nextthink = gstate->time + 2.5;
 	}
+
 	return Value;
 }
 
@@ -2533,6 +2419,35 @@ void trigger_changelevel_touch( userEntity_t *self, userEntity_t *other, cplane_
 		return;
 	}
 
+/*
+	if( self->keyname )
+	{
+		userEntity_t *pKey = com->FindEntity( self->keyname );
+		if( other->inventory )
+		{
+			userInventory_t *pKeyItem = gstate->InventoryFindItem( other->inventory, self->keyname );
+
+			// did the player have the key?
+			if( pKeyItem == NULL )
+			{
+				// NSS[12/8/99]:To pause and keep the message from blinking like a fag.
+				if( pKey != NULL && (self->hacks < gstate->time) )
+				{
+//					sprintf( message, "%s %s\n", 
+//						tongue_world[T_NO_EXIT_WITHOUT_KEY] , 
+//						pKey->netname );
+					Com_sprintf( message, sizeof(message), "%s %s\n", 
+						tongue_world[T_NO_EXIT_WITHOUT_KEY] , 
+						pKey->netname );
+					gstate->centerprint( other, 2.0, message );
+					self->hacks = gstate->time + 4.50f;
+				}
+
+				return;
+			}
+		}
+	}
+*/
 	userEntity_t *pSuperfly, *pMikiko;
 	pSuperfly = AIINFO_GetSuperfly();
 	pMikiko = AIINFO_GetMikiko();
@@ -2542,42 +2457,13 @@ void trigger_changelevel_touch( userEntity_t *self, userEntity_t *other, cplane_
 		char *name1,*name2;
 		if (coop->value && !CoopIsAllOthersClose( other, 128.0f, &name1, &name2 ))
 		{
-			// only send the message once every second...
-			if (gstate->time > self->nextthink)
-			{
-#ifdef JPN // added by yokoyama BUGFIX:NO.2
- #ifdef MAN // for MAN
-				if (!name2)
-					Com_sprintf(message, sizeof(message), "%s %s\n",tongue_world[T_NO_EXIT_WITHOUT_SIDEKICKS], name1 );
-				else
-					Com_sprintf( message, sizeof(message),"%s %s and %s\n",tongue_world[T_NO_EXIT_WITHOUT_SIDEKICKS], name1, name2 );
+			if (!name2)
+				Com_sprintf(message, sizeof(message), "%s %s\n",tongue_world[T_NO_EXIT_WITHOUT_SIDEKICKS], name1 );
+			else
+				Com_sprintf( message, sizeof(message),"%s %s and %s\n",tongue_world[T_NO_EXIT_WITHOUT_SIDEKICKS], name1, name2 );
 
-
- #else
-  #ifdef TIW // for TIW
-				if (!name2)
-					Com_sprintf(message, sizeof(message), "%s %s\n",tongue_world[T_NO_EXIT_WITHOUT_SIDEKICKS], name1 );
-				else
-					Com_sprintf( message, sizeof(message),"%s %s and %s\n",tongue_world[T_NO_EXIT_WITHOUT_SIDEKICKS], name1, name2 );
-
-  #else
-			
-				if (!name2)
-					Com_sprintf(message, sizeof(message), "%s %s\n", name1,tongue_world[T_NO_EXIT_WITHOUT_SIDEKICKS] );
-				else
-					Com_sprintf( message, sizeof(message),"%s ,%s %s\n", name1, name2 ,tongue_world[T_NO_EXIT_WITHOUT_SIDEKICKS]);
-  #endif // TIW
- #endif // MAN
-#else // for Original
-				if (!name2)
-					Com_sprintf(message, sizeof(message), "%s %s\n",tongue_world[T_NO_EXIT_WITHOUT_SIDEKICKS], name1 );
-				else
-					Com_sprintf( message, sizeof(message),"%s %s and %s\n",tongue_world[T_NO_EXIT_WITHOUT_SIDEKICKS], name1, name2 );
-#endif // JPN
-
-				gstate->centerprint( other, 2.0, message );
-				self->nextthink = gstate->time + 1.0;
-			}
+			gstate->centerprint( other, 2.0, message );
+			self->nextthink = gstate->time + 1.0;
 			return;
 		}
 	}
@@ -2592,7 +2478,7 @@ void trigger_changelevel_touch( userEntity_t *self, userEntity_t *other, cplane_
 			{
 			case 1:
 				{
-					gstate->StartMP3("sounds/voices/hiro/sid_h_01b.mp3", 2, 0.75, 1, FALSE );
+					gstate->StartMP3("sounds/voices/hiro/sid_h_01b.mp3", 2, 0.75, 1, FALSE, NULL );
 					if( pMikiko )
 					{
 						AI_SIDEKICK_ALEXWANTSYOURASSTHERE( pMikiko );
@@ -2601,7 +2487,7 @@ void trigger_changelevel_touch( userEntity_t *self, userEntity_t *other, cplane_
 				}
 			case 2:
 				{
-					gstate->StartMP3("sounds/voices/hiro/sid_h_02c.mp3", 2, 0.75, 1, FALSE );
+					gstate->StartMP3("sounds/voices/hiro/sid_h_02c.mp3", 2, 0.75, 1, FALSE, NULL );
 					if( pSuperfly )
 					{
 						AI_SIDEKICK_ALEXWANTSYOURASSTHERE(pSuperfly);
@@ -2610,7 +2496,7 @@ void trigger_changelevel_touch( userEntity_t *self, userEntity_t *other, cplane_
 				}
 			case 3:
 				{
-					gstate->StartMP3("sounds/voices/hiro/sid_h_03b.mp3", 2, 0.75, 1, FALSE );
+					gstate->StartMP3("sounds/voices/hiro/sid_h_03b.mp3", 2, 0.75, 1, FALSE, NULL );
 					if( pSuperfly )
 					{
 						AI_SIDEKICK_ALEXWANTSYOURASSTHERE(pSuperfly);
@@ -2626,12 +2512,27 @@ void trigger_changelevel_touch( userEntity_t *self, userEntity_t *other, cplane_
 			return;
 		}
 	}
+/*
+	char *name1,*name2;
+	if (coop->value && !CoopIsAllOthersClose( other, 512.0f, &name1, &name2 ))
+	{
+		if (!name2)
+			sprintf(message, "%s %s\n",tongue_world[T_NO_EXIT_WITHOUT_SIDEKICKS], name1 );
+		else
+			sprintf( message, "%s %s and %s\n",tongue_world[T_NO_EXIT_WITHOUT_SIDEKICKS], name1, name2 );
+
+		gstate->centerprint( other, 2.0, message );
+		self->nextthink = gstate->time + 1.0;
+		return;
+	}
+*/
+//	self->touch = NULL;
 
 	trigHook_t *pTrigHook = ( trigHook_t * ) self->userHook;
 
 	gstate->game->serverflags &= ~SFL_SIDEKICK_MASK;
 
-	if( self->spawnflags & CHANGELEVEL_REQUIRES_SUPERFLY )
+	if( ( self->spawnflags & CHANGELEVEL_REQUIRES_SUPERFLY ) && !(sv_no_sidekicks && sv_no_sidekicks->value > 0.0f) )
 	{
 		playerHook_t *pSuperflyHook;
 		if( pSuperfly != NULL )
@@ -2648,7 +2549,7 @@ void trigger_changelevel_touch( userEntity_t *self, userEntity_t *other, cplane_
 		}
 	}
 
-	if( self->spawnflags & CHANGELEVEL_REQUIRES_MIKIKO )
+	if( ( self->spawnflags & CHANGELEVEL_REQUIRES_MIKIKO ) && !(sv_no_sidekicks && sv_no_sidekicks->value > 0.0f) )
 	{
 		gstate->game->serverflags |= SFL_SPAWN_MIKIKO;
 	}
@@ -2946,7 +2847,7 @@ void trigger_script_use( userEntity_t *self, userEntity_t *other, userEntity_t *
 			}
 		case 3:
 			{
-				gstate->StartMP3("sounds/voices/hiro/sid_h_03b.mp3", 2, 0.75, 1 );
+				gstate->StartMP3("sounds/voices/hiro/sid_h_03b.mp3", 2, 0.75, 1, TRUE, NULL );
 				break;
 			}
 
@@ -3037,6 +2938,25 @@ void trigger_script_touch( userEntity_t *self, userEntity_t *other, cplane_t *pl
 	if (self->spawnflags & SCRIPT_NOTOUCH)
 		return;
 	
+/*	
+	if (coop->value)
+	{
+		char			message[128];
+		char *name1,*name2;
+		if (coop->value && !CoopIsAllOthersClose( other, 128.0f, &name1, &name2 ))
+		{
+			if (!name2)
+				Com_sprintf(message, sizeof(message), "%s %s\n",tongue_world[T_NO_EXIT_WITHOUT_SIDEKICKS], name1 );
+			else
+				Com_sprintf( message, sizeof(message),"%s %s and %s\n",tongue_world[T_NO_EXIT_WITHOUT_SIDEKICKS], name1, name2 );
+
+			gstate->centerprint( other, 2.0, message );
+			self->nextthink = gstate->time + 1.0;
+			return;
+		}
+	}
+	else*/
+
 	trigger_script_use (self, other, other);
 }
 
@@ -3687,6 +3607,9 @@ void	func_wall_explode_die(userEntity_t * self, userEntity_t *inflictor, userEnt
 			max_time = new_time;
 	}
 
+	//if (self->message && attacker->flags & FL_CLIENT)
+	//	gstate->centerprintf (attacker, self->message);
+
 	//	don't remove immediately, because blow_up still refers back to this entity 
 	//	and may do so for another couple of thinks
 //	self->nextthink = gstate->time + 0.1;
@@ -3813,7 +3736,6 @@ void	func_wall_explode( userEntity_t *self )
 //	trigger_fog_value_touch
 ///////////////////////////////////////////////////////////////////////////////
 
-/*
 #define ONEDIV255 0.003921
 void	trigger_fog_value_touch( userEntity_t *self, userEntity_t *other, cplane_t *plane, csurface_t *surf)
 //void	trigger_fog_value_touch( userEntity_t *self, userEntity_t *other, userEntity_t *activator)
@@ -3900,7 +3822,7 @@ void	trigger_fog_value( userEntity_t *self )
 		self->use = trigger_fog_value_use;
 	}
 }
-*/
+
 ///////////////////////////////////////////////////////////////////////////////
 //	warp_continue
 //
@@ -5324,7 +5246,7 @@ typedef struct trigger_toggle_hook_s
 	CVector			vOrigin;
 } trigger_toggle_hook_t;
 
-#define	TRIGGER_TOGGLE_HOOK(x) (int)&(((trigger_toggle_hook_t *)0)->x)
+#define	TRIGGER_TOGGLE_HOOK(x) (int)offsetof(trigger_toggle_hook_t,x)
 
 field_t trigger_toggle_hook_fields[] = 
 {
@@ -5495,7 +5417,7 @@ typedef struct trigger_changemusic_hook_s
 	char *name;
 } trigger_changemusic_hook_t;
 
-#define	TRIGGER_CHANGELEVEL_HOOK(x) (int)&(((trigger_changemusic_hook_t *)0)->x)
+#define	TRIGGER_CHANGELEVEL_HOOK(x) (int)offsetof(trigger_changemusic_hook_t,x)
 field_t trigger_changemusic_hook_fields[] = 
 {
 	{"name",		TRIGGER_CHANGELEVEL_HOOK(name),			F_LSTRING},

@@ -6,11 +6,6 @@
 #include "dk_misc.h"
 #include "client.h"
 
-// added for Japanese version
-#ifdef JPN
-#include <windows.h>
-#endif
-
 #include <ctype.h>
 
 #include "l__language.h"
@@ -177,6 +172,10 @@ bool CInterfaceButton::IsDown() {
     return is_down;
 }
 
+bool CInterfaceButton::IsUnderCursor() {
+    return under_cursor;
+}
+
 void CInterfaceButton::Up() {
     is_down = false;
 }
@@ -333,6 +332,7 @@ void CInterfaceButton::DrawBackground() {
 
 CInterfaceButtonRadio::CInterfaceButtonRadio() {
     checked = false;
+    hit_width = 0;
 }
 
 #define RADIO_CIRCLE_WIDTH (20)
@@ -351,6 +351,18 @@ void CInterfaceButtonRadio::Init(int32 norm_x, int32 norm_y, void *font_normal, 
         //to the width of the button.
         w = re.StringWidth(text, font_normal, -1) + RADIO_CIRCLE_WIDTH;
     }
+
+    hit_width = w;
+}
+
+void CInterfaceButtonRadio::SetHitWidth(int32 width) {
+    hit_width = (width > w) ? width : w;
+}
+
+bool CInterfaceButtonRadio::HitTest(int32 norm_x, int32 norm_y) {
+    int32 test_width = (hit_width > w) ? hit_width : w;
+    return !(norm_x < this->norm_x || norm_x > this->norm_x + test_width ||
+             norm_y < this->norm_y || norm_y > this->norm_y + h);
 }
 
 void CInterfaceButtonRadio::Check(bool on) {
@@ -361,7 +373,8 @@ void CInterfaceButtonRadio::Check(bool on) {
 
 void CInterfaceButtonRadio::DrawForeground()
 {
-    //draw the circle.
+    //draw the circle.  Match the normal menu-button hover behavior so the
+    //control visibly lights up while the mouse is over it.
     if (checked == true)
 		  DKM_DrawString(norm_x, norm_y, SYMBOL_RADIOBUTTON, font_bright, false, false);
     else
@@ -582,29 +595,14 @@ void CInterfaceInputField::DrawForeground() {
         //get the width of that string.
         int32 bar_offset = re.StringWidth(print, font_normal, -1);
 
-#ifdef JPN
-		// Draw IME compositon string
-		DisplayCompString();
-		// get the width of the composition string
-		int32 len_imetext = re.StringWidth(imetext,font_normal, -1);
-		// show the caret after the composition
-		bar_offset += len_imetext;
-#endif // JPN
-
         //the string we use to draw the insertion bar.
         static char bar_string[2] = { INSERTION_BAR_CHAR, '\0' };
 				//atic char bar_string[2] = { '\x05f', '\0' };
 
-#ifdef JPN
-        //make it flash on and off.
-        if (BlinkOn() == true) {
-            DKM_DrawString(norm_x + INPUT_FIELD_SPACE_LEFT + bar_offset - 3, norm_y + 5 - 2, bar_string, font_bright, false, false);
-        }
-#else // JPN
+
         //make it flash on and off. cursor blink  blinking cursor
         if (BlinkOn() == true)
           DKM_DrawString(norm_x + INPUT_FIELD_SPACE_LEFT + bar_offset - 2, norm_y + 2, bar_string, font_bright, false, false);
-#endif // JPN
     }
 }
 void CInterfaceInputField::DrawBackground() {
@@ -640,10 +638,6 @@ void CInterfaceInputField::StopEditing() {
 
     //reset our global pointer to the current edit field.
     current_edit_field = NULL;
-#ifdef JPN
-	//disable IME
-	SteImeOpenClose(false);
-#endif // JPN
 }
 
 const char *CInterfaceInputField::GetText() {
@@ -665,14 +659,6 @@ void CInterfaceInputField::CheckCursorPos() {
     if (insertion_bar_position < num_chars_off_left) {
         //adjust the number of characters we put off the left.
         num_chars_off_left = insertion_bar_position - 3;
-
-// Encompass MarkMa 050399
-#ifdef	JPN	// JPN
-		if (IsDBCSLeadByte(text[num_chars_off_left-1]))
-			num_chars_off_left--;
-#endif	// JPN
-// Encompass MarkMa 050399
-
         bound_min(num_chars_off_left, 0);
         return;
     }
@@ -733,29 +719,6 @@ int CheckShiftKey(int32 key) {
     return key;
 }
 
-#ifdef JPN
-bool CInterfaceInputField::ImeKeydown(int32 leadbyte, int32 trailbyte) {
-    if (editing == false) return false;
-	
-	if (leadbyte)
-	{	
-		//insert the DBCS lead byte into our string.
-		text.InsertChar(leadbyte, insertion_bar_position);
-		insertion_bar_position++;
-	}
-    //insert the DBCS trail byte into our string.
-    text.InsertChar(trailbyte, insertion_bar_position);
-    insertion_bar_position++;
-
-    //make sure the cursor is still in the screen.
-    CheckCursorPos();
-
-    //reset the blink counter.
-    ResetBlinkCounter();
-    return true;
-}
-#endif // JPN
-
 bool CInterfaceInputField::Keydown(int32 key) {
     if (editing == false) return false;
 
@@ -782,24 +745,6 @@ bool CInterfaceInputField::Keydown(int32 key) {
     //check the key that was pressed.
     switch (key) {
         case K_LEFTARROW:
-#ifdef JPN
-			if 	( insertion_bar_position >0 )
-			{
-				int j,prv;
-				prv=j=0;
-				while ( j < insertion_bar_position)
-				{
-					prv = j;
-					if (IsDBCSLeadByte(text[j]))
-						j++;
-					j++;
-				}
-				if (IsDBCSLeadByte(text[prv]))
-				{
-					insertion_bar_position--;
-				}
-			}
-#endif // JPN
             //move the cursor position over.
             insertion_bar_position--;
             bound_min(insertion_bar_position, 0);
@@ -811,12 +756,6 @@ bool CInterfaceInputField::Keydown(int32 key) {
             CheckCursorPos();
             return true;
         case K_RIGHTARROW:
-#ifdef JPN
-			if ( IsDBCSLeadByte(text[insertion_bar_position]) )
-			{
-	            insertion_bar_position++;
-			}
-#endif // JPN
             //move the cursor over.
             insertion_bar_position++;
             bound_max(insertion_bar_position, strlen(text));
@@ -828,27 +767,6 @@ bool CInterfaceInputField::Keydown(int32 key) {
             CheckCursorPos();
             return true;
         case K_BACKSPACE:
-#ifdef JPN
-			if 	( insertion_bar_position >0 )
-			{
-				int j,prv;
-				prv=j=0;
-				while ( j < insertion_bar_position)
-				{
-					prv = j;
-					if (IsDBCSLeadByte(text[j]))
-						j++;
-					j++;
-				}
-				if (IsDBCSLeadByte(text[prv]))
-				{
-					insertion_bar_position--;
-					//delete the lead-byte
-					text.RemoveChar(insertion_bar_position);
-				}
-				// delete the trail-byte
-			}
-#endif // JPN
             //delete the character behind the cursor.
             text.RemoveChar(insertion_bar_position - 1);
 
@@ -862,14 +780,6 @@ bool CInterfaceInputField::Keydown(int32 key) {
             ResetBlinkCounter();
             return true;
         case K_DEL:
-#ifdef JPN
-			if ( IsDBCSLeadByte(text[insertion_bar_position]) )
-			{	
-				// delete the lead-byte
-				text.RemoveChar(insertion_bar_position);
-			}
-			// delete the trail-byte
-#endif // JPN
             //delete the character in front of the cursor.
             text.RemoveChar(insertion_bar_position);
 
@@ -891,90 +801,11 @@ bool CInterfaceInputField::Keydown(int32 key) {
         case K_ENTER:
             S_StartLocalSound(DKM_sounds[DKMS_BUTTON7]);
             editing = false;
-#ifdef JPN
-			// disable IME
-			SteImeOpenClose(false);
-			current_edit_field = NULL;
-#endif // JPN
             return true;
     }
 
     return false;
 }
-
-#ifdef JPN //4-6-99
-void DisableIme(bool fFlag)
-{
-	HWND hWnd;
-	HIMC            hIMC;
-
-	hWnd = FindWindow("Daikatana",NULL);
-	//
-	// If fFlag is true then open IME; otherwise close it.
-	//
-
-	if ( !( hIMC = ImmGetContext( hWnd ) ) )
-	return;
-
-	ImmSetOpenStatus( hIMC, fFlag );
-
-	ImmReleaseContext( hWnd, hIMC );
-}
-
-void CInterfaceInputField::SteImeOpenClose(bool fFlag )
-{
-	DisableIme(fFlag);
-	// Clear IME composition windows
-	imetext = NULL;
-
-}
-
-void CInterfaceInputField::SetImeText(LPSTR lpStr)
-{
-	imetext = lpStr;
-}
-
-void CInterfaceInputField::DisplayCompString()
-{
-	if (imetext==NULL)
-		return;
-	//HideCaret( hwnd );
-
-	//SetCaretPos( ( xPos + StrLen ) * cxMetrics, yPos * cyMetrics );
-	
-	// Get the Caret position
-	//CompForm.ptCurrentPos.x = (int) norm_x + INPUT_FIELD_SPACE_LEFT + bar_offset - 2;
-	//CompForm.ptCurrentPos.y = (int) norm_y + 5 - 2;
-	
-	// Show compostion
-        //we are editing the text.  Copy the text, removing the portion that is off the left of the field.
-        buffer256 print; //we dont use operator= here because it will call the constructor and interpret text as the format string.
-        print = text.Right(num_chars_off_left);
-
-    //Determine how much of the text is visible.
-    int32 num_visible_chars = re.FontNumCharsInWidth(print, font_normal, w - 2 * INPUT_FIELD_SPACE_LEFT, 0);
-
-    //truncate the string we will print.
-    print.NewEnding(num_visible_chars, "");
-
-    //print the string.
-    //DKM_DrawString(norm_x + INPUT_FIELD_SPACE_LEFT, norm_y + 5, print, font_normal, false, false);
-
-    //
-    //draw the insertion bar.
-    //
-    
-    //truncate the string at the insertion bar position.
-    print.NewEnding(insertion_bar_position - num_chars_off_left, "");
-
-    //get the width of that string.
-    int32 bar_offset = re.StringWidth(print, font_normal, -1);
-
-	DKM_DrawString(norm_x + INPUT_FIELD_SPACE_LEFT + bar_offset , norm_y + 5 - 3 , imetext, font_bright, false, false);
-
-	//ShowCaret( hwnd );
-}
-#endif // JPN
 
 void CInterfaceInputField::SetPosition(int32 norm_x, int32 norm_y) {
     //save the new position.
@@ -1566,6 +1397,7 @@ CInterfacePicker::CInterfacePicker() {
     font_bright = NULL;
 
     mouse_on_picker = false;
+    enabled = true;
 
     current_string = 0;
 }
@@ -1598,8 +1430,9 @@ void CInterfacePicker::Init(int32 norm_x, int32 norm_y, int32 w, void *font_norm
         toenail_top += PICKER_TITLE_HEIGHT;
     }
 
-    //initialize the background.
-    background.Init(norm_x + toenail_width + 1, toenail_top, norm_x + w - toenail_width - 1, h, "skins/iu_plaque.bmp");
+    //initialize the background.  The plaque artwork carries a one-pixel
+    //bottom edge that otherwise shows as a stray line under modern pickers.
+    background.Init(norm_x + toenail_width + 1, toenail_top, norm_x + w - toenail_width - 1, (h > 1) ? h - 1 : h, "skins/iu_plaque.bmp");
 
     //initialize the scroll buttons.
     left_button.Init(norm_x, toenail_top, font_normal, font_bright, font_buttons);
@@ -1695,6 +1528,11 @@ void CInterfacePicker::PlaceEntities() {
 bool CInterfacePicker::MousePos(int32 norm_x, int32 norm_y) {
     bool ret = false;
 
+    if (!enabled) {
+        mouse_on_picker = false;
+        return false;
+    }
+
     //tell the scroll buttons where the mouse is.
     if (left_button.MousePos(norm_x, norm_y) == true) ret = true;
     if (right_button.MousePos(norm_x, norm_y) == true) ret = true;
@@ -1715,12 +1553,17 @@ bool CInterfacePicker::MousePos(int32 norm_x, int32 norm_y) {
     }
 
     //the mouse is on the picker
+    if (mouse_on_picker == false) {
+        S_StartLocalSound(DKM_sounds[DKMS_BUTTON3]);
+    }
     mouse_on_picker = true;
 
     return true;
 }
 
 bool CInterfacePicker::MouseDown(int32 norm_x, int32 norm_y) {
+    if (!enabled) return false;
+
     if (left_button.MouseDown(norm_x, norm_y) == true) return true;
     if (right_button.MouseDown(norm_x, norm_y) == true) return true;
 
@@ -1729,6 +1572,8 @@ bool CInterfacePicker::MouseDown(int32 norm_x, int32 norm_y) {
 
 //a return value of true means this button was pressed by the user.
 bool CInterfacePicker::MouseUp(int32 norm_x, int32 norm_y) {
+    if (!enabled) return false;
+
     if (left_button.MouseUp(norm_x, norm_y) == true) {
         //they clicked the left toenail.
         current_string--;
@@ -1761,6 +1606,16 @@ int CInterfacePicker::CurrentIndex() {
     return current_string;
 }
 
+bool CInterfacePicker::IsMouseOver() {
+    return mouse_on_picker;
+}
+
+void CInterfacePicker::Enable(bool enabled) {
+    this->enabled = enabled;
+    mouse_on_picker = false;
+    EnableScrollButtons();
+}
+
 void CInterfacePicker::SetCurrentString(int32 num) {
     current_string = num;
 
@@ -1771,6 +1626,12 @@ void CInterfacePicker::SetCurrentString(int32 num) {
 }
 
 void CInterfacePicker::EnableScrollButtons() {
+    if (!enabled) {
+        left_button.Enable(false);
+        right_button.Enable(false);
+        return;
+    }
+
     //check if we should disable the left button
     if (current_string <= 0) {
         left_button.Enable(false);
@@ -2104,15 +1965,10 @@ void CInterfaceHighlight::PlaceEntities()
 
 	if (alpha > 0.01)
 	{
-		//get the current x and y stretch factors.
-		float norm_to_screen_x = viddef.width / 640.0f;
-		float norm_to_screen_y = viddef.height / 480.0f;
-
-		//get screen coordinates for the text.
-		int32 screen_l = norm_to_screen_x * (left + 2);
-		int32 screen_t = norm_to_screen_y * (top + 2);
-		int32 screen_r = norm_to_screen_x * (right - 2);
-		int32 screen_b = norm_to_screen_y * (bottom - 1);
+		int32 screen_l = DKM_MenuScreenX(left + 2);
+		int32 screen_t = DKM_MenuScreenY(top + 2);
+		int32 screen_r = DKM_MenuScreenX(right - 2);
+		int32 screen_b = DKM_MenuScreenY(bottom - 1);
 
 		DRAWSTRUCT drawStruct;
 		memset(&drawStruct,0,sizeof(drawStruct));
@@ -2536,21 +2392,19 @@ void CInterfaceScrollThumb::PlaceEntities()
 
 	drawStruct.pImage = NULL;
 	drawStruct.nFlags = DSFLAG_FLAT | DSFLAG_COLOR | DSFLAG_ALPHA; 
-	
 	drawStruct.rgbColor.Set(1,0,0);						// init rgb
-	
-	//get the current x and y stretch factors.
-	float norm_to_screen_x = viddef.width / 640.0f;
-	float norm_to_screen_y = viddef.height / 480.0f;
 
-	//get screen coordinates for the text.
-	int32 screen_l = norm_to_screen_x * left;
-	int32 screen_t = norm_to_screen_y * top;
-	int32 screen_r = norm_to_screen_x * right;
-	int32 screen_b = norm_to_screen_y * bottom;
+	float menu_scale = DKM_MenuScale();
+	float norm_to_screen_x = menu_scale;
+	float norm_to_screen_y = menu_scale;
 
-	drawStruct.nLeft   = screen_l;							// x position
-	drawStruct.nTop    = screen_t;							// y position
+	int32 screen_l = DKM_MenuOffsetX() + (int32)(norm_to_screen_x * left);
+	int32 screen_t = DKM_MenuOffsetY() + (int32)(norm_to_screen_y * top);
+	int32 screen_r = DKM_MenuOffsetX() + (int32)(norm_to_screen_x * right);
+	int32 screen_b = DKM_MenuOffsetY() + (int32)(norm_to_screen_y * bottom);
+
+	drawStruct.nLeft   = screen_l;
+	drawStruct.nTop    = screen_t;
 	drawStruct.fAlpha  = 0.1;
 
 	if (under_cursor || have_capture)
@@ -2558,35 +2412,35 @@ void CInterfaceScrollThumb::PlaceEntities()
 
 	if (vertical)
 	{
-		drawStruct.nRight  = screen_r-screen_l;					// set width of nodule
-		drawStruct.nBottom = SCROLL_THUMB_HEIGHT * norm_to_screen_y;			// height of nodule
+		drawStruct.nRight  = screen_r-screen_l;
+		drawStruct.nBottom = SCROLL_THUMB_HEIGHT * norm_to_screen_y;
 	}
 	else
 	{
-		drawStruct.nRight  = SCROLL_THUMB_WIDTH * norm_to_screen_x;			// set width of nodule
-		drawStruct.nBottom = screen_b-screen_t;					// height of nodule
+		drawStruct.nRight  = SCROLL_THUMB_WIDTH * norm_to_screen_x;
+		drawStruct.nBottom = screen_b-screen_t;
 	}
 
 	while (1)
 	{
-		re.DrawPic( drawStruct ); // do it
+		re.DrawPic( drawStruct );
 		if (vertical)
 		{
-			drawStruct.nRight  = screen_r-screen_l;					// set width of nodule
-			drawStruct.nBottom -= 4 * norm_to_screen_y;							// height of nodule
+			drawStruct.nRight  = screen_r-screen_l;
+			drawStruct.nBottom -= 4 * norm_to_screen_y;
 			drawStruct.nTop += 2 * norm_to_screen_y;
 			if (drawStruct.nBottom <= 1)
 				break;
 		}
 		else
 		{
-			drawStruct.nBottom = screen_b-screen_t;					// height of nodule
+			drawStruct.nBottom = screen_b-screen_t;
 			drawStruct.nLeft += 2 * norm_to_screen_x;
-			drawStruct.nRight  -= 4 * norm_to_screen_x;							// set width of nodule
+			drawStruct.nRight -= 4 * norm_to_screen_x;
 			if (drawStruct.nRight <= 1)
 				break;
 		}
-		
+
 		drawStruct.fAlpha += 0.02;
 		if (drawStruct.fAlpha >= 0.8)
 			break;

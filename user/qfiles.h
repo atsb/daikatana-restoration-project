@@ -124,7 +124,7 @@ typedef struct
 	unsigned int		v;				// scaled byte to fit in frame mins/maxs
 	byte	lightnormalindex;
 } dtrivertx2_t;
-#pragma pack( pop, 1 )
+#pragma pack( pop )
 
 #define DTRIVERTX_V0   0
 #define DTRIVERTX_V1   1

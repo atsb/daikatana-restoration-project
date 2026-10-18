@@ -14,6 +14,7 @@ void TeleportEntity(const char *entity_name, const char *id, CVector &pos, CVect
 
 void SpawnHiroActor();
 void RemoveHiroActor();
+void CinStopTrackedMP3();
 
 //returns the current horizontal fov that should be used in the current point in the script.
 float ScriptFOVCurrent();

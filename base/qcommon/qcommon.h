@@ -33,6 +33,10 @@
 #define CPUSTRING   "x86"
 #elif defined _M_ALPHA
 #define CPUSTRING   "AXP"
+#elif defined _M_X64
+#define CPUSTRING   "x64"
+#else
+#define CPUSTRING   "Windows"
 #endif
 
 #else   // !WIN32
@@ -208,7 +212,7 @@ PROTOCOL
 
 // protocol.h -- communications protocols
 
-#define PROTOCOL_VERSION    32
+#define PROTOCOL_VERSION    31
 
 //=========================================
 
@@ -281,7 +285,7 @@ enum svc_ops_e
 	svc_stop_mp3,
 	svc_reverb_preset,
 	svc_start_stream,
-	svc_client_string			// cek[6-20-00]: added for client-language based string messages
+	svc_client_string			// Daikatana 1.2 client-language formatted messages
 };
 
 //==============================================
@@ -714,8 +718,8 @@ typedef struct
     unsigned short  port;
 } netadr_t;
 
-void        NET_Init();
-void        NET_Shutdown();
+void        DKNET_Init();
+void        DKNET_Shutdown();
 
 void        NET_Config (qboolean multiplayer);
 

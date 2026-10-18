@@ -685,6 +685,9 @@ typedef struct gclient_s
 
 	short				needsUpdate;
 
+	// cek[6-16-00]: defer autosave until the client is out of a cinematic/camera state.
+	qboolean			do_autosave;
+
 	// Logic 111298 - Grappling Hook stuff
 	// FIXME: add some hook here to dynamically add vars to
 	// this structure from other dll's
@@ -1399,6 +1402,9 @@ typedef struct serverState_s {
 	level_locals_t	*level;
 	game_import_t	*gi;
 	game_export_t	*globals;
+
+	// Daikatana 1.2 client-language message interface.
+	client_string_import_t cs;
 	userEntity_t	*g_edicts;
 	void			*common_exports;
 
@@ -1419,6 +1425,8 @@ typedef struct serverState_s {
     //instead use the global overloaded operator new and operator delete functions.
 //    class CClientEntityManager    *ClientEntityManager;
 //    void            (CClientEntityManager::*ClientConnect)(struct edict_s *);
+
+	void	(*WeaponSwitch)(userEntity_t *self, int dir);
 
 } serverState_t;
 

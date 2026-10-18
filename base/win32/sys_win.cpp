@@ -12,6 +12,7 @@
 #include <conio.h>
 #include "../win32/conproc.h"
 #include "../dk_/daikatana.h"
+#include "../client/input.h"
 
 // memory debug macros
 #ifdef   _DEBUG
@@ -36,7 +37,6 @@ qboolean	Minimized;
 
 static HANDLE		hinput, houtput;
 
-unsigned	sys_msg_time;
 unsigned	sys_frame_time;
 
 static HANDLE		qwclsemaphore;
@@ -370,12 +370,11 @@ Send Key_Event calls
 void Sys_SendKeyEvents (void)
 {
     MSG        msg;
+    IN_PumpEvents ();
 	while (PeekMessage (&msg, NULL, 0, 0, PM_NOREMOVE))
 	{
 		if (!GetMessage (&msg, NULL, 0, 0))
 			Sys_Quit ();
-		sys_msg_time = msg.time;
-      	TranslateMessage (&msg);
       	DispatchMessage (&msg);
 	}
 
@@ -621,17 +620,6 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 
 #endif
 
-// added for Japanese version
-#ifdef JPN
-#ifdef DAIKATANA_DEMO
-	if(!strstr( lpCmdLine, "JPDEMO"))
-		exit(0);
-#else
-	if(!strstr( lpCmdLine, "JPPRODUCT"))
-		exit(0);
-#endif // DAIKATANA_DEMO
-#endif // JPN
-
 	global_hInstance = hInstance;
 	ParseCommandLine (lpCmdLine);
 	// if we find the CD, add a +set cddir xxx command line
@@ -669,13 +657,12 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 			Sleep (1);
 		}
 
+		IN_PumpEvents ();
 		while (PeekMessage (&msg, NULL, 0, 0, PM_NOREMOVE))
 		{
 			if (!GetMessage (&msg, NULL, 0, 0))
 				Com_Quit ();
-			sys_msg_time = msg.time;
-			TranslateMessage (&msg);
-   			DispatchMessage (&msg);
+	   			DispatchMessage (&msg);
 		}
 		do
 		{
@@ -685,7 +672,9 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 //			Con_Printf ("time:%5.2f - %5.2f = %5.2f\n", newtime, oldtime, time);
 
 		//	_controlfp( ~( _EM_ZERODIVIDE /*| _EM_INVALID*/ ), _MCW_EM );
+#if defined(_M_IX86)
 		_controlfp( _PC_24, _MCW_PC );
+#endif
 		Qcommon_Frame (time);
 		oldtime = newtime;
 	}

@@ -39,8 +39,6 @@ enum
 // weapon info def
 weaponInfo_t silverclawWeaponInfo = 
 {
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_SILVERCLAW),
-	RESOURCE_ID_FOR_STRING(tongue_weapons,T_WEAPON_NO_AMMO),
 	// names, net names, icon
 	"weapon_silverclaw",
 	tongue_weapons[T_WEAPON_SILVERCLAW],
@@ -120,20 +118,16 @@ weaponInfo_t silverclawWeaponInfo =
 
 	0,  //	flags
 
-	WEAPONTYPE_GLOVE|WFL_NODROP,
+	WEAPONTYPE_GLOVE,
 	0.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 0.0f,
 
-/*	{
+	{
 		tongue_deathmsg_weapon3[T_DEATHMSGWEAPON_SILVERCLAW],
 		NULL,
 		VICTIM_ATTACKER
-	},*/
-
-	RESOURCE_ID_FOR_STRING(tongue_deathmsg_weapon3,T_DEATHMSGWEAPON_SILVERCLAW),
-	VICTIM_ATTACKER,
-
+	},
     WEAPON_SILVERCLAW,
     0,
     NULL

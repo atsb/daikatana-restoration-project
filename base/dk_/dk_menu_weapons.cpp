@@ -72,17 +72,23 @@ protected:
 #define	FLAG_UNUSED			0xFFFFFFFF
 
 CMenuSubWeapons::CMenuSubWeapons():
-bActive(false),
-weapCvar(NULL)
+bActive(false)
 {
-    //place the separator line.
+    weapCvar[0] = '\0';
     separator.Init( SEPARATOR_LEFT, SEPARATOR_TOP, SEPARATOR_RIGHT , 2);
 }
 
 void CMenuSubWeapons::Activate(char *cvar)
 {
-	Enter();
-	weapCvar = cvar;
+    if (!cvar)
+    {
+        Leave();
+        return;
+    }
+
+    strncpy(weapCvar, cvar, sizeof(weapCvar) - 1);
+    weapCvar[sizeof(weapCvar) - 1] = '\0';
+    Enter();
 }
 
 #define SLOT(ep, num)	( 1 << (6*(ep - 1) + num) )
@@ -100,45 +106,45 @@ void CMenuSubWeapons::Enter()
 	int episode = 1;
 
 	// episode 1
-	InitWeaponBtn(episode, 0, SLOT(episode,1), tongue_weapons[T_WEAPON_IONBLASTER_2]);
-	InitWeaponBtn(episode, 1, SLOT(episode,2), tongue_weapons[T_WEAPON_C4_2]);
-	InitWeaponBtn(episode, 2, SLOT(episode,3), tongue_weapons[T_WEAPON_SHOTCYCLER_2]);
-	InitWeaponBtn(episode, 3, SLOT(episode,4), tongue_weapons[T_WEAPON_SIDEWINDER_2]);
-	InitWeaponBtn(episode, 4, SLOT(episode,5), tongue_weapons[T_WEAPON_SHOCKWAVE_2]);
+	InitWeaponBtn(episode, 0, SLOT(episode,1), tongue_weapons[T_WEAPON_IONBLASTER]);
+	InitWeaponBtn(episode, 1, SLOT(episode,2), tongue_weapons[T_WEAPON_C4]);
+	InitWeaponBtn(episode, 2, SLOT(episode,3), tongue_weapons[T_WEAPON_SHOTCYCLER]);
+	InitWeaponBtn(episode, 3, SLOT(episode,4), tongue_weapons[T_WEAPON_SIDEWINDER]);
+	InitWeaponBtn(episode, 4, SLOT(episode,5), tongue_weapons[T_WEAPON_SHOCKWAVE]);
 	InitWeaponBtn(episode, 5, FLAG_UNUSED, "");
 
 	// episode 2
 	episode = 2;
-	InitWeaponBtn(episode, 0, SLOT(episode,0), tongue_weapons[T_WEAPON_DISCUS_2]);
-	InitWeaponBtn(episode, 1, SLOT(episode,1), tongue_weapons[T_WEAPON_VENOMOUS_2]);
-	InitWeaponBtn(episode, 2, SLOT(episode,2), tongue_weapons[T_WEAPON_SUNFLARE_2]);
-	InitWeaponBtn(episode, 3, SLOT(episode,3), tongue_weapons[T_WEAPON_HAMMER_2]);
-	InitWeaponBtn(episode, 4, SLOT(episode,4), tongue_weapons[T_WEAPON_TRIDENT_2]);
-	InitWeaponBtn(episode, 5, SLOT(episode,5), tongue_weapons[T_WEAPON_ZEUS_2]);
+	InitWeaponBtn(episode, 0, SLOT(episode,0), tongue_weapons[T_WEAPON_DISCUS]);
+	InitWeaponBtn(episode, 1, SLOT(episode,1), tongue_weapons[T_WEAPON_VENOMOUS]);
+	InitWeaponBtn(episode, 2, SLOT(episode,2), tongue_weapons[T_WEAPON_SUNFLARE]);
+	InitWeaponBtn(episode, 3, SLOT(episode,3), tongue_weapons[T_WEAPON_HAMMER]);
+	InitWeaponBtn(episode, 4, SLOT(episode,4), tongue_weapons[T_WEAPON_TRIDENT]);
+	InitWeaponBtn(episode, 5, SLOT(episode,5), tongue_weapons[T_WEAPON_ZEUS]);
 
 	// episode 3
 	episode = 3;
-	InitWeaponBtn(episode, 0, SLOT(episode,1), tongue_weapons[T_WEAPON_BOLTER_2]);
-	InitWeaponBtn(episode, 1, SLOT(episode,2), tongue_weapons[T_WEAPON_STAVROS_2]);
-	InitWeaponBtn(episode, 2, SLOT(episode,3), tongue_weapons[T_WEAPON_BALLISTA_2]);
-	InitWeaponBtn(episode, 3, SLOT(episode,4), tongue_weapons[T_WEAPON_WISP_2]);
-	InitWeaponBtn(episode, 4, SLOT(episode,5), tongue_weapons[T_WEAPON_NIGHTMARE_2]);
+	InitWeaponBtn(episode, 0, SLOT(episode,1), tongue_weapons[T_WEAPON_BOLTER]);
+	InitWeaponBtn(episode, 1, SLOT(episode,2), tongue_weapons[T_WEAPON_STAVROS]);
+	InitWeaponBtn(episode, 2, SLOT(episode,3), tongue_weapons[T_WEAPON_BALLISTA]);
+	InitWeaponBtn(episode, 3, SLOT(episode,4), tongue_weapons[T_WEAPON_WYNDRAX]);
+	InitWeaponBtn(episode, 4, SLOT(episode,5), tongue_weapons[T_WEAPON_NIGHTMARE]);
 	InitWeaponBtn(episode, 5, FLAG_UNUSED, "");
 	
 	// episode 4
 	episode = 4;
-	InitWeaponBtn(episode, 0, SLOT(episode,0), tongue_weapons[T_WEAPON_GLOCK_2]);
-	InitWeaponBtn(episode, 1, SLOT(episode,1), tongue_weapons[T_WEAPON_SLUGGER_2]);
-	InitWeaponBtn(episode, 2, SLOT(episode,2), tongue_weapons[T_WEAPON_KINIETICORE_2]);
-	InitWeaponBtn(episode, 3, SLOT(episode,3), tongue_weapons[T_WEAPON_RIPGUN_2]);
-	InitWeaponBtn(episode, 4, SLOT(episode,4), tongue_weapons[T_WEAPON_NOVABEAM_2]);
-	InitWeaponBtn(episode, 5, SLOT(episode,5), tongue_weapons[T_WEAPON_METAMASER_2]);
+	InitWeaponBtn(episode, 0, SLOT(episode,0), tongue_weapons[T_WEAPON_GLOCK]);
+	InitWeaponBtn(episode, 1, SLOT(episode,1), tongue_weapons[T_WEAPON_SLUGGER]);
+	InitWeaponBtn(episode, 2, SLOT(episode,2), tongue_weapons[T_WEAPON_KINETICORE]);
+	InitWeaponBtn(episode, 3, SLOT(episode,3), tongue_weapons[T_WEAPON_RIPGUN]);
+	InitWeaponBtn(episode, 4, SLOT(episode,4), tongue_weapons[T_WEAPON_NOVABEAM]);
+	InitWeaponBtn(episode, 5, SLOT(episode,5), tongue_weapons[T_WEAPON_METAMASER]);
 }
 
 void CMenuSubWeapons::Leave()
 {
 	bActive = false;
-	weapCvar = NULL;
+	weapCvar[0] = '\0';
 }
 
 void CMenuSubWeapons::Animate(int32 elapsed_time)
@@ -298,7 +304,7 @@ bool CMenuSubWeapons::Active()
 	return bActive;
 }
 
-void CMenuSubWeapons::InitWeaponBtn(int episode, int num, unsigned int flag, const char *str)
+void CMenuSubWeapons::InitWeaponBtn(int episode, int num, unsigned long flag, const char *str)
 {
 	int idx = (episode - 1) * 6 + num;
 

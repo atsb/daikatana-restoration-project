@@ -1,3 +1,4 @@
+#include <stdint.h>
 // r_alias.c: routines for setting up to draw alias models
 
 /*
@@ -270,41 +271,10 @@ R_AliasAnimateSurface
 */
 int R_AliasAnimateSurface (int surface)
 {
-	int			i;
-	uvaentity_t	*entity;
-
+	// UV-surface animation data is not part of the public v1.0 refdef ABI.
+	// The original routine returns frame 0 in this build.
+	(void)surface;
 	return 0;
-//	return (int)(r_newrefdef.time) % s_psurface[surface].num_uvframes;
-
-	// find the entity
-	for (i = 0; i < r_newrefdef.num_uvaentities; i++, r_newrefdef.uvaentities++)
-	{
-		if (r_newrefdef.uvaentities->key == (int)(currententity))
-			entity = r_newrefdef.uvaentities;
-	}
-		
-	// return frame 0 if the entity could not be found
-	if (!entity)
-		return 0;
-
-	// return 0 if the entity is not animating
-	if (entity->current_frame[surface] == -1)
-		return 0;
-
-	// increment the frame
-	entity->current_frame[surface]++;
-
-	// bounds checking
-	if (entity->current_frame[surface] >= s_psurface[surface].num_uvframes)
-	{
-		if (entity->flags[surface] & SURFANIM_LOOP)
-			entity->current_frame[surface] = 0;
-		else
-			entity->current_frame[surface] = -1;
-	}
-
-	// return the frame
-	return entity->current_frame[surface];
 }
 
 /*
@@ -544,7 +514,7 @@ void R_AliasPreparePoints (void)
 
 	// put work vertexes on stack, cache aligned
 	pfinalverts = (finalvert_t *)
-			(((long)&finalverts[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
+			(((uintptr_t)&finalverts[0] + CACHE_SIZE - 1) & ~(uintptr_t)(CACHE_SIZE - 1));
 
 	if( model_version == ALIAS_VERSION2 ){
 		aliasbatchedtransformdata2.num_points = s_pmdl->num_xyz;
@@ -801,660 +771,141 @@ R_AliasTransformFinalVerts
 //	be a useful effect
 ================
 */
-#if id386
-void R_AliasTransformFinalVerts( int numpoints, finalvert_t *fv, dtrivertx_t *oldv, dtrivertx_t *newv )
-{
-	float  lightcos;
-	float	lerped_vert[3];
-	int    byte_to_dword_ptr_var;
-	int    tmpint;
-	float  one = 1.0F;
-	float  zi;
+/*
+================
+R_AliasTransformFinalVerts
 
-	static float  FALIAS_Z_CLIP_PLANE = ALIAS_Z_CLIP_PLANE;
-	static float  PS_SCALE = POWERSUIT_SCALE;
+Portable C implementation of the historical x86 alias-vertex transform.
+The arithmetic and data layout intentionally remain 32-bit-era compatible;
+only the CPU-specific instruction sequence is replaced.
+================
+*/
+void R_AliasTransformFinalVerts( int numpoints, finalvert_t *fv,
+                                 dtrivertx_t *oldv, dtrivertx_t *newv )
+{
+	int i;
 
 #if QCOMMON_ASH_NORMALS
     initVertNormalsArray();
 #endif
 
-	__asm mov ecx, numpoints
-
-	/*
-	lerped_vert[0] = r_lerp_move[0] + oldv->v[0]*r_lerp_backv[0] + newv->v[0]*r_lerp_frontv[0];
-	lerped_vert[1] = r_lerp_move[1] + oldv->v[1]*r_lerp_backv[1] + newv->v[1]*r_lerp_frontv[1];
-	lerped_vert[2] = r_lerp_move[2] + oldv->v[2]*r_lerp_backv[2] + newv->v[2]*r_lerp_frontv[2];
-	*/
-top_of_loop:
-
-	__asm mov esi, oldv
-	__asm mov edi, newv
-
-	__asm xor ebx, ebx
-
-	__asm mov bl, byte ptr [esi+DTRIVERTX_V0]
-	__asm mov byte_to_dword_ptr_var, ebx
-	__asm fild dword ptr byte_to_dword_ptr_var      
-	__asm fmul dword ptr [r_lerp_backv+0]                  ; oldv[0]*rlb[0]
-
-	__asm mov bl, byte ptr [esi+DTRIVERTX_V1]
-	__asm mov byte_to_dword_ptr_var, ebx
-	__asm fild dword ptr byte_to_dword_ptr_var
-	__asm fmul dword ptr [r_lerp_backv+4]                  ; oldv[1]*rlb[1] | oldv[0]*rlb[0]
-
-	__asm mov bl, byte ptr [esi+DTRIVERTX_V2]
-	__asm mov byte_to_dword_ptr_var, ebx
-	__asm fild dword ptr byte_to_dword_ptr_var
-	__asm fmul dword ptr [r_lerp_backv+8]                  ; oldv[2]*rlb[2] | oldv[1]*rlb[1] | oldv[0]*rlb[0]
-
-	__asm mov bl, byte ptr [edi+DTRIVERTX_V0]
-	__asm mov byte_to_dword_ptr_var, ebx
-	__asm fild dword ptr byte_to_dword_ptr_var      
-	__asm fmul dword ptr [r_lerp_frontv+0]                 ; newv[0]*rlf[0] | oldv[2]*rlb[2] | oldv[1]*rlb[1] | oldv[0]*rlb[0]
-
-	__asm mov bl, byte ptr [edi+DTRIVERTX_V1]
-	__asm mov byte_to_dword_ptr_var, ebx
-	__asm fild dword ptr byte_to_dword_ptr_var
-	__asm fmul dword ptr [r_lerp_frontv+4]                 ; newv[1]*rlf[1] | newv[0]*rlf[0] | oldv[2]*rlb[2] | oldv[1]*rlb[1] | oldv[0]*rlb[0]
-
-	__asm mov bl, byte ptr [edi+DTRIVERTX_V2]
-	__asm mov byte_to_dword_ptr_var, ebx
-	__asm fild dword ptr byte_to_dword_ptr_var
-	__asm fmul dword ptr [r_lerp_frontv+8]                 ; newv[2]*rlf[2] | newv[1]*rlf[1] | newv[0]*rlf[0] | oldv[2]*rlb[2] | oldv[1]*rlb[1] | oldv[0]*rlb[0]
-
-	__asm fxch st(5)                     ; oldv[0]*rlb[0] | newv[1]*rlf[1] | newv[0]*rlf[0] | oldv[2]*rlb[2] | oldv[1]*rlb[1] | newv[2]*rlf[2]
-	__asm faddp st(2), st                ; newv[1]*rlf[1] | oldv[0]*rlb[0] + newv[0]*rlf[0] | oldv[2]*rlb[2] | oldv[1]*rlb[1] | newv[2]*rlf[2]
-	__asm faddp st(3), st                ; oldv[0]*rlb[0] + newv[0]*rlf[0] | oldv[2]*rlb[2] | oldv[1]*rlb[1] + newv[1]*rlf[1] | newv[2]*rlf[2]
-	__asm fxch st(1)                     ; oldv[2]*rlb[2] | oldv[0]*rlb[0] + newv[0]*rlf[0] | oldv[1]*rlb[1] + newv[1]*rlf[1] | newv[2]*rlf[2]
-	__asm faddp st(3), st                ; oldv[0]*rlb[0] + newv[0]*rlf[0] | oldv[1]*rlb[1] + newv[1]*rlf[1] | oldv[2]*rlb[2] + newv[2]*rlf[2]
-	__asm fadd dword ptr [r_lerp_move+0] ; lv0 | oldv[1]*rlb[1] + newv[1]*rlf[1] | oldv[2]*rlb[2] + newv[2]*rlf[2]
-	__asm fxch st(1)                     ; oldv[1]*rlb[1] + newv[1]*rlf[1] | lv0 | oldv[2]*rlb[2] + newv[2]*rlf[2]
-	__asm fadd dword ptr [r_lerp_move+4] ; lv1 | lv0 | oldv[2]*rlb[2] + newv[2]*rlf[2]
-	__asm fxch st(2)                     ; oldv[2]*rlb[2] + newv[2]*rlf[2] | lv0 | lv1
-	__asm fadd dword ptr [r_lerp_move+8] ; lv2 | lv0 | lv1
-	__asm fxch st(1)                     ; lv0 | lv2 | lv1
-	__asm fstp dword ptr [lerped_vert+0] ; lv2 | lv1
-	__asm fstp dword ptr [lerped_vert+8] ; lv2
-	__asm fstp dword ptr [lerped_vert+4] ; (empty)
-
-/*
-	__asm mov  eax, currententity
-	__asm mov  eax, dword ptr [eax+ENTITY_FLAGS]
-	__asm mov  ebx, RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE
-	__asm and  eax, ebx
-	__asm jz   not_powersuit
-*/
-	/*
-	**    lerped_vert[0] += lightnormal[0] * POWERSUIT_SCALE
-	**    lerped_vert[1] += lightnormal[1] * POWERSUIT_SCALE
-	**    lerped_vert[2] += lightnormal[2] * POWERSUIT_SCALE
-	*/
-
-/*
-	__asm xor ebx, ebx
-	__asm mov bl,  byte ptr [edi+DTRIVERTX_LNI]
-	__asm mov eax, 12
-	__asm mul ebx
-	__asm lea eax, [avertexnormals+eax]
-
-	__asm fld  dword ptr [eax+0]				; n[0]
-	__asm fmul PS_SCALE							; n[0] * PS
-	__asm fld  dword ptr [eax+4]				; n[1] | n[0] * PS
-	__asm fmul PS_SCALE							; n[1] * PS | n[0] * PS
-	__asm fld  dword ptr [eax+8]				; n[2] | n[1] * PS | n[0] * PS
-	__asm fmul PS_SCALE							; n[2] * PS | n[1] * PS | n[0] * PS
-	__asm fld  dword ptr [lerped_vert+0]		; lv0 | n[2] * PS | n[1] * PS | n[0] * PS
-	__asm faddp st(3), st						; n[2] * PS | n[1] * PS | n[0] * PS + lv0
-	__asm fld  dword ptr [lerped_vert+4]		; lv1 | n[2] * PS | n[1] * PS | n[0] * PS + lv0
-	__asm faddp st(2), st						; n[2] * PS | n[1] * PS + lv1 | n[0] * PS + lv0
-	__asm fadd dword ptr [lerped_vert+8]		; n[2] * PS + lv2 | n[1] * PS + lv1 | n[0] * PS + lv0
-	__asm fxch st(2)							; LV0 | LV1 | LV2
-	__asm fstp dword ptr [lerped_vert+0]		; LV1 | LV2
-	__asm fstp dword ptr [lerped_vert+4]		; LV2
-	__asm fstp dword ptr [lerped_vert+8]		; (empty)
-*/
-
-//not_powersuit:
-
-	/*
-	fv->flags = 0;
-
-	fv->xyz[0] = DotProduct(lerped_vert, aliastransform[0]) + aliastransform[0][3];
-	fv->xyz[1] = DotProduct(lerped_vert, aliastransform[1]) + aliastransform[1][3];
-	fv->xyz[2] = DotProduct(lerped_vert, aliastransform[2]) + aliastransform[2][3];
-	*/
-	__asm mov  eax, fv
-	__asm mov  dword ptr [eax+FINALVERT_FLAGS], 0
-
-	__asm fld  dword ptr [lerped_vert+0]           ; lv0
-	__asm fmul dword ptr [aliastransform+0]        ; lv0*at[0][0]
-	__asm fld  dword ptr [lerped_vert+4]           ; lv1 | lv0*at[0][0]
-	__asm fmul dword ptr [aliastransform+4]        ; lv1*at[0][1] | lv0*at[0][0]
-	__asm fld  dword ptr [lerped_vert+8]           ; lv2 | lv1*at[0][1] | lv0*at[0][0]
-	__asm fmul dword ptr [aliastransform+8]        ; lv2*at[0][2] | lv1*at[0][1] | lv0*at[0][0]
-	__asm fxch st(2)                               ; lv0*at[0][0] | lv1*at[0][1] | lv2*at[0][2]
-	__asm faddp st(1), st                          ; lv0*at[0][0] + lv1*at[0][1] | lv2*at[0][2]
-	__asm faddp st(1), st                          ; lv0*at[0][0] + lv1*at[0][1] + lv2*at[0][2]
-	__asm fadd  dword ptr [aliastransform+12]      ; FV.X
-
-	__asm fld  dword ptr [lerped_vert+0]           ; lv0
-	__asm fmul dword ptr [aliastransform+16]       ; lv0*at[1][0]
-	__asm fld  dword ptr [lerped_vert+4]           ; lv1 | lv0*at[1][0]
-	__asm fmul dword ptr [aliastransform+20]       ; lv1*at[1][1] | lv0*at[1][0]
-	__asm fld  dword ptr [lerped_vert+8]           ; lv2 | lv1*at[1][1] | lv0*at[1][0]
-	__asm fmul dword ptr [aliastransform+24]       ; lv2*at[1][2] | lv1*at[1][1] | lv0*at[1][0]
-	__asm fxch st(2)                               ; lv0*at[1][0] | lv1*at[1][1] | lv2*at[1][2]
-	__asm faddp st(1), st                          ; lv0*at[1][0] + lv1*at[1][1] | lv2*at[1][2]
-	__asm faddp st(1), st                          ; lv0*at[1][0] + lv1*at[1][1] + lv2*at[1][2]
-	__asm fadd dword ptr [aliastransform+28]       ; FV.Y | FV.X
-	__asm fxch st(1)                               ; FV.X | FV.Y
-	__asm fstp  dword ptr [eax+FINALVERT_X]        ; FV.Y
-	
-	__asm fld  dword ptr [lerped_vert+0]           ; lv0
-	__asm fmul dword ptr [aliastransform+32]       ; lv0*at[2][0]
-	__asm fld  dword ptr [lerped_vert+4]           ; lv1 | lv0*at[2][0]
-	__asm fmul dword ptr [aliastransform+36]       ; lv1*at[2][1] | lv0*at[2][0]
-	__asm fld  dword ptr [lerped_vert+8]           ; lv2 | lv1*at[2][1] | lv0*at[2][0]
-	__asm fmul dword ptr [aliastransform+40]       ; lv2*at[2][2] | lv1*at[2][1] | lv0*at[2][0]
-	__asm fxch st(2)                               ; lv0*at[2][0] | lv1*at[2][1] | lv2*at[2][2]
-	__asm faddp st(1), st                          ; lv0*at[2][0] + lv1*at[2][1] | lv2*at[2][2]
-	__asm faddp st(1), st                          ; lv0*at[2][0] + lv1*at[2][1] + lv2*at[2][2]
-	__asm fadd dword ptr [aliastransform+44]       ; FV.Z | FV.Y
-	__asm fxch st(1)                               ; FV.Y | FV.Z
-	__asm fstp dword ptr [eax+FINALVERT_Y]         ; FV.Z
-	__asm fstp dword ptr [eax+FINALVERT_Z]         ; (empty)
-
-	/*
-	**  lighting
-	**
-	**  plightnormal = avertexnormals[newv->lightnormalindex];
-	**	lightcos = DotProduct (plightnormal, r_plightvec);
-	**	temp = r_ambientlight;
-	*/
-	__asm xor ebx, ebx
-	__asm mov bl,  byte ptr [edi+DTRIVERTX_LNI]
-	__asm mov eax, 12
-	__asm mul ebx
-	__asm lea eax, [avertexnormals+eax]
-	__asm lea ebx, r_plightvec
-
-	__asm fld  dword ptr [eax+0]
-	__asm fmul dword ptr [ebx+0]
-	__asm fld  dword ptr [eax+4]
-	__asm fmul dword ptr [ebx+4]
-	__asm fld  dword ptr [eax+8]
-	__asm fmul dword ptr [ebx+8]
-	__asm fxch st(2)
-	__asm faddp st(1), st
-	__asm faddp st(1), st
-	__asm fstp dword ptr lightcos
-	__asm mov eax, lightcos
-	__asm mov ebx, r_ambientlight
-
-	/*
-	if (lightcos < 0)
+	for ( i = 0; i < numpoints; i++ )
 	{
-		temp += (int)(r_shadelight * lightcos);
+		float lv0, lv1, lv2;
+		float lightcos;
+		int temp;
 
-		// clamp; because we limited the minimum ambient and shading light, we
-		// don't have to clamp low light, just bright
-		if (temp < 0)
-			temp = 0;
+		lv0 = r_lerp_move.x + oldv[i].v[0] * r_lerp_backv.x +
+			newv[i].v[0] * r_lerp_frontv.x;
+		lv1 = r_lerp_move.y + oldv[i].v[1] * r_lerp_backv.y +
+			newv[i].v[1] * r_lerp_frontv.y;
+		lv2 = r_lerp_move.z + oldv[i].v[2] * r_lerp_backv.z +
+			newv[i].v[2] * r_lerp_frontv.z;
+
+		fv[i].flags = 0;
+
+		fv[i].xyz[0] = lv0 * aliastransform[0][0] +
+			lv1 * aliastransform[0][1] + lv2 * aliastransform[0][2] +
+			aliastransform[0][3];
+		fv[i].xyz[1] = lv0 * aliastransform[1][0] +
+			lv1 * aliastransform[1][1] + lv2 * aliastransform[1][2] +
+			aliastransform[1][3];
+		fv[i].xyz[2] = lv0 * aliastransform[2][0] +
+			lv1 * aliastransform[2][1] + lv2 * aliastransform[2][2] +
+			aliastransform[2][3];
+
+		lightcos = avertexnormals[newv[i].lightnormalindex][0] * r_plightvec.x +
+			avertexnormals[newv[i].lightnormalindex][1] * r_plightvec.y +
+			avertexnormals[newv[i].lightnormalindex][2] * r_plightvec.z;
+
+		temp = r_ambientlight;
+		if ( lightcos < 0.0f )
+		{
+			temp += Q_ftol( r_shadelight * lightcos );
+			if ( temp < 0 )
+				temp = 0;
+		}
+		fv[i].l = temp;
+
+		if ( fv[i].xyz[2] < ALIAS_Z_CLIP_PLANE )
+		{
+			fv[i].flags |= ALIAS_Z_CLIP;
+		}
+		else
+		{
+			R_AliasProjectAndClipTestFinalVert( &fv[i] );
+		}
 	}
-
-	fv->v[4] = temp;
-	*/
-	__asm or  eax, eax
-	__asm jns store_fv4
-
-	__asm fld   dword ptr r_shadelight
-	__asm fmul  dword ptr lightcos
-	__asm fistp dword ptr tmpint
-	__asm add   ebx, tmpint
-
-	__asm or    ebx, ebx
-	__asm jns   store_fv4
-	__asm mov   ebx, 0
-
-store_fv4:
-	__asm mov edi, fv
-	__asm mov dword ptr [edi+FINALVERT_V4], ebx
-
-	__asm mov edx, dword ptr [edi+FINALVERT_FLAGS]
-
-	/*
-	** do clip testing and projection here
-	*/
-	/*
-	if ( dest_vert->xyz[2] < ALIAS_Z_CLIP_PLANE )
-	{
-		dest_vert->flags |= ALIAS_Z_CLIP;
-	}
-	else
-	{
-		R_AliasProjectAndClipTestFinalVert( dest_vert );
-	}
-	*/
-	__asm mov eax, dword ptr [edi+FINALVERT_Z]
-	__asm and eax, eax
-	__asm js  alias_z_clip
-	__asm cmp eax, FALIAS_Z_CLIP_PLANE
-	__asm jl  alias_z_clip
-
-	/*
-	This is the code to R_AliasProjectAndClipTestFinalVert
-
-	float	zi;
-	float	x, y, z;
-
-	x = fv->xyz[0];
-	y = fv->xyz[1];
-	z = fv->xyz[2];
-	zi = 1.0 / z;
-
-	fv->v[5] = zi * s_ziscale;
-
-	fv->v[0] = (x * aliasxscale * zi) + aliasxcenter;
-	fv->v[1] = (y * aliasyscale * zi) + aliasycenter;
-	*/
-	__asm fld   one                             ; 1
-	__asm fdiv  dword ptr [edi+FINALVERT_Z]     ; zi
-
-	__asm mov   eax, dword ptr [edi+32]
-	__asm mov   eax, dword ptr [edi+64]
-
-	__asm fst   zi                              ; zi
-	__asm fmul  s_ziscale                       ; fv5
-	__asm fld   dword ptr [edi+FINALVERT_X]     ; x | fv5
-	__asm fmul  aliasxscale                     ; x * aliasxscale | fv5
-	__asm fld   dword ptr [edi+FINALVERT_Y]     ; y | x * aliasxscale | fv5
-	__asm fmul  aliasyscale                     ; y * aliasyscale | x * aliasxscale | fv5
-	__asm fxch  st(1)                           ; x * aliasxscale | y * aliasyscale | fv5
-	__asm fmul  zi                              ; x * asx * zi | y * asy | fv5
-	__asm fadd  aliasxcenter                    ; fv0 | y * asy | fv5
-	__asm fxch  st(1)                           ; y * asy | fv0 | fv5
-	__asm fmul  zi                              ; y * asy * zi | fv0 | fv5
-	__asm fadd  aliasycenter                    ; fv1 | fv0 | fv5
-	__asm fxch  st(2)                           ; fv5 | fv0 | fv1
-	__asm fistp dword ptr [edi+FINALVERT_V5]    ; fv0 | fv1
-	__asm fistp dword ptr [edi+FINALVERT_V0]    ; fv1
-	__asm fistp dword ptr [edi+FINALVERT_V1]    ; (empty)
-
-	/*
-	if (fv->v[0] < r_refdef.aliasvrect.x)
-		fv->flags |= ALIAS_LEFT_CLIP;
-	if (fv->v[1] < r_refdef.aliasvrect.y)
-		fv->flags |= ALIAS_TOP_CLIP;
-	if (fv->v[0] > r_refdef.aliasvrectright)
-		fv->flags |= ALIAS_RIGHT_CLIP;
-	if (fv->v[1] > r_refdef.aliasvrectbottom)
-		fv->flags |= ALIAS_BOTTOM_CLIP;
-	*/
-	__asm mov eax, dword ptr [edi+FINALVERT_V0]
-	__asm mov ebx, dword ptr [edi+FINALVERT_V1]
-
-	__asm cmp eax, r_refdef.aliasvrect.x
-	__asm jge ct_alias_top
-	__asm or  edx, ALIAS_LEFT_CLIP
-ct_alias_top:
-	__asm cmp ebx, r_refdef.aliasvrect.y
-	__asm jge ct_alias_right
-	__asm or edx, ALIAS_TOP_CLIP
-ct_alias_right:
-	__asm cmp eax, r_refdef.aliasvrectright
-	__asm jle ct_alias_bottom
-	__asm or edx, ALIAS_RIGHT_CLIP
-ct_alias_bottom:
-	__asm cmp ebx, r_refdef.aliasvrectbottom
-	__asm jle end_of_loop
-	__asm or  edx, ALIAS_BOTTOM_CLIP
-
-	__asm jmp end_of_loop
-
-alias_z_clip:
-	__asm or  edx, ALIAS_Z_CLIP
-
-end_of_loop:
-
-	__asm mov dword ptr [edi+FINALVERT_FLAGS], edx
-	__asm add oldv, DTRIVERTX_SIZE
-	__asm add newv, DTRIVERTX_SIZE
-	__asm add fv, FINALVERT_SIZE
-
-	__asm dec ecx
-	__asm jnz top_of_loop
 }
-#endif
 
-void R_AliasTransformFinalVerts2( int numpoints, finalvert_t *fv, dtrivertx2_t *oldv, dtrivertx2_t *newv )
+/*
+================
+R_AliasTransformFinalVerts2
+
+Same operation for the packed 11/10/11-bit model-frame representation.
+================
+*/
+void R_AliasTransformFinalVerts2( int numpoints, finalvert_t *fv,
+                                  dtrivertx2_t *oldv, dtrivertx2_t *newv )
 {
-	float	lightcos;
-	float	lerped_vert[3];
-	int		byte_to_dword_ptr_var;
-	int		tmpint;
-	float	one = 1.0F;
-	float	zi;
-
-	static float  FALIAS_Z_CLIP_PLANE = ALIAS_Z_CLIP_PLANE;
-	static float  PS_SCALE = POWERSUIT_SCALE;
+	int i;
 
 #if QCOMMON_ASH_NORMALS
     initVertNormalsArray();
 #endif
 
-	__asm mov ecx, numpoints
-
-	/*
-	lerped_vert[0] = r_lerp_move[0] + oldv->v[0]*r_lerp_backv[0] + newv->v[0]*r_lerp_frontv[0];
-	lerped_vert[1] = r_lerp_move[1] + oldv->v[1]*r_lerp_backv[1] + newv->v[1]*r_lerp_frontv[1];
-	lerped_vert[2] = r_lerp_move[2] + oldv->v[2]*r_lerp_backv[2] + newv->v[2]*r_lerp_frontv[2];
-	*/
-top_of_loop:
-
-	__asm mov esi, oldv
-	__asm mov edi, newv
-
-	__asm xor ebx, ebx
-
-	__asm mov ebx, dword ptr [esi+DTRIVERTX2_V0]
-	__asm shr ebx, X_BIT_SHIFT
-	__asm mov byte_to_dword_ptr_var, ebx
-	__asm fild dword ptr byte_to_dword_ptr_var      
-	__asm fmul dword ptr [r_lerp_backv+0]                  ; oldv[0]*rlb[0]
-
-	__asm mov ebx, dword ptr [esi+DTRIVERTX2_V1]
-	__asm and ebx, Y_BIT_MASK
-	__asm shr ebx, Y_BIT_SHIFT
-	__asm mov byte_to_dword_ptr_var, ebx
-	__asm fild dword ptr byte_to_dword_ptr_var      
-	__asm fmul dword ptr [r_lerp_backv+4]                  ; oldv[1]*rlb[1] | oldv[0]*rlb[0]
-
-	__asm mov ebx, dword ptr [esi+DTRIVERTX2_V2]
-	__asm and ebx, Z_BIT_MASK
-	__asm mov byte_to_dword_ptr_var, ebx
-	__asm fild dword ptr byte_to_dword_ptr_var
-	__asm fmul dword ptr [r_lerp_backv+8]                  ; oldv[2]*rlb[2] | oldv[1]*rlb[1] | oldv[0]*rlb[0]
-
-	__asm mov ebx, dword ptr [edi+DTRIVERTX2_V0]
-	__asm shr ebx, X_BIT_SHIFT
-	__asm mov byte_to_dword_ptr_var, ebx
-	__asm fild dword ptr byte_to_dword_ptr_var      
-	__asm fmul dword ptr [r_lerp_frontv+0]                 ; newv[0]*rlf[0] | oldv[2]*rlb[2] | oldv[1]*rlb[1] | oldv[0]*rlb[0]
-
-	__asm mov ebx, dword ptr [edi+DTRIVERTX2_V1]
-	__asm and ebx, Y_BIT_MASK
-	__asm shr ebx, Y_BIT_SHIFT
-	__asm mov byte_to_dword_ptr_var, ebx
-	__asm fild dword ptr byte_to_dword_ptr_var      
-	__asm fmul dword ptr [r_lerp_frontv+4]                 ; newv[1]*rlf[1] | newv[0]*rlf[0] | oldv[2]*rlb[2] | oldv[1]*rlb[1] | oldv[0]*rlb[0]
-
-	__asm mov ebx, dword ptr [edi+DTRIVERTX2_V2]
-	__asm and ebx, Z_BIT_MASK
-	__asm mov byte_to_dword_ptr_var, ebx
-	__asm fild dword ptr byte_to_dword_ptr_var
-	__asm fmul dword ptr [r_lerp_frontv+8]                 ; newv[2]*rlf[2] | newv[1]*rlf[1] | newv[0]*rlf[0] | oldv[2]*rlb[2] | oldv[1]*rlb[1] | oldv[0]*rlb[0]
-
-	__asm fxch st(5)                     ; oldv[0]*rlb[0] | newv[1]*rlf[1] | newv[0]*rlf[0] | oldv[2]*rlb[2] | oldv[1]*rlb[1] | newv[2]*rlf[2]
-	__asm faddp st(2), st                ; newv[1]*rlf[1] | oldv[0]*rlb[0] + newv[0]*rlf[0] | oldv[2]*rlb[2] | oldv[1]*rlb[1] | newv[2]*rlf[2]
-	__asm faddp st(3), st                ; oldv[0]*rlb[0] + newv[0]*rlf[0] | oldv[2]*rlb[2] | oldv[1]*rlb[1] + newv[1]*rlf[1] | newv[2]*rlf[2]
-	__asm fxch st(1)                     ; oldv[2]*rlb[2] | oldv[0]*rlb[0] + newv[0]*rlf[0] | oldv[1]*rlb[1] + newv[1]*rlf[1] | newv[2]*rlf[2]
-	__asm faddp st(3), st                ; oldv[0]*rlb[0] + newv[0]*rlf[0] | oldv[1]*rlb[1] + newv[1]*rlf[1] | oldv[2]*rlb[2] + newv[2]*rlf[2]
-	__asm fadd dword ptr [r_lerp_move+0] ; lv0 | oldv[1]*rlb[1] + newv[1]*rlf[1] | oldv[2]*rlb[2] + newv[2]*rlf[2]
-	__asm fxch st(1)                     ; oldv[1]*rlb[1] + newv[1]*rlf[1] | lv0 | oldv[2]*rlb[2] + newv[2]*rlf[2]
-	__asm fadd dword ptr [r_lerp_move+4] ; lv1 | lv0 | oldv[2]*rlb[2] + newv[2]*rlf[2]
-	__asm fxch st(2)                     ; oldv[2]*rlb[2] + newv[2]*rlf[2] | lv0 | lv1
-	__asm fadd dword ptr [r_lerp_move+8] ; lv2 | lv0 | lv1
-	__asm fxch st(1)                     ; lv0 | lv2 | lv1
-	__asm fstp dword ptr [lerped_vert+0] ; lv2 | lv1
-	__asm fstp dword ptr [lerped_vert+8] ; lv2
-	__asm fstp dword ptr [lerped_vert+4] ; (empty)
-
-/*
-	__asm mov  eax, currententity
-	__asm mov  eax, dword ptr [eax+ENTITY_FLAGS]
-	__asm mov  ebx, RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE
-	__asm and  eax, ebx
-	__asm jz   not_powersuit
-*/
-	/*
-	**    lerped_vert[0] += lightnormal[0] * POWERSUIT_SCALE
-	**    lerped_vert[1] += lightnormal[1] * POWERSUIT_SCALE
-	**    lerped_vert[2] += lightnormal[2] * POWERSUIT_SCALE
-	*/
-
-/*
-	__asm xor ebx, ebx
-	__asm mov bl,  byte ptr [edi+DTRIVERTX2_LNI]
-	__asm mov eax, 12
-	__asm mul ebx
-	__asm lea eax, [avertexnormals+eax]
-
-	__asm fld  dword ptr [eax+0]				; n[0]
-	__asm fmul PS_SCALE							; n[0] * PS
-	__asm fld  dword ptr [eax+4]				; n[1] | n[0] * PS
-	__asm fmul PS_SCALE							; n[1] * PS | n[0] * PS
-	__asm fld  dword ptr [eax+8]				; n[2] | n[1] * PS | n[0] * PS
-	__asm fmul PS_SCALE							; n[2] * PS | n[1] * PS | n[0] * PS
-	__asm fld  dword ptr [lerped_vert+0]		; lv0 | n[2] * PS | n[1] * PS | n[0] * PS
-	__asm faddp st(3), st						; n[2] * PS | n[1] * PS | n[0] * PS + lv0
-	__asm fld  dword ptr [lerped_vert+4]		; lv1 | n[2] * PS | n[1] * PS | n[0] * PS + lv0
-	__asm faddp st(2), st						; n[2] * PS | n[1] * PS + lv1 | n[0] * PS + lv0
-	__asm fadd dword ptr [lerped_vert+8]		; n[2] * PS + lv2 | n[1] * PS + lv1 | n[0] * PS + lv0
-	__asm fxch st(2)							; LV0 | LV1 | LV2
-	__asm fstp dword ptr [lerped_vert+0]		; LV1 | LV2
-	__asm fstp dword ptr [lerped_vert+4]		; LV2
-	__asm fstp dword ptr [lerped_vert+8]		; (empty)
-*/
-
-//not_powersuit:
-
-	/*
-	fv->flags = 0;
-
-	fv->xyz[0] = DotProduct(lerped_vert, aliastransform[0]) + aliastransform[0][3];
-	fv->xyz[1] = DotProduct(lerped_vert, aliastransform[1]) + aliastransform[1][3];
-	fv->xyz[2] = DotProduct(lerped_vert, aliastransform[2]) + aliastransform[2][3];
-	*/
-	__asm mov  eax, fv
-	__asm mov  dword ptr [eax+FINALVERT_FLAGS], 0
-
-	__asm fld  dword ptr [lerped_vert+0]           ; lv0
-	__asm fmul dword ptr [aliastransform+0]        ; lv0*at[0][0]
-	__asm fld  dword ptr [lerped_vert+4]           ; lv1 | lv0*at[0][0]
-	__asm fmul dword ptr [aliastransform+4]        ; lv1*at[0][1] | lv0*at[0][0]
-	__asm fld  dword ptr [lerped_vert+8]           ; lv2 | lv1*at[0][1] | lv0*at[0][0]
-	__asm fmul dword ptr [aliastransform+8]        ; lv2*at[0][2] | lv1*at[0][1] | lv0*at[0][0]
-	__asm fxch st(2)                               ; lv0*at[0][0] | lv1*at[0][1] | lv2*at[0][2]
-	__asm faddp st(1), st                          ; lv0*at[0][0] + lv1*at[0][1] | lv2*at[0][2]
-	__asm faddp st(1), st                          ; lv0*at[0][0] + lv1*at[0][1] + lv2*at[0][2]
-	__asm fadd  dword ptr [aliastransform+12]      ; FV.X
-
-	__asm fld  dword ptr [lerped_vert+0]           ; lv0
-	__asm fmul dword ptr [aliastransform+16]       ; lv0*at[1][0]
-	__asm fld  dword ptr [lerped_vert+4]           ; lv1 | lv0*at[1][0]
-	__asm fmul dword ptr [aliastransform+20]       ; lv1*at[1][1] | lv0*at[1][0]
-	__asm fld  dword ptr [lerped_vert+8]           ; lv2 | lv1*at[1][1] | lv0*at[1][0]
-	__asm fmul dword ptr [aliastransform+24]       ; lv2*at[1][2] | lv1*at[1][1] | lv0*at[1][0]
-	__asm fxch st(2)                               ; lv0*at[1][0] | lv1*at[1][1] | lv2*at[1][2]
-	__asm faddp st(1), st                          ; lv0*at[1][0] + lv1*at[1][1] | lv2*at[1][2]
-	__asm faddp st(1), st                          ; lv0*at[1][0] + lv1*at[1][1] + lv2*at[1][2]
-	__asm fadd dword ptr [aliastransform+28]       ; FV.Y | FV.X
-	__asm fxch st(1)                               ; FV.X | FV.Y
-	__asm fstp  dword ptr [eax+FINALVERT_X]        ; FV.Y
-	
-	__asm fld  dword ptr [lerped_vert+0]           ; lv0
-	__asm fmul dword ptr [aliastransform+32]       ; lv0*at[2][0]
-	__asm fld  dword ptr [lerped_vert+4]           ; lv1 | lv0*at[2][0]
-	__asm fmul dword ptr [aliastransform+36]       ; lv1*at[2][1] | lv0*at[2][0]
-	__asm fld  dword ptr [lerped_vert+8]           ; lv2 | lv1*at[2][1] | lv0*at[2][0]
-	__asm fmul dword ptr [aliastransform+40]       ; lv2*at[2][2] | lv1*at[2][1] | lv0*at[2][0]
-	__asm fxch st(2)                               ; lv0*at[2][0] | lv1*at[2][1] | lv2*at[2][2]
-	__asm faddp st(1), st                          ; lv0*at[2][0] + lv1*at[2][1] | lv2*at[2][2]
-	__asm faddp st(1), st                          ; lv0*at[2][0] + lv1*at[2][1] + lv2*at[2][2]
-	__asm fadd dword ptr [aliastransform+44]       ; FV.Z | FV.Y
-	__asm fxch st(1)                               ; FV.Y | FV.Z
-	__asm fstp dword ptr [eax+FINALVERT_Y]         ; FV.Z
-	__asm fstp dword ptr [eax+FINALVERT_Z]         ; (empty)
-
-	/*
-	**  lighting
-	**
-	**  plightnormal = avertexnormals[newv->lightnormalindex];
-	**	lightcos = DotProduct (plightnormal, r_plightvec);
-	**	temp = r_ambientlight;
-	*/
-	__asm xor ebx, ebx
-	__asm mov bl,  byte ptr [edi+DTRIVERTX2_LNI]
-	__asm mov eax, 12
-	__asm mul ebx
-	__asm lea eax, [avertexnormals+eax]
-	__asm lea ebx, r_plightvec
-
-	__asm fld  dword ptr [eax+0]
-	__asm fmul dword ptr [ebx+0]
-	__asm fld  dword ptr [eax+4]
-	__asm fmul dword ptr [ebx+4]
-	__asm fld  dword ptr [eax+8]
-	__asm fmul dword ptr [ebx+8]
-	__asm fxch st(2)
-	__asm faddp st(1), st
-	__asm faddp st(1), st
-	__asm fstp dword ptr lightcos
-	__asm mov eax, lightcos
-	__asm mov ebx, r_ambientlight
-
-	/*
-	if (lightcos < 0)
+	for ( i = 0; i < numpoints; i++ )
 	{
-		temp += (int)(r_shadelight * lightcos);
+		float lv0, lv1, lv2;
+		float lightcos;
+		int temp;
+		unsigned int opacked = oldv[i].v;
+		unsigned int npacked = newv[i].v;
+		int oldx = (int)( (opacked & X_BIT_MASK) >> X_BIT_SHIFT );
+		int oldy = (int)( (opacked & Y_BIT_MASK) >> Y_BIT_SHIFT );
+		int oldz = (int)( (opacked & Z_BIT_MASK) >> Z_BIT_SHIFT );
+		int newx = (int)( (npacked & X_BIT_MASK) >> X_BIT_SHIFT );
+		int newy = (int)( (npacked & Y_BIT_MASK) >> Y_BIT_SHIFT );
+		int newz = (int)( (npacked & Z_BIT_MASK) >> Z_BIT_SHIFT );
 
-		// clamp; because we limited the minimum ambient and shading light, we
-		// don't have to clamp low light, just bright
-		if (temp < 0)
-			temp = 0;
+		lv0 = r_lerp_move.x + oldx * r_lerp_backv.x + newx * r_lerp_frontv.x;
+		lv1 = r_lerp_move.y + oldy * r_lerp_backv.y + newy * r_lerp_frontv.y;
+		lv2 = r_lerp_move.z + oldz * r_lerp_backv.z + newz * r_lerp_frontv.z;
+
+		fv[i].flags = 0;
+
+		fv[i].xyz[0] = lv0 * aliastransform[0][0] +
+			lv1 * aliastransform[0][1] + lv2 * aliastransform[0][2] +
+			aliastransform[0][3];
+		fv[i].xyz[1] = lv0 * aliastransform[1][0] +
+			lv1 * aliastransform[1][1] + lv2 * aliastransform[1][2] +
+			aliastransform[1][3];
+		fv[i].xyz[2] = lv0 * aliastransform[2][0] +
+			lv1 * aliastransform[2][1] + lv2 * aliastransform[2][2] +
+			aliastransform[2][3];
+
+		lightcos = avertexnormals[newv[i].lightnormalindex][0] * r_plightvec.x +
+			avertexnormals[newv[i].lightnormalindex][1] * r_plightvec.y +
+			avertexnormals[newv[i].lightnormalindex][2] * r_plightvec.z;
+
+		temp = r_ambientlight;
+		if ( lightcos < 0.0f )
+		{
+			temp += Q_ftol( r_shadelight * lightcos );
+			if ( temp < 0 )
+				temp = 0;
+		}
+		fv[i].l = temp;
+
+		if ( fv[i].xyz[2] < ALIAS_Z_CLIP_PLANE )
+		{
+			fv[i].flags |= ALIAS_Z_CLIP;
+		}
+		else
+		{
+			R_AliasProjectAndClipTestFinalVert( &fv[i] );
+		}
 	}
-
-	fv->v[4] = temp;
-	*/
-	__asm or  eax, eax
-	__asm jns store_fv4
-
-	__asm fld   dword ptr r_shadelight
-	__asm fmul  dword ptr lightcos
-	__asm fistp dword ptr tmpint
-	__asm add   ebx, tmpint
-
-	__asm or    ebx, ebx
-	__asm jns   store_fv4
-	__asm mov   ebx, 0
-
-store_fv4:
-	__asm mov edi, fv
-	__asm mov dword ptr [edi+FINALVERT_V4], ebx
-
-	__asm mov edx, dword ptr [edi+FINALVERT_FLAGS]
-
-	/*
-	** do clip testing and projection here
-	*/
-	/*
-	if ( dest_vert->xyz[2] < ALIAS_Z_CLIP_PLANE )
-	{
-		dest_vert->flags |= ALIAS_Z_CLIP;
-	}
-	else
-	{
-		R_AliasProjectAndClipTestFinalVert( dest_vert );
-	}
-	*/
-	__asm mov eax, dword ptr [edi+FINALVERT_Z]
-	__asm and eax, eax
-	__asm js  alias_z_clip
-	__asm cmp eax, FALIAS_Z_CLIP_PLANE
-	__asm jl  alias_z_clip
-
-	/*
-	This is the code to R_AliasProjectAndClipTestFinalVert
-
-	float	zi;
-	float	x, y, z;
-
-	x = fv->xyz[0];
-	y = fv->xyz[1];
-	z = fv->xyz[2];
-	zi = 1.0 / z;
-
-	fv->v[5] = zi * s_ziscale;
-
-	fv->v[0] = (x * aliasxscale * zi) + aliasxcenter;
-	fv->v[1] = (y * aliasyscale * zi) + aliasycenter;
-	*/
-	__asm fld   one                             ; 1
-	__asm fdiv  dword ptr [edi+FINALVERT_Z]     ; zi
-
-	__asm mov   eax, dword ptr [edi+32]
-	__asm mov   eax, dword ptr [edi+64]
-
-	__asm fst   zi                              ; zi
-	__asm fmul  s_ziscale                       ; fv5
-	__asm fld   dword ptr [edi+FINALVERT_X]     ; x | fv5
-	__asm fmul  aliasxscale                     ; x * aliasxscale | fv5
-	__asm fld   dword ptr [edi+FINALVERT_Y]     ; y | x * aliasxscale | fv5
-	__asm fmul  aliasyscale                     ; y * aliasyscale | x * aliasxscale | fv5
-	__asm fxch  st(1)                           ; x * aliasxscale | y * aliasyscale | fv5
-	__asm fmul  zi                              ; x * asx * zi | y * asy | fv5
-	__asm fadd  aliasxcenter                    ; fv0 | y * asy | fv5
-	__asm fxch  st(1)                           ; y * asy | fv0 | fv5
-	__asm fmul  zi                              ; y * asy * zi | fv0 | fv5
-	__asm fadd  aliasycenter                    ; fv1 | fv0 | fv5
-	__asm fxch  st(2)                           ; fv5 | fv0 | fv1
-	__asm fistp dword ptr [edi+FINALVERT_V5]    ; fv0 | fv1
-	__asm fistp dword ptr [edi+FINALVERT_V0]    ; fv1
-	__asm fistp dword ptr [edi+FINALVERT_V1]    ; (empty)
-
-	/*
-	if (fv->v[0] < r_refdef.aliasvrect.x)
-		fv->flags |= ALIAS_LEFT_CLIP;
-	if (fv->v[1] < r_refdef.aliasvrect.y)
-		fv->flags |= ALIAS_TOP_CLIP;
-	if (fv->v[0] > r_refdef.aliasvrectright)
-		fv->flags |= ALIAS_RIGHT_CLIP;
-	if (fv->v[1] > r_refdef.aliasvrectbottom)
-		fv->flags |= ALIAS_BOTTOM_CLIP;
-	*/
-	__asm mov eax, dword ptr [edi+FINALVERT_V0]
-	__asm mov ebx, dword ptr [edi+FINALVERT_V1]
-
-	__asm cmp eax, r_refdef.aliasvrect.x
-	__asm jge ct_alias_top
-	__asm or  edx, ALIAS_LEFT_CLIP
-ct_alias_top:
-	__asm cmp ebx, r_refdef.aliasvrect.y
-	__asm jge ct_alias_right
-	__asm or edx, ALIAS_TOP_CLIP
-ct_alias_right:
-	__asm cmp eax, r_refdef.aliasvrectright
-	__asm jle ct_alias_bottom
-	__asm or edx, ALIAS_RIGHT_CLIP
-ct_alias_bottom:
-	__asm cmp ebx, r_refdef.aliasvrectbottom
-	__asm jle end_of_loop
-	__asm or  edx, ALIAS_BOTTOM_CLIP
-
-	__asm jmp end_of_loop
-
-alias_z_clip:
-	__asm or  edx, ALIAS_Z_CLIP
-
-end_of_loop:
-
-	__asm mov dword ptr [edi+FINALVERT_FLAGS], edx
-	__asm add oldv, DTRIVERTX2_SIZE
-	__asm add newv, DTRIVERTX2_SIZE
-	__asm add fv, FINALVERT_SIZE
-
-	__asm dec ecx
-	__asm jnz top_of_loop
 }
 
 /*

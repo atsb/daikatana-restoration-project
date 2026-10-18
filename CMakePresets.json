@@ -1,0 +1,52 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 25,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "vs2026-win32",
+      "displayName": "Visual Studio 2026 Win32",
+      "generator": "Visual Studio 18 2026",
+      "architecture": "Win32",
+      "binaryDir": "${sourceDir}/build/vs2026-win32",
+      "cacheVariables": {
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>",
+        "DK_BUILD_REF_SOFT": "ON",
+        "DK_BUILD_REF_GL": "ON",
+        "DK_BUILD_REF_D3D": "OFF",
+        "DK_BUILD_REF_GLIDE": "OFF",
+        "DK_BUILD_IONCOLLECTION": "OFF"
+      }
+    },
+    {
+      "name": "validation-ninja",
+      "displayName": "Configure-only tree validation",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/validation-ninja",
+      "cacheVariables": {
+        "DK_BUILD_REF_SOFT": "ON",
+        "DK_BUILD_REF_GL": "OFF",
+        "DK_BUILD_REF_D3D": "OFF",
+        "DK_BUILD_REF_GLIDE": "OFF",
+        "DK_BUILD_IONCOLLECTION": "OFF"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "vs2026-win32-debug",
+      "configurePreset": "vs2026-win32",
+      "configuration": "Debug",
+      "jobs": 8
+    },
+    {
+      "name": "vs2026-win32-release",
+      "configurePreset": "vs2026-win32",
+      "configuration": "Release",
+      "jobs": 8
+    }
+  ]
+}

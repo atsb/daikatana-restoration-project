@@ -666,10 +666,9 @@ void monster_slaughterskeet( userEntity_t *self )
 
 	// NSS[6/7/00]:Reduce their speed on lower skill levels.
 	CVector Speed;
-	Speed.Set(0.55f,0.75f,1.0f);
-	hook->run_speed		= hook->run_speed * AI_GetSkill(Speed);
+	Speed.Set(0.55f, 0.75f, 1.0f);
+	hook->run_speed	= hook->run_speed * AI_GetSkill(Speed);
 	hook->walk_speed	= hook->walk_speed * AI_GetSkill(Speed);
-
 }
 
 
